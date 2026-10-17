@@ -60,7 +60,7 @@ const es = {
       READING: 'No hay nada en la mesita de luz ahora.',
       COMPLETED: 'Todavía no hay libros terminados.',
       WANT_TO_READ: 'La cola de lectura está vacía.',
-      ALL: 'Todavía no hay libros en el estante.',
+      ALL: 'Todavía no hay libros en la librería.',
     } as Record<Filter, string>,
   },
   footer: {
@@ -82,7 +82,7 @@ const es = {
       WANT_TO_READ: (n) => `Por leer (${n})`,
       COMPLETED: (n) => `Leídos (${n})`,
     } as Record<Filter, Count>,
-    printCap: 'REGISTRO TÉCNICO Y LITERARIO · LEYENDO, POR LEER Y ARCHIVO DE TERMINADOS',
+    printCap: 'LEYENDO, POR LEER Y ARCHIVO DE TERMINADOS',
     shelves: {
       reading: {
         heading: ['LEYENDO AHORA'] as Heading,
@@ -96,11 +96,11 @@ const es = {
       },
       completed: {
         heading: ['YA', 'LEÍDOS'] as Heading,
-        caption: ((n) => plural(n, 'libro terminado y anotado', 'libros terminados y anotados')) as Count,
+        caption: ((n) => plural(n, 'libro terminado y anotado', 'libros terminados')) as Count,
         empty: 'Todavía no hay libros terminados.',
       },
     },
-    footLine: 'Hasta acá llega el estante.',
+    footLine: 'Hasta acá llega la biblioteca.',
     backToPortfolio: 'Volver al portfolio',
     loadMore: ((n) => `Cargar más (${n} ${n === 1 ? 'restante' : 'restantes'})`) as Count,
   },
@@ -327,7 +327,7 @@ const en: Dictionary = {
       WANT_TO_READ: (n) => `To-Read (${n})`,
       COMPLETED: (n) => `Read (${n})`,
     },
-    printCap: 'TECHNICAL & LITERATURE LOG · CURRENTLY READING, TO-READ & COMPLETED ARCHIVE',
+    printCap: 'CURRENTLY READING, TO-READ & COMPLETED ARCHIVE',
     shelves: {
       reading: {
         heading: ['CURRENTLY READING'],
@@ -341,7 +341,7 @@ const en: Dictionary = {
       },
       completed: {
         heading: ['ALREADY', 'READ'],
-        caption: (n) => `${plural(n, 'book', 'books')} finished & annotated`,
+        caption: (n) => `${plural(n, 'book', 'books')} finished`,
         empty: 'No completed books logged yet.',
       },
     },
