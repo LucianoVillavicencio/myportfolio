@@ -103,11 +103,11 @@ export class GoodreadsService implements OnApplicationBootstrap {
       }
       try {
         const result = await this.runSync(settings);
-        await this.record(settings, { ok: true, ...result });
+        await this.record({ ok: true, ...result });
         return result;
       } catch (err) {
         const message = (err as Error).message;
-        await this.record(settings, { ok: false, error: message });
+        await this.record({ ok: false, error: message });
         if (err instanceof GoodreadsFeedError || err instanceof EmptyFeedError) {
           throw new BadGatewayException(message);
         }
@@ -122,7 +122,15 @@ export class GoodreadsService implements OnApplicationBootstrap {
     const feed = await fetchGoodreadsLibrary(settings.userId as string, this.fetchFn);
     return this.dataSource.transaction(async (manager) => {
       const bookRepo = manager.getRepository(Book);
-      const plan = planSync(feed, await bookRepo.find(), settings.dismissedIds);
+      // Re-read dismissals: one may have been added while the feed was fetching.
+      const fresh = await manager
+        .getRepository(GoodreadsSettings)
+        .findOneBy({ id: GOODREADS_SETTINGS_ID });
+      const plan = planSync(
+        feed,
+        await bookRepo.find(),
+        fresh?.dismissedIds ?? settings.dismissedIds,
+      );
 
       for (const data of plan.create) {
         await bookRepo.save(bookRepo.create(data));
@@ -141,14 +149,17 @@ export class GoodreadsService implements OnApplicationBootstrap {
     });
   }
 
-  private async record(settings: GoodreadsSettings, result: SyncStatus) {
-    settings.lastSyncAt = new Date();
-    settings.lastSyncResult = result;
-    await this.settingsRepo.save(settings);
+  private async record(result: SyncStatus) {
+    await this.loadSettings(); // ensure the row exists
+    await this.settingsRepo.update(GOODREADS_SETTINGS_ID, {
+      lastSyncAt: new Date(),
+      lastSyncResult: result,
+    });
   }
 
   @Cron('0 4 * * *')
   async scheduledSync(): Promise<void> {
+    if (!(await this.loadSettings()).userId) return;
     try {
       const result = await this.sync();
       this.logger.log(`Scheduled Goodreads sync: ${JSON.stringify(result)}`);

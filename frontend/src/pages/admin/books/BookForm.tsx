@@ -35,11 +35,17 @@ function toFormValues(book?: Book): BookFormValues {
   };
 }
 
-function toInput(values: BookFormValues): BookInput {
+function toInput(values: BookFormValues, existingRating: number | null): BookInput {
   return {
     ...values,
     totalPages: Number(values.totalPages) || 1,
-    rating: values.status === 'COMPLETED' && values.rating ? Number(values.rating) : null,
+    // The rating field is only shown for completed books; otherwise keep what is stored
+    rating:
+      values.status === 'COMPLETED'
+        ? values.rating
+          ? Number(values.rating)
+          : null
+        : existingRating,
   };
 }
 
@@ -71,7 +77,7 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const input = toInput(values);
+    const input = toInput(values, book?.rating ?? null);
     const ok = await run((key) =>
       book ? api.updateBook(book.id, input, key) : api.createBook(input, key),
     );

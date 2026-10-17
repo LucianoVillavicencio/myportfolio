@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import type { Book } from '../../../types';
-import { api } from '../../../lib/api';
+import { ApiError, api } from '../../../lib/api';
 import { accentFor } from '../../../lib/books';
+import { useAdminAuth } from '../../../context/AdminAuthContext';
 import { usePortfolioData } from '../../../context/PortfolioDataContext';
 import { useI18n } from '../../../i18n/LanguageContext';
 import { BookCover } from '../../../components/books/BookCover';
@@ -11,13 +12,16 @@ import { BookForm } from './BookForm';
 import { GoodreadsPanel } from './GoodreadsPanel';
 
 export const BooksManager: React.FC = () => {
-  const { books } = usePortfolioData();
+  const { books, reload } = usePortfolioData();
+  const { adminKey } = useAdminAuth();
   const { t } = useI18n();
   const copy = t.admin.books;
   const { run, isBusy, error } = useAdminMutation();
   const [editingId, setEditingId] = useState<string | null>(null);
   // Bumped after each save so the "new book" form remounts empty
   const [formKey, setFormKey] = useState(0);
+  const [panelKey, setPanelKey] = useState(0);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const editingBook = books.find((b) => b.id === editingId);
 
@@ -28,11 +32,25 @@ export const BooksManager: React.FC = () => {
 
   const gr = copy.goodreads;
 
-  const reset = (book: Book) =>
-    run(async (key) => {
-      await api.resetBook(book.id, key);
-      await api.syncGoodreads(key);
-    });
+  const reset = async (book: Book) => {
+    setNotice(null);
+    const ok = await run((key) => api.resetBook(book.id, key));
+    if (!ok || !adminKey) return;
+    // The reset is saved; the follow-up sync only pulls the Goodreads values in.
+    try {
+      await api.syncGoodreads(adminKey);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        setNotice(gr.resetSyncPending);
+      } else {
+        setNotice(
+          gr.resetSyncFailed(err instanceof Error ? err.message : t.admin.genericError),
+        );
+      }
+    }
+    await reload();
+    setPanelKey((k) => k + 1);
+  };
 
   const remove = async (book: Book) => {
     const message = book.goodreadsId
@@ -50,8 +68,9 @@ export const BooksManager: React.FC = () => {
       newLabel={t.admin.newItem}
       list={
         <>
-          <GoodreadsPanel />
+          <GoodreadsPanel refreshKey={panelKey} />
           {error && <p className="form-error">{error}</p>}
+          {notice && <p className="admin-hint">{notice}</p>}
           {books.length === 0 ? (
             <p className="admin-hint">{copy.empty}</p>
           ) : (

@@ -117,6 +117,38 @@ describe('GoodreadsService', () => {
     expect(await books.findOneBy({ goodreadsId: '2' })).not.toBeNull();
   });
 
+  it('keeps a dismissal and user id changed while a sync is running', async () => {
+    await service.setUserId('42');
+    let release!: () => void;
+    const gate = new Promise<void>((r) => (release = r));
+    fakeFetch.mockImplementation(async (url: string) => {
+      await gate;
+      const u = new URL(url);
+      const body = u.searchParams.get('page') === '1' && u.searchParams.get('shelf') === 'read'
+        ? rss(['1', '2'])
+        : rss([]);
+      return new Response(body, { status: 200 });
+    });
+    const running = service.sync();
+    await new Promise((r) => setTimeout(r, 20));
+    await service.dismiss('1');
+    await service.setUserId('77');
+    release();
+    await running;
+    expect(await books.findOneBy({ goodreadsId: '1' })).toBeNull();
+    expect(await books.findOneBy({ goodreadsId: '2' })).not.toBeNull();
+    const status = await service.getStatus();
+    expect(status.userId).toBe('77');
+    expect(status.lastSyncResult).toMatchObject({ ok: true });
+  });
+
+  it('scheduledSync is a silent no-op without a user id', async () => {
+    const warn = jest.spyOn((service as any).logger, 'warn');
+    await service.scheduledSync();
+    expect(warn).not.toHaveBeenCalled();
+    expect(fakeFetch).not.toHaveBeenCalled();
+  });
+
   it('sync without a user id is a bad request', async () => {
     await expect(service.sync()).rejects.toBeInstanceOf(BadRequestException);
   });

@@ -6,7 +6,7 @@ import { useI18n } from '../../../i18n/LanguageContext';
 import { useAdminMutation } from '../useAdminMutation';
 
 /** Connects the site to a public Goodreads profile and triggers manual syncs. */
-export const GoodreadsPanel: React.FC = () => {
+export const GoodreadsPanel: React.FC<{ refreshKey?: number }> = ({ refreshKey = 0 }) => {
   const { adminKey } = useAdminAuth();
   const { t, locale } = useI18n();
   const copy = t.admin.books.goodreads;
@@ -29,7 +29,7 @@ export const GoodreadsPanel: React.FC = () => {
 
   useEffect(() => {
     refresh().then((next) => next && setInput(next.userId ?? ''));
-  }, [refresh]);
+  }, [refresh, refreshKey]);
 
   const save = async () => {
     const ok = await run(async (key) => {

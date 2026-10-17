@@ -195,6 +195,9 @@ const es = {
         badgeManual: 'Manual',
         edited: 'Editado',
         reset: 'Restablecer desde Goodreads',
+        resetSyncPending: 'Restablecido. Se aplicará en la próxima sincronización.',
+        resetSyncFailed: (msg: string) =>
+          `Restablecido, pero la sincronización falló: ${msg}`,
         confirmDelete: (title: string) =>
           `¿Eliminar "${title}"? No se volverá a importar a menos que lo agregues de nuevo en Goodreads.`,
       },
@@ -429,6 +432,8 @@ const en: Dictionary = {
         badgeManual: 'Manual',
         edited: 'Edited',
         reset: 'Reset to Goodreads',
+        resetSyncPending: 'Reset done. It will apply on the next sync.',
+        resetSyncFailed: (msg) => `Reset done, but sync failed: ${msg}`,
         confirmDelete: (title) =>
           `Delete "${title}"? It won't be re-imported unless you add it again on Goodreads.`,
       },

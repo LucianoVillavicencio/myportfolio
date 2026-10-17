@@ -46,8 +46,8 @@ export class BooksService {
     if (!book) {
       throw new NotFoundException(`Book with ID ${id} not found`);
     }
-    await this.booksRepo.delete(id);
     if (book.goodreadsId) await this.goodreads.dismiss(book.goodreadsId);
+    await this.booksRepo.delete(id);
   }
 
   async resetToGoodreads(id: string): Promise<Book> {
