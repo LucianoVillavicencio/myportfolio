@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -27,6 +29,7 @@ import { HealthController } from './health.controller';
       rootPath: resolveStaticDir(process.env),
       exclude: ['/api/{*path}'],
     }),
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     ScheduleModule.forRoot(),
     BooksModule,
     ProjectsModule,
@@ -34,5 +37,6 @@ import { HealthController } from './health.controller';
     GoodreadsModule,
   ],
   controllers: [AuthController, HealthController],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

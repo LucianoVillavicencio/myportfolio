@@ -52,6 +52,32 @@ describe('App (full module)', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 
+  it('sets security headers', async () => {
+    const res = await request(app.getHttpServer()).get('/api/health');
+    expect(res.headers['content-security-policy']).toBeDefined();
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+  });
+
+  it('throttles auth verify', async () => {
+    const attempt = () =>
+      request(app.getHttpServer())
+        .post('/api/auth/verify')
+        .set('x-admin-key', 'wrong')
+        .set('X-Forwarded-For', '1.1.1.1');
+    for (let i = 0; i < 5; i++) {
+      expect((await attempt()).status).toBe(401);
+    }
+    expect((await attempt()).status).toBe(429);
+  });
+
+  it('throttles per forwarded client ip', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/api/auth/verify')
+      .set('x-admin-key', 'wrong')
+      .set('X-Forwarded-For', '2.2.2.2');
+    expect(res.status).toBe(401);
+  });
+
   it('api still works', async () => {
     const res = await request(app.getHttpServer()).get('/api/books');
     expect(res.status).toBe(200);
