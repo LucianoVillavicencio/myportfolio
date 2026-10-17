@@ -26,8 +26,7 @@ export const HomeBookCard: React.FC<HomeBookCardProps> = ({ book, accentColor })
         <h3 className="folio-card-title">{book.title}</h3>
         <p className="folio-card-sub">{t.common.by(book.author)}</p>
 
-        {book.thoughts && <p className="folio-card-desc">“{book.thoughts}”</p>}
-
+        {/* Reviews stay on the full bookshelf; the home page only previews titles */}
         <p className="book-progress">{t.common.pages(book.totalPages)}</p>
       </div>
     </article>
