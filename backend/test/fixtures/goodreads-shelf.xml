@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Lucho's bookshelf: read</title>
+    <link>https://www.goodreads.com/review/list/12345</link>
+    <item>
+      <title><![CDATA[Dune (Dune, #1)]]></title>
+      <link><![CDATA[https://www.goodreads.com/review/show/1]]></link>
+      <book_id>111</book_id>
+      <book_image_url><![CDATA[https://i.gr-assets.com/dune-m.jpg]]></book_image_url>
+      <book_small_image_url><![CDATA[https://i.gr-assets.com/dune-s.jpg]]></book_small_image_url>
+      <book_medium_image_url><![CDATA[https://i.gr-assets.com/dune-m.jpg]]></book_medium_image_url>
+      <book_large_image_url><![CDATA[https://i.gr-assets.com/dune.jpg]]></book_large_image_url>
+      <author_name>Frank Herbert</author_name>
+      <user_read_at><![CDATA[Sun, 02 Feb 2022 00:00:00 -0800]]></user_read_at>
+      <user_date_added><![CDATA[Sat, 01 Jan 2022 10:00:00 -0800]]></user_date_added>
+      <user_rating>5</user_rating>
+      <user_shelves>read</user_shelves>
+      <user_review><![CDATA[Loved it.<br/>Spice!]]></user_review>
+      <book id="111">
+        <num_pages>604</num_pages>
+      </book>
+    </item>
+    <item>
+      <title><![CDATA[Project Hail Mary]]></title>
+      <link><![CDATA[https://www.goodreads.com/review/show/2]]></link>
+      <book_id>222</book_id>
+      <book_image_url><![CDATA[https://s.gr-assets.com/assets/nophoto/book/111x148-bcc042a9c91a29c1d680899eff700a03.png]]></book_image_url>
+      <book_small_image_url><![CDATA[https://s.gr-assets.com/assets/nophoto/book/50x75-a91bf249278a81aabab721ef782c4a74.png]]></book_small_image_url>
+      <book_medium_image_url><![CDATA[https://s.gr-assets.com/assets/nophoto/book/111x148-bcc042a9c91a29c1d680899eff700a03.png]]></book_medium_image_url>
+      <book_large_image_url><![CDATA[https://s.gr-assets.com/assets/nophoto/book/111x148-bcc042a9c91a29c1d680899eff700a03.png]]></book_large_image_url>
+      <author_name>Andy Weir</author_name>
+      <user_read_at><![CDATA[]]></user_read_at>
+      <user_date_added><![CDATA[Mon, 03 Jan 2022 09:00:00 -0800]]></user_date_added>
+      <user_rating>0</user_rating>
+      <user_shelves>to-read</user_shelves>
+      <user_review><![CDATA[]]></user_review>
+      <book id="222">
+        <num_pages></num_pages>
+      </book>
+    </item>
+    <item>
+      <title><![CDATA[Klara and the Sun]]></title>
+      <link><![CDATA[https://www.goodreads.com/review/show/3]]></link>
+      <book_id>333</book_id>
+      <book_image_url><![CDATA[https://i.gr-assets.com/klara-m.jpg]]></book_image_url>
+      <book_small_image_url><![CDATA[https://i.gr-assets.com/klara-s.jpg]]></book_small_image_url>
+      <book_medium_image_url><![CDATA[https://i.gr-assets.com/klara-m.jpg]]></book_medium_image_url>
+      <book_large_image_url><![CDATA[https://i.gr-assets.com/klara.jpg]]></book_large_image_url>
+      <author_name>Kazuo Ishiguro</author_name>
+      <user_read_at><![CDATA[]]></user_read_at>
+      <user_date_added><![CDATA[Tue, 04 Jan 2022 09:00:00 -0800]]></user_date_added>
+      <user_rating>3</user_rating>
+      <user_shelves>read</user_shelves>
+      <user_review><![CDATA[]]></user_review>
+      <book id="333">
+        <num_pages>303</num_pages>
+      </book>
+    </item>
+  </channel>
+</rss>
