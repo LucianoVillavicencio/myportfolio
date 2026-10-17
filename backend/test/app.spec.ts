@@ -1,6 +1,6 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { NestFactory } from '@nestjs/core';
-import { existsSync, rmSync } from 'fs';
+import { existsSync, mkdtempSync, rmSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import * as request from 'supertest';
@@ -8,11 +8,13 @@ import * as request from 'supertest';
 describe('App (full module)', () => {
   let app: NestExpressApplication;
   const dbPath = join(tmpdir(), `portfolio-app-spec-${process.pid}.sqlite`);
+  const cvDir = mkdtempSync(join(tmpdir(), 'portfolio-cv-spec-'));
 
   beforeAll(async () => {
     process.env.DB_PATH = dbPath;
     process.env.STATIC_DIR = join(__dirname, 'fixtures', 'static');
     process.env.ADMIN_API_KEY = 'test-key';
+    process.env.CV_DIR = cvDir;
     // Env is read at module load, so import after setting it.
     const { AppModule } = await import('../src/app.module');
     const { configureApp } = await import('../src/setup');
@@ -28,6 +30,7 @@ describe('App (full module)', () => {
   afterAll(async () => {
     await app.close();
     if (existsSync(dbPath)) rmSync(dbPath);
+    rmSync(cvDir, { recursive: true, force: true });
   });
 
   it('health returns ok', async () => {
@@ -115,5 +118,70 @@ describe('App (full module)', () => {
     expect((res.body as Buffer).subarray(0, 15).toString()).toBe(
       'SQLite format 3',
     );
+  });
+
+  describe('CVs', () => {
+    const pdf = Buffer.from('%PDF-1.7\nuploaded cv\n');
+    const binary = (r: request.Request) =>
+      r.buffer(true).parse((res, cb) => {
+        const chunks: Buffer[] = [];
+        res.on('data', (c: Buffer) => chunks.push(c));
+        res.on('end', () => cb(null, Buffer.concat(chunks)));
+      });
+    const upload = (lang: string, body: Buffer, key = 'test-key') =>
+      request(app.getHttpServer())
+        .put(`/api/cv/${lang}`)
+        .set('x-admin-key', key)
+        .set('X-Forwarded-For', '4.4.4.4')
+        .attach('file', body, 'cv.pdf');
+
+    it('404s when neither an upload nor a bundled PDF exists', async () => {
+      const res = await request(app.getHttpServer()).get('/api/cv/es');
+      expect(res.status).toBe(404);
+    });
+
+    it('falls back to the bundled PDF', async () => {
+      const res = await binary(request(app.getHttpServer()).get('/api/cv/en'));
+      expect(res.status).toBe(200);
+      expect(res.headers['content-type']).toBe('application/pdf');
+      expect((res.body as Buffer).toString()).toContain('bundled fixture');
+    });
+
+    it('rejects unknown languages', async () => {
+      const res = await request(app.getHttpServer()).get('/api/cv/fr');
+      expect(res.status).toBe(400);
+    });
+
+    it('upload requires the admin key', async () => {
+      expect((await upload('es', pdf, 'wrong')).status).toBe(401);
+    });
+
+    it('rejects files that are not PDFs', async () => {
+      const res = await upload('es', Buffer.from('<html>nope</html>'));
+      expect(res.status).toBe(400);
+    });
+
+    it('serves the uploaded PDF and reports it in the status', async () => {
+      const put = await upload('es', pdf);
+      expect(put.status).toBe(200);
+      expect(put.body).toMatchObject({ source: 'upload', size: pdf.length });
+
+      const res = await binary(request(app.getHttpServer()).get('/api/cv/es'));
+      expect(res.status).toBe(200);
+      expect(res.headers['cache-control']).toBe('no-cache');
+      expect((res.body as Buffer).equals(pdf)).toBe(true);
+
+      const status = await request(app.getHttpServer())
+        .get('/api/cv')
+        .set('x-admin-key', 'test-key');
+      expect(status.body.es).toMatchObject({ source: 'upload' });
+      expect(status.body.en).toMatchObject({ source: 'bundled' });
+    });
+
+    it('redirects the old static CV links', async () => {
+      const res = await request(app.getHttpServer()).get('/cv_es.pdf');
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toBe('/api/cv/es');
+    });
   });
 });

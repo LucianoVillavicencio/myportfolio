@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { dirname, join } from 'path';
 
 export function resolveDbPath(env: NodeJS.ProcessEnv): string {
   if (env.DB_PATH) return env.DB_PATH;
@@ -11,4 +11,9 @@ export function resolveDbPath(env: NodeJS.ProcessEnv): string {
 
 export function resolveStaticDir(env: NodeJS.ProcessEnv): string {
   return env.STATIC_DIR || join(__dirname, '..', '..', 'frontend', 'dist');
+}
+
+/** Uploaded CVs live next to the database, so they share its volume. */
+export function resolveCvDir(env: NodeJS.ProcessEnv): string {
+  return env.CV_DIR || join(dirname(resolveDbPath(env)), 'cv');
 }

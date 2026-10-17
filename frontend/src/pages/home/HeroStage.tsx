@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { Profile } from '../../types';
+import { cvUrl } from '../../lib/api';
 import { localized, useI18n } from '../../i18n/LanguageContext';
 import {
   HardwareNetworkEngineerIllustration,
@@ -65,7 +66,7 @@ export const HeroStage: React.FC<HeroStageProps> = ({
             <Link className="btn btn--o" to="/books">
               {t.hero.books} <span className="tag">{bookCount}</span>
             </Link>
-            <a className="btn btn--o" href={`/cv_${lang}.pdf`} target="_blank" rel="noopener noreferrer">
+            <a className="btn btn--o" href={cvUrl(lang)} target="_blank" rel="noopener noreferrer">
               {t.hero.cv} <span className="arr">↗</span>
             </a>
           </div>

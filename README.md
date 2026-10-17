@@ -26,6 +26,7 @@ The SQLite file `backend/portfolio.sqlite` is created on first launch, with your
 | --------------- | -------------------------------- | ------------------------------------------------------------ |
 | `ADMIN_API_KEY` | `secret-admin-key` (dev only)    | **Required** when `NODE_ENV=production`.                     |
 | `DB_PATH`       | `backend/portfolio.sqlite`       | Where the SQLite file is stored. **Required** when `NODE_ENV=production`. |
+| `CV_DIR`        | `cv/` next to `DB_PATH`          | Where CVs uploaded from `/admin` are stored.                 |
 | `STATIC_DIR`    | `frontend/dist`                  | Built frontend served by Nest (the Docker image sets `/app/public`). |
 | `CORS_ORIGIN`   | any origin                       | Comma-separated allow-list, e.g. `https://example.com`. Not needed when Nest serves the frontend. |
 | `PORT`          | `3000`                           |                                                              |
@@ -37,6 +38,7 @@ Go to `/admin` (or press **Alt + A** / **Ctrl + Shift + A** anywhere) and enter 
 - **Books** — add (with OpenLibrary cover auto-find), edit, rate, bump progress `+10p`, delete.
 - **Projects** — add, edit, feature/unfeature (featured ones are listed first), delete.
 - **Profile** — name, roles, intro text, availability, stack, email and social links shown in the hero and footer.
+- **CV** — replace the Spanish and English CV PDFs opened from the home page. Uploads are stored next to the database (so on the Railway volume); until you upload one, the PDF bundled in `frontend/public/` is served. They are not included in the database backup.
 - **Backup** — the **Descargar backup** button downloads a copy of the SQLite database.
 
 ## Deploy (Railway)

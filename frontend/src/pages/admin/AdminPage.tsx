@@ -11,8 +11,9 @@ import { LoginPanel } from './LoginPanel';
 import { BooksManager } from './books/BooksManager';
 import { ProjectsManager } from './projects/ProjectsManager';
 import { ProfileForm } from './ProfileForm';
+import { CvManager } from './CvManager';
 
-const TABS = ['books', 'projects', 'profile'] as const;
+const TABS = ['books', 'projects', 'profile', 'cv'] as const;
 type AdminTab = (typeof TABS)[number];
 
 export const AdminPage: React.FC = () => {
@@ -29,6 +30,7 @@ export const AdminPage: React.FC = () => {
     books: t.admin.tabs.books(books.length),
     projects: t.admin.tabs.projects(projects.length),
     profile: t.admin.tabs.profile,
+    cv: t.admin.tabs.cv,
   };
 
   const [backingUp, setBackingUp] = React.useState(false);
@@ -114,6 +116,7 @@ export const AdminPage: React.FC = () => {
             ) : (
               <p className="admin-hint">{t.admin.loadingProfile}</p>
             ))}
+          {tab === 'cv' && <CvManager />}
         </>
       )}
     </div>

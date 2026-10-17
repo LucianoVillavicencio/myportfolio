@@ -1,6 +1,9 @@
 import type {
   Book,
   BookInput,
+  CvInfo,
+  CvLang,
+  CvStatus,
   GoodreadsStatus,
   GoodreadsSyncResult,
   Profile,
@@ -87,7 +90,26 @@ export const api = {
     send<Project>('PATCH', `/projects/${id}`, adminKey, data),
   deleteProject: (id: string, adminKey: string) =>
     send<void>('DELETE', `/projects/${id}`, adminKey),
+
+  getCvStatus: (adminKey: string) => send<CvStatus>('GET', '/cv', adminKey),
 };
+
+/** Public URL of the CV PDF for a language (the uploaded one, or the bundled fallback). */
+export const cvUrl = (lang: CvLang) => `${API_BASE}/cv/${lang}`;
+
+/** Replaces the CV PDF for a language. */
+export async function uploadCv(lang: CvLang, file: File, adminKey: string): Promise<CvInfo> {
+  const body = new FormData();
+  body.append('file', file);
+  // No Content-Type header: the browser sets the multipart boundary itself.
+  const res = await fetch(`${API_BASE}/cv/${lang}`, {
+    method: 'PUT',
+    headers: { 'x-admin-key': adminKey },
+    body,
+  });
+  if (!res.ok) return throwApiError(res);
+  return res.json();
+}
 
 /** Fetches the SQLite database file as a Blob. */
 export async function downloadBackup(adminKey: string): Promise<Blob> {

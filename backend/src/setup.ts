@@ -1,4 +1,5 @@
 import { ValidationPipe } from '@nestjs/common';
+import type { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
@@ -21,6 +22,13 @@ export function configureApp(app: NestExpressApplication): void {
       },
     }),
   );
+  // Old CV links pointed at the bundled static PDFs; send them to the
+  // endpoint that serves the admin-uploaded version.
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const lang = /^\/cv_(es|en)\.pdf$/.exec(req.path)?.[1];
+    if (lang) res.redirect(302, `/api/cv/${lang}`);
+    else next();
+  });
   app.setGlobalPrefix('api');
   app.enableCors({
     // Comma-separated list in production, e.g. "https://mysite.com"

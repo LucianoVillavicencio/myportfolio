@@ -541,3 +541,23 @@
   opacity: 0.35;
   cursor: default;
 }
+
+/* CV manager: "View" link styled like the row action buttons */
+.cv-list .admin-row-actions {
+  align-items: center;
+}
+
+.cv-view-link {
+  padding: 0.3rem 0.7rem;
+  border-radius: 100vw;
+  background: #302e2b;
+  color: var(--color-ink);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.cv-view-link:hover {
+  background: var(--color-ink);
+  color: #1b1b1b;
+}

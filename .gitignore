@@ -4,6 +4,8 @@ dist/
 
 # Local database (contains your content; back it up separately)
 backend/portfolio.sqlite
+# CVs uploaded from /admin in development
+backend/cv/
 
 .env
 .env.*

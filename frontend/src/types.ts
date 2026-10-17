@@ -88,3 +88,14 @@ export interface GoodreadsSyncResult {
   updated: number;
   removed: number;
 }
+
+export type CvLang = 'es' | 'en';
+
+export interface CvInfo {
+  /** "upload" when replaced from the admin panel, "bundled" for the PDF shipped with the site. */
+  source: 'upload' | 'bundled';
+  size: number;
+  updatedAt: string;
+}
+
+export type CvStatus = Record<CvLang, CvInfo | null>;
