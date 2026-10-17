@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Book } from '../../../types';
+import type { Book, ReadingStatus } from '../../../types';
 import { ApiError, api } from '../../../lib/api';
 import { accentFor } from '../../../lib/books';
 import { useAdminAuth } from '../../../context/AdminAuthContext';
@@ -9,7 +9,10 @@ import { BookCover } from '../../../components/books/BookCover';
 import { useAdminMutation } from '../useAdminMutation';
 import { AdminRow, ManagerLayout } from '../ManagerLayout';
 import { BookForm } from './BookForm';
+import { BookGroup } from './BookGroup';
 import { GoodreadsPanel } from './GoodreadsPanel';
+
+const STATUS_ORDER: ReadingStatus[] = ['READING', 'WANT_TO_READ', 'COMPLETED'];
 
 export const BooksManager: React.FC = () => {
   const { books, reload } = usePortfolioData();
@@ -61,6 +64,48 @@ export const BooksManager: React.FC = () => {
     if (ok && book.id === editingId) closeForm();
   };
 
+  const renderRow = (book: Book, i: number) => {
+    const isEdited = book.goodreadsId !== null && book.lockedFields.length > 0;
+    return (
+      <AdminRow
+        key={book.id}
+        isSelected={book.id === editingId}
+        thumb={<BookCover book={book} accentColor={accentFor(i)} className="admin-thumb" />}
+        title={book.title}
+        meta={
+          <>
+            <span className="source-badge">
+              {book.goodreadsId ? gr.badgeGoodreads : gr.badgeManual}
+            </span>
+            {isEdited && <span className="source-badge source-badge--edited">{gr.edited}</span>}
+            {`${book.totalPages}p`}
+          </>
+        }
+        actions={
+          <>
+            {isEdited && (
+              <button type="button" disabled={isBusy} onClick={() => reset(book)}>
+                {gr.reset}
+              </button>
+            )}
+            <button type="button" onClick={() => setEditingId(book.id)}>
+              {t.admin.edit}
+            </button>
+            <button
+              type="button"
+              className="danger-btn"
+              disabled={isBusy}
+              onClick={() => remove(book)}
+              aria-label={t.admin.deleteLabel(book.title)}
+            >
+              {t.admin.delete}
+            </button>
+          </>
+        }
+      />
+    );
+  };
+
   return (
     <ManagerLayout
       listTitle={copy.listTitle(books.length)}
@@ -74,50 +119,14 @@ export const BooksManager: React.FC = () => {
           {books.length === 0 ? (
             <p className="admin-hint">{copy.empty}</p>
           ) : (
-            <ul className="admin-list">
-              {books.map((book, i) => (
-                <AdminRow
-                  key={book.id}
-                  isSelected={book.id === editingId}
-                  thumb={
-                    <BookCover book={book} accentColor={accentFor(i)} className="admin-thumb" />
-                  }
-                  title={book.title}
-                  meta={
-                    <>
-                      <span className="source-badge">
-                        {book.goodreadsId ? gr.badgeGoodreads : gr.badgeManual}
-                      </span>
-                      {book.goodreadsId && book.lockedFields.length > 0 && (
-                        <span className="source-badge source-badge--edited">{gr.edited}</span>
-                      )}
-                      {`${t.status[book.status]} · ${book.totalPages}p`}
-                    </>
-                  }
-                  actions={
-                    <>
-                      {book.goodreadsId && book.lockedFields.length > 0 && (
-                        <button type="button" disabled={isBusy} onClick={() => reset(book)}>
-                          {gr.reset}
-                        </button>
-                      )}
-                      <button type="button" onClick={() => setEditingId(book.id)}>
-                        {t.admin.edit}
-                      </button>
-                      <button
-                        type="button"
-                        className="danger-btn"
-                        disabled={isBusy}
-                        onClick={() => remove(book)}
-                        aria-label={t.admin.deleteLabel(book.title)}
-                      >
-                        {t.admin.delete}
-                      </button>
-                    </>
-                  }
-                />
-              ))}
-            </ul>
+            STATUS_ORDER.map((status) => (
+              <BookGroup
+                key={status}
+                title={t.status[status]}
+                books={books.filter((b) => b.status === status)}
+                renderRow={renderRow}
+              />
+            ))
           )}
         </>
       }

@@ -790,3 +790,9 @@
     width: 78px;
   }
 }
+
+.bf-load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.75rem;
+}

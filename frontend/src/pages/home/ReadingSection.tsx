@@ -10,10 +10,15 @@ type Filter = ReadingStatus | 'ALL';
 
 const FILTERS: Filter[] = ['READING', 'COMPLETED', 'WANT_TO_READ', 'ALL'];
 
+/** The home page only previews the shelf; the full list lives on /books. */
+const HOME_BOOK_LIMIT = 3;
+
 export const ReadingSection: React.FC<{ books: Book[] }> = ({ books }) => {
   const { t } = useI18n();
   const [filter, setFilter] = useState<Filter>('READING');
-  const visible = filter === 'ALL' ? books : books.filter((b) => b.status === filter);
+  const visible = (
+    filter === 'ALL' ? books : books.filter((b) => b.status === filter)
+  ).slice(0, HOME_BOOK_LIMIT);
 
   return (
     <section id="reading-section" className="content-stage">

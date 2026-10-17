@@ -102,6 +102,7 @@ const es = {
     },
     footLine: 'Hasta acá llega el estante.',
     backToPortfolio: 'Volver al portfolio',
+    loadMore: ((n) => `Cargar más (${n} ${n === 1 ? 'restante' : 'restantes'})`) as Count,
   },
   book: {
     inspect: 'Ver libro y notas',
@@ -157,6 +158,12 @@ const es = {
       empty: 'Todavía no hay libros. Agregá el primero.',
       editTitle: 'EDITAR LIBRO',
       addTitle: 'AGREGAR LIBRO',
+      pager: {
+        prev: 'Anterior',
+        next: 'Siguiente',
+        page: (current: number, total: number) => `Página ${current} de ${total}`,
+        emptyGroup: 'No hay libros en esta categoría.',
+      },
       fields: {
         title: 'Título',
         author: 'Autor',
@@ -340,6 +347,7 @@ const en: Dictionary = {
     },
     footLine: 'That’s the shelf so far.',
     backToPortfolio: 'Back to the portfolio',
+    loadMore: (n) => `Load more (${n} left)`,
   },
   book: {
     inspect: 'Inspect book & notes',
@@ -395,6 +403,12 @@ const en: Dictionary = {
       empty: 'No books yet — add your first one.',
       editTitle: 'EDIT BOOK',
       addTitle: 'ADD A BOOK',
+      pager: {
+        prev: 'Previous',
+        next: 'Next',
+        page: (current, total) => `Page ${current} of ${total}`,
+        emptyGroup: 'No books in this category.',
+      },
       fields: {
         title: 'Title',
         author: 'Author',
