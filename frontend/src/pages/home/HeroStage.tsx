@@ -65,6 +65,9 @@ export const HeroStage: React.FC<HeroStageProps> = ({
             <Link className="btn btn--o" to="/books">
               {t.hero.books} <span className="tag">{bookCount}</span>
             </Link>
+            <a className="btn btn--o" href={`/cv_${lang}.pdf`} target="_blank" rel="noopener noreferrer">
+              {t.hero.cv} <span className="arr">↗</span>
+            </a>
           </div>
         </div>
 
