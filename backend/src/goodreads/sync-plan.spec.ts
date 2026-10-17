@@ -1,0 +1,124 @@
+import { Book } from '../books/book.entity';
+import { GoodreadsItem } from './goodreads-feed';
+import { EmptyFeedError, planSync } from './sync-plan';
+
+function item(overrides: Partial<GoodreadsItem> = {}): GoodreadsItem {
+  return {
+    goodreadsId: '1',
+    title: 'Title',
+    author: 'Author',
+    coverUrl: null,
+    status: 'READING',
+    rating: null,
+    thoughts: null,
+    totalPages: null,
+    dateAdded: null,
+    ...overrides,
+  };
+}
+
+function book(overrides: Partial<Book> = {}): Book {
+  return {
+    id: 'b',
+    title: 'Title',
+    author: 'Author',
+    coverUrl: null,
+    status: 'READING',
+    currentPage: 0,
+    totalPages: 300,
+    rating: null,
+    thoughts: null,
+    goodreadsId: null,
+    lockedFields: [],
+    startedAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+    ...overrides,
+  };
+}
+
+describe('planSync', () => {
+  it('creates new feed books', () => {
+    const plan = planSync([item({ goodreadsId: '1', title: 'Dune' })], [], []);
+    expect(plan.create).toEqual([
+      expect.objectContaining({ goodreadsId: '1', title: 'Dune', lockedFields: [] }),
+    ]);
+  });
+
+  it('sets startedAt from dateAdded only when present', () => {
+    const d = new Date('2023-05-05');
+    const plan = planSync(
+      [item({ goodreadsId: '1', dateAdded: d }), item({ goodreadsId: '2' })],
+      [],
+      [],
+    );
+    expect(plan.create[0].startedAt).toBe(d);
+    expect(plan.create[1]).not.toHaveProperty('startedAt');
+  });
+
+  it('updates changed unlocked fields only', () => {
+    const b = book({ id: 'a', goodreadsId: '1', status: 'READING', rating: 3, lockedFields: ['rating'] });
+    const plan = planSync([item({ goodreadsId: '1', status: 'COMPLETED', rating: 5 })], [b], []);
+    expect(plan.update).toEqual([{ id: 'a', changes: { status: 'COMPLETED' } }]);
+  });
+
+  it('emits no update when nothing changed', () => {
+    const b = book({ id: 'a', goodreadsId: '1', totalPages: 300 });
+    const plan = planSync([item({ goodreadsId: '1', totalPages: 300 })], [b], []);
+    expect(plan.update).toEqual([]);
+  });
+
+  it('keeps totalPages when feed has none', () => {
+    const b = book({ id: 'a', goodreadsId: '1', totalPages: 320 });
+    const plan = planSync([item({ goodreadsId: '1', totalPages: null })], [b], []);
+    expect(plan.update).toEqual([]);
+  });
+
+  it('removes goodreads books missing from the feed, even with locks', () => {
+    const gone = book({ id: 'g', goodreadsId: '9', lockedFields: ['thoughts'] });
+    const manual = book({ id: 'm' });
+    expect(planSync([item({ goodreadsId: '1' })], [gone, manual], []).remove).toEqual(['g']);
+  });
+
+  it('never touches hand-added books that do not match', () => {
+    const manual = book({ id: 'm', title: 'Other', author: 'Someone' });
+    const plan = planSync([item({ goodreadsId: '1' })], [manual], []);
+    expect(plan.update).toEqual([]);
+    expect(plan.remove).toEqual([]);
+  });
+
+  it('adopts a hand-added book with the same title and author, locking differing fields', () => {
+    const manual = book({ id: 'm', title: 'Dune', author: 'frank  herbert', thoughts: 'mine', rating: 4 });
+    const plan = planSync(
+      [item({ goodreadsId: '1', title: 'Dune (Dune, #1)', author: 'Frank Herbert', thoughts: 'theirs', rating: 4 })],
+      [manual],
+      [],
+    );
+    expect(plan.create).toEqual([]);
+    expect(plan.update[0].id).toBe('m');
+    expect(plan.update[0].changes).toMatchObject({ goodreadsId: '1' });
+    expect(plan.update[0].changes.lockedFields).toEqual(expect.arrayContaining(['title', 'thoughts']));
+    expect(plan.update[0].changes.lockedFields).not.toContain('rating');
+  });
+
+  it('adopts each hand-added book at most once', () => {
+    const manual = book({ id: 'm', title: 'Dune', author: 'A' });
+    const plan = planSync(
+      [item({ goodreadsId: '1', title: 'Dune', author: 'A' }), item({ goodreadsId: '2', title: 'Dune', author: 'A' })],
+      [manual],
+      [],
+    );
+    expect(plan.update.map((u) => u.id)).toEqual(['m']);
+    expect(plan.create).toHaveLength(1);
+    expect(plan.create[0].goodreadsId).toBe('2');
+  });
+
+  it('skips dismissed ids', () => {
+    const plan = planSync([item({ goodreadsId: '5' })], [], ['5']);
+    expect(plan.create).toEqual([]);
+  });
+
+  it('throws EmptyFeedError when feed is empty but goodreads books exist', () => {
+    expect(() => planSync([], [book({ goodreadsId: '1' })], [])).toThrow(EmptyFeedError);
+    expect(planSync([], [book()], [])).toEqual({ create: [], update: [], remove: [] });
+  });
+});
