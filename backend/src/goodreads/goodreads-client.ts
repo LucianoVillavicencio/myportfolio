@@ -9,6 +9,7 @@ import {
 export type FetchFn = (url: string, init?: RequestInit) => Promise<Response>;
 
 export const MAX_PAGES_PER_SHELF = 50;
+export const REQUEST_TIMEOUT_MS = 20_000;
 
 const HEADERS = {
   'User-Agent':
@@ -26,7 +27,10 @@ async function fetchPage(
   const where = `shelf "${shelf}" page ${page}`;
   let res: Response;
   try {
-    res = await fetchFn(url, { headers: HEADERS });
+    res = await fetchFn(url, {
+      headers: HEADERS,
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
   } catch (err) {
     throw new GoodreadsFeedError(
       `Network error fetching ${where}: ${(err as Error).message}`,

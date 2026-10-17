@@ -86,4 +86,14 @@ describe('fetchGoodreadsLibrary', () => {
       ),
     ).rejects.toThrow(GoodreadsFeedError);
   });
+
+  it('passes an abort signal so a hung request cannot block forever', async () => {
+    let signal: AbortSignal | null | undefined;
+    const spy: FetchFn = async (_url, init) => {
+      signal = init?.signal;
+      return new Response(rss([]), { status: 200 });
+    };
+    await fetchGoodreadsLibrary('42', spy);
+    expect(signal).toBeInstanceOf(AbortSignal);
+  });
 });
