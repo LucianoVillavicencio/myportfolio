@@ -7,3 +7,8 @@ backend/portfolio.sqlite
 
 .env
 .env.*
+
+# Local tooling and working notes; never commit
+.claude/
+.superpowers/
+docs/
