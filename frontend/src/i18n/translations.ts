@@ -61,7 +61,7 @@ const es = {
       READING: 'No hay nada en la mesita de luz ahora.',
       COMPLETED: 'Todavía no hay libros terminados.',
       WANT_TO_READ: 'La cola de lectura está vacía.',
-      ALL: 'Todavía no hay libros en la librería.',
+      ALL: 'Todavía no hay libros en la biblioteca.',
     } as Record<Filter, string>,
   },
   footer: {
@@ -97,7 +97,7 @@ const es = {
       },
       completed: {
         heading: ['YA', 'LEÍDOS'] as Heading,
-        caption: ((n) => plural(n, 'libro terminado y anotado', 'libros terminados')) as Count,
+        caption: ((n) => plural(n, 'libro terminado', 'libros terminados')) as Count,
         empty: 'Todavía no hay libros terminados.',
       },
     },
