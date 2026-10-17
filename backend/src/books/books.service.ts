@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Book, ReadingStatus } from './book.entity';
+import { Book, ReadingStatus, SYNCED_FIELDS } from './book.entity';
+import { GoodreadsService } from '../goodreads/goodreads.service';
 import { CreateBookDto, UpdateBookDto } from './book.dto';
 
 @Injectable()
@@ -9,6 +10,7 @@ export class BooksService {
   constructor(
     @InjectRepository(Book)
     private readonly booksRepo: Repository<Book>,
+    private readonly goodreads: GoodreadsService,
   ) {}
 
   findAll(status?: ReadingStatus): Promise<Book[]> {
@@ -28,15 +30,36 @@ export class BooksService {
     if (!book) {
       throw new NotFoundException(`Book with ID ${id} not found`);
     }
+    if (book.goodreadsId) {
+      const locked = new Set(book.lockedFields);
+      for (const field of SYNCED_FIELDS) {
+        if (dto[field] !== undefined && dto[field] !== book[field]) locked.add(field);
+      }
+      book.lockedFields = [...locked];
+    }
     Object.assign(book, dto);
     return this.booksRepo.save(normalizeProgress(book));
   }
 
   async remove(id: string): Promise<void> {
-    const result = await this.booksRepo.delete(id);
-    if (result.affected === 0) {
+    const book = await this.booksRepo.findOne({ where: { id } });
+    if (!book) {
       throw new NotFoundException(`Book with ID ${id} not found`);
     }
+    await this.booksRepo.delete(id);
+    if (book.goodreadsId) await this.goodreads.dismiss(book.goodreadsId);
+  }
+
+  async resetToGoodreads(id: string): Promise<Book> {
+    const book = await this.booksRepo.findOne({ where: { id } });
+    if (!book) {
+      throw new NotFoundException(`Book with ID ${id} not found`);
+    }
+    if (!book.goodreadsId) {
+      throw new BadRequestException('Only Goodreads books can be reset');
+    }
+    book.lockedFields = [];
+    return this.booksRepo.save(book);
   }
 }
 

@@ -43,4 +43,11 @@ export class BooksController {
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.booksService.remove(id);
   }
+
+  @Post(':id/reset')
+  @HttpCode(200)
+  @UseGuards(AdminKeyGuard)
+  reset(@Param('id', ParseUUIDPipe) id: string) {
+    return this.booksService.resetToGoodreads(id);
+  }
 }
