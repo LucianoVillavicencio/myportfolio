@@ -1,0 +1,98 @@
+/* Responsive Breakpoints from jager.ar */
+@media (width <= 820px) {
+  .stage {
+    padding: clamp(1.25rem, 6vw, 2rem);
+  }
+  .topbar {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .pills {
+    justify-content: center;
+  }
+  .pill {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.8rem;
+  }
+  .middle {
+    grid-template:
+      'headline'
+      'art' 1fr
+      'ctext'
+      'info' / 1fr;
+    align-content: stretch;
+    row-gap: clamp(1rem, 4vw, 1.75rem);
+    padding: 1rem 0 0.5rem;
+  }
+  .info {
+    text-align: center;
+    align-items: center;
+    gap: 1.1rem;
+    max-width: none;
+    margin-top: 0.5rem;
+  }
+  .info dl {
+    justify-items: center;
+  }
+  .info dd {
+    text-align: center;
+  }
+  .info .links {
+    justify-content: center;
+  }
+  .headline {
+    margin-top: 0;
+    font-size: clamp(2.8rem, 14vw, 4.8rem);
+  }
+  .headline .w1,
+  .headline .w2,
+  .headline .w3 {
+    top: 0;
+    left: 0;
+  }
+  .headline .w2 {
+    margin-left: 0.35em;
+  }
+  .headline .w3 {
+    margin-left: 0.65em;
+  }
+  .art {
+    place-self: center;
+    align-items: center;
+    display: flex;
+  }
+  .hero-art-svg {
+    max-width: min(380px, 90vw);
+    margin-bottom: 0;
+  }
+  .ctext {
+    text-align: center;
+    align-items: center;
+    gap: 1.2rem;
+    margin-left: 0;
+  }
+  .lead {
+    max-width: 40ch;
+    font-size: 1.05rem;
+  }
+  .btns {
+    justify-content: center;
+    gap: 0.55rem;
+  }
+  .btn {
+    padding: 0.78rem 1.3rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (width <= 720px) {
+  .foot-cols {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .foot-social ul {
+    max-width: none;
+  }
+}
+

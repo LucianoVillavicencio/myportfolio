@@ -1,0 +1,199 @@
+/* ==========================================================================
+   Exact 404 Page Styles (.nf-*) from https://jager.ar/
+   ========================================================================== */
+.nf-page {
+  background: var(--color-card);
+}
+
+.nf-stage {
+  background: var(--color-card);
+  flex-direction: column;
+  min-height: 100vh;
+  padding: clamp(1.4rem, 3.2vw, 2.75rem);
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.nf-stage .topbar {
+  z-index: 5;
+  justify-content: flex-end;
+  align-items: flex-start;
+  display: flex;
+  position: relative;
+}
+
+.nf-stage .pills {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  display: flex;
+}
+
+@media (width <= 820px) {
+  .nf-stage .topbar {
+    justify-content: center;
+    align-items: center;
+  }
+  .nf-stage .pills {
+    justify-content: center;
+  }
+}
+
+.nf-body {
+  text-align: center;
+  z-index: 2;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  gap: 1.35rem;
+  padding-bottom: 5vh;
+  display: flex;
+  position: relative;
+}
+
+.nf-eyebrow {
+  font-family: var(--font-slant), var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: var(--color-ink-dim);
+  font-size: 0.9rem;
+}
+
+.nf-code {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  filter: url(#ink-bleed);
+  align-items: center;
+  gap: 0.04em;
+  font-size: clamp(5.5rem, 25vw, 17rem);
+  font-weight: 400;
+  line-height: 0.8;
+  display: flex;
+  user-select: none;
+}
+
+.nf-code .d {
+  display: inline-block;
+}
+
+.nf-code .d:first-child {
+  transform: rotate(-4deg);
+}
+
+.nf-code .d:last-child {
+  transform: rotate(4deg);
+}
+
+.nf-code .nf-zero {
+  object-fit: contain;
+  width: 1.06em;
+  height: 1.06em;
+  animation: nf-pop 0.6s var(--ease-out-back) both 0.22s;
+  margin: 0 -0.09em;
+}
+
+.nf-title {
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+  filter: url(#ink-bleed);
+  font-size: clamp(1.25rem, 3.4vw, 2.4rem);
+}
+
+.nf-lead {
+  max-width: 42ch;
+  color: var(--color-ink-dim);
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+  line-height: 1.6;
+}
+
+.nf-body .btns {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-top: 0.5rem;
+  display: flex;
+}
+
+.nf-swirl,
+.nf-lines {
+  pointer-events: none;
+  z-index: 0;
+  height: auto;
+  position: absolute;
+}
+
+.nf-swirl {
+  width: 92px;
+  animation: 0.5s 0.5s both nf-fade;
+  top: 15%;
+  left: 9%;
+  transform: rotate(20deg);
+}
+
+.nf-lines {
+  width: 66px;
+  animation: 0.5s 0.6s both nf-fade;
+  bottom: 12%;
+  right: 10%;
+  transform: rotate(200deg);
+}
+
+@media (width <= 720px) {
+  .nf-swirl,
+  .nf-lines {
+    display: none;
+  }
+}
+
+@keyframes nf-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nf-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) rotate(-12deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nf-fade {
+  0% {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.nf-stage .anim {
+  animation: nf-rise 0.7s var(--ease-out-back) both;
+}
+.nf-stage .d1 {
+  animation-delay: 50ms;
+}
+.nf-stage .d2 {
+  animation-delay: 0.12s;
+}
+.nf-stage .d3 {
+  animation-delay: 0.22s;
+}
+.nf-stage .d4 {
+  animation-delay: 0.32s;
+}
+.nf-stage .d5 {
+  animation-delay: 0.42s;
+}
+

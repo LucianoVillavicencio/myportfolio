@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Local database (contains your content; back it up separately)
+backend/portfolio.sqlite
+
+.env
+.env.*

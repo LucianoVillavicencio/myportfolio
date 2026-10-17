@@ -1,0 +1,93 @@
+import type {
+  Book,
+  BookInput,
+  Profile,
+  ProfileInput,
+  Project,
+  ProjectInput,
+} from '../types';
+
+const API_BASE = '/api';
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
+}
+
+async function request<T>(
+  path: string,
+  { adminKey, ...init }: RequestInit & { adminKey?: string } = {},
+): Promise<T> {
+  const headers: Record<string, string> = {};
+  if (init.body) headers['Content-Type'] = 'application/json';
+  if (adminKey) headers['x-admin-key'] = adminKey;
+
+  const res = await fetch(`${API_BASE}${path}`, { ...init, headers });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    // Nest validation errors come back as an array of messages
+    const message = Array.isArray(body?.message)
+      ? body.message.join(', ')
+      : body?.message || `Request failed (${res.status})`;
+    throw new ApiError(message, res.status);
+  }
+  return res.status === 204 ? (undefined as T) : res.json();
+}
+
+const send = <T>(method: string, path: string, adminKey: string, data?: unknown) =>
+  request<T>(path, {
+    method,
+    adminKey,
+    body: data === undefined ? undefined : JSON.stringify(data),
+  });
+
+export const api = {
+  async verifyAdminKey(adminKey: string): Promise<boolean> {
+    try {
+      await send('POST', '/auth/verify', adminKey);
+      return true;
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) return false;
+      throw err;
+    }
+  },
+
+  getProfile: () => request<Profile>('/profile'),
+  updateProfile: (data: ProfileInput, adminKey: string) =>
+    send<Profile>('PATCH', '/profile', adminKey, data),
+
+  getBooks: () => request<Book[]>('/books'),
+  createBook: (data: BookInput, adminKey: string) =>
+    send<Book>('POST', '/books', adminKey, data),
+  updateBook: (id: string, data: Partial<BookInput>, adminKey: string) =>
+    send<Book>('PATCH', `/books/${id}`, adminKey, data),
+  deleteBook: (id: string, adminKey: string) =>
+    send<void>('DELETE', `/books/${id}`, adminKey),
+
+  getProjects: () => request<Project[]>('/projects'),
+  createProject: (data: ProjectInput, adminKey: string) =>
+    send<Project>('POST', '/projects', adminKey, data),
+  updateProject: (id: string, data: Partial<ProjectInput>, adminKey: string) =>
+    send<Project>('PATCH', `/projects/${id}`, adminKey, data),
+  deleteProject: (id: string, adminKey: string) =>
+    send<void>('DELETE', `/projects/${id}`, adminKey),
+};
+
+/** Looks up a cover image on OpenLibrary for the given title/author. */
+export async function findOpenLibraryCover(
+  title: string,
+  author: string,
+): Promise<string | null> {
+  const q = encodeURIComponent(`${title} ${author}`.trim());
+  const res = await fetch(
+    `https://openlibrary.org/search.json?q=${q}&limit=5&fields=cover_i`,
+  );
+  if (!res.ok) throw new Error('OpenLibrary search failed');
+  const data: { docs?: { cover_i?: number }[] } = await res.json();
+  const coverId = data.docs?.find((d) => d.cover_i)?.cover_i;
+  return coverId ? `https://covers.openlibrary.org/b/id/${coverId}-L.jpg` : null;
+}
