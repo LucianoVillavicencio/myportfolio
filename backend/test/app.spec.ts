@@ -83,4 +83,30 @@ describe('App (full module)', () => {
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
+  it('backup requires the admin key', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/api/backup')
+      .set('X-Forwarded-For', '3.3.3.3');
+    expect(res.status).toBe(401);
+  });
+
+  it('backup returns the sqlite file', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/api/backup')
+      .set('x-admin-key', 'test-key')
+      .set('X-Forwarded-For', '3.3.3.3')
+      .buffer(true)
+      .parse((r, cb) => {
+        const chunks: Buffer[] = [];
+        r.on('data', (c: Buffer) => chunks.push(c));
+        r.on('end', () => cb(null, Buffer.concat(chunks)));
+      });
+    expect(res.status).toBe(200);
+    expect(res.headers['content-disposition']).toMatch(
+      /portfolio-\d{4}-\d{2}-\d{2}\.sqlite/,
+    );
+    expect((res.body as Buffer).subarray(0, 15).toString()).toBe(
+      'SQLite format 3',
+    );
+  });
 });

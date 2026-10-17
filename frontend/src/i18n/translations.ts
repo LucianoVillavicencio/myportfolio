@@ -127,6 +127,8 @@ const es = {
     title: 'PANEL',
     accent: 'PRIVADO',
     lock: 'Cerrar sesión',
+    backup: 'Descargar backup',
+    backupError: 'No se pudo descargar el backup.',
     tabs: {
       books: (n: number) => `Libros (${n})`,
       projects: (n: number) => `Proyectos (${n})`,
@@ -373,6 +375,8 @@ const en: Dictionary = {
     title: 'OWNER',
     accent: 'PANEL',
     lock: 'Lock session',
+    backup: 'Download backup',
+    backupError: 'Could not download the backup.',
     tabs: {
       books: (n) => `Books (${n})`,
       projects: (n) => `Projects (${n})`,

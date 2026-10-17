@@ -15,6 +15,7 @@ import { GoodreadsSettings } from './goodreads/goodreads-settings.entity';
 import { GoodreadsModule } from './goodreads/goodreads.module';
 import { resolveDbPath, resolveStaticDir } from './config';
 import { HealthController } from './health.controller';
+import { BackupModule } from './backup/backup.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { HealthController } from './health.controller';
     ProjectsModule,
     ProfileModule,
     GoodreadsModule,
+    BackupModule,
   ],
   controllers: [AuthController, HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
