@@ -20,6 +20,15 @@ export class ApiError extends Error {
   }
 }
 
+async function throwApiError(res: Response): Promise<never> {
+  const body = await res.json().catch(() => null);
+  // Nest validation errors come back as an array of messages
+  const message = Array.isArray(body?.message)
+    ? body.message.join(', ')
+    : body?.message || `Request failed (${res.status})`;
+  throw new ApiError(message, res.status);
+}
+
 async function request<T>(
   path: string,
   { adminKey, ...init }: RequestInit & { adminKey?: string } = {},
@@ -29,14 +38,7 @@ async function request<T>(
   if (adminKey) headers['x-admin-key'] = adminKey;
 
   const res = await fetch(`${API_BASE}${path}`, { ...init, headers });
-  if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    // Nest validation errors come back as an array of messages
-    const message = Array.isArray(body?.message)
-      ? body.message.join(', ')
-      : body?.message || `Request failed (${res.status})`;
-    throw new ApiError(message, res.status);
-  }
+  if (!res.ok) return throwApiError(res);
   return res.status === 204 ? (undefined as T) : res.json();
 }
 
@@ -86,6 +88,15 @@ export const api = {
   deleteProject: (id: string, adminKey: string) =>
     send<void>('DELETE', `/projects/${id}`, adminKey),
 };
+
+/** Fetches the SQLite database file as a Blob. */
+export async function downloadBackup(adminKey: string): Promise<Blob> {
+  const res = await fetch(`${API_BASE}/backup`, {
+    headers: { 'x-admin-key': adminKey },
+  });
+  if (!res.ok) return throwApiError(res);
+  return res.blob();
+}
 
 /** Looks up a cover image on OpenLibrary for the given title/author. */
 export async function findOpenLibraryCover(

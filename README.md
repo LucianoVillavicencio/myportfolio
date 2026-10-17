@@ -25,8 +25,9 @@ The SQLite file `backend/portfolio.sqlite` is created on first launch, with your
 | Variable        | Default                          | Notes                                                        |
 | --------------- | -------------------------------- | ------------------------------------------------------------ |
 | `ADMIN_API_KEY` | `secret-admin-key` (dev only)    | **Required** when `NODE_ENV=production`.                     |
-| `DB_PATH`       | `backend/portfolio.sqlite`       | Where the SQLite file is stored.                             |
-| `CORS_ORIGIN`   | any origin                       | Comma-separated allow-list, e.g. `https://example.com`.      |
+| `DB_PATH`       | `backend/portfolio.sqlite`       | Where the SQLite file is stored. **Required** when `NODE_ENV=production`. |
+| `STATIC_DIR`    | `frontend/dist`                  | Built frontend served by Nest (the Docker image sets `/app/public`). |
+| `CORS_ORIGIN`   | any origin                       | Comma-separated allow-list, e.g. `https://example.com`. Not needed when Nest serves the frontend. |
 | `PORT`          | `3000`                           |                                                              |
 
 ## Owner panel
@@ -36,6 +37,30 @@ Go to `/admin` (or press **Alt + A** / **Ctrl + Shift + A** anywhere) and enter 
 - **Books** — add (with OpenLibrary cover auto-find), edit, rate, bump progress `+10p`, delete.
 - **Projects** — add, edit, feature/unfeature (featured ones are listed first), delete.
 - **Profile** — name, roles, intro text, availability, stack, email and social links shown in the hero and footer.
+- **Backup** — the **Descargar backup** button downloads a copy of the SQLite database.
+
+## Deploy (Railway)
+
+The repo ships a multi-stage `Dockerfile` and a `railway.json`; the backend serves the built frontend, so one service is enough.
+
+1. Create a Railway service from the GitHub repo. Railway picks up `railway.json` and builds the `Dockerfile`.
+2. Add a volume to the service and mount it at `/data`.
+3. Set the variables:
+   - `NODE_ENV=production`
+   - `ADMIN_API_KEY` — generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+   - `DB_PATH=/data/portfolio.sqlite`
+4. Generate a domain in the service's networking settings.
+5. The first deploy is green once `/api/health` answers.
+6. Load your content from `/admin`: profile, projects, and your Goodreads user ID followed by **Sync**.
+7. Verify persistence: trigger a redeploy and check the content is still there.
+
+Keep the service at **1 replica** (SQLite is a single file on a single volume).
+
+### Backups
+
+- Use the **Descargar backup** button in `/admin`, and/or Railway's volume backups.
+- A downloaded backup is a full SQLite file. Restoring it into Railway is not supported yet (a restore/import feature is a planned follow-up).
+- Always download a backup **before deploying entity changes**: `synchronize: true` alters the schema on boot.
 
 ## Languages
 

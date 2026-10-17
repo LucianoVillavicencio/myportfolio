@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <!-- Authentic organic ink-bleed displacement filter matching the website -->
+    <filter id="ink-bleed" x="-15%" y="-15%" width="130%" height="130%">
+      <feTurbulence
+        type="fractalNoise"
+        baseFrequency="0.065"
+        numOctaves="3"
+        seed="4"
+        result="noise"
+      />
+      <feDisplacementMap
+        in="SourceGraphic"
+        in2="noise"
+        scale="1.8"
+        xChannelSelector="R"
+        yChannelSelector="G"
+      />
+    </filter>
+  </defs>
+
+  <!-- Warm dark charcoal badge with subtle edge border -->
+  <rect
+    x="2"
+    y="2"
+    width="60"
+    height="60"
+    rx="15"
+    fill="#1e1e1e"
+    stroke="#2e2c2a"
+    stroke-width="2.5"
+  />
+
+  <g filter="url(#ink-bleed)">
+    <!-- Solid offset block shadow -->
+    <path
+      d="M 19 15 L 32 14 L 30 40 L 46 39 L 45 51 L 17 52 Z"
+      fill="#0c0c0c"
+      transform="translate(2.5, 3)"
+    />
+
+    <!-- Chunky, slightly slanted Stellost-inspired 'L' in warm yellow -->
+    <path
+      d="M 19 15 L 32 14 L 30 40 L 46 39 L 45 51 L 17 52 Z"
+      fill="#f0b420"
+      stroke="#141414"
+      stroke-width="2"
+      stroke-linejoin="round"
+    />
+
+    <!-- Hand-drawn bursts/sparks in cream & coral red (matching .fan and .decor) -->
+    <path
+      d="M 38 18 L 47 11 M 43 25 L 53 22"
+      stroke="#f4eee2"
+      stroke-width="3.5"
+      stroke-linecap="round"
+    />
+    <circle cx="48" cy="31" r="3" fill="#f36c5a" />
+  </g>
+</svg>

@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
-import { join } from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { BooksModule } from './books/books.module';
 import { ProjectsModule } from './projects/projects.module';
 import { ProfileModule } from './profile/profile.module';
@@ -11,24 +13,36 @@ import { Project } from './projects/project.entity';
 import { Profile } from './profile/profile.entity';
 import { GoodreadsSettings } from './goodreads/goodreads-settings.entity';
 import { GoodreadsModule } from './goodreads/goodreads.module';
+import { resolveDbPath, resolveStaticDir } from './config';
+import { HealthController } from './health.controller';
+import { BackupModule } from './backup/backup.module';
+import { atomicWriteFile } from './atomic-write';
+
+const dbPath = resolveDbPath(process.env);
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqljs',
-      // Resolve relative to the backend folder so the DB doesn't depend on the CWD
-      location:
-        process.env.DB_PATH || join(__dirname, '..', 'portfolio.sqlite'),
+      location: dbPath,
       autoSave: true,
+      autoSaveCallback: (data: Uint8Array) => atomicWriteFile(dbPath, data),
       entities: [Book, Project, Profile, GoodreadsSettings],
       synchronize: true,
     }),
+    ServeStaticModule.forRoot({
+      rootPath: resolveStaticDir(process.env),
+      exclude: ['/api/{*path}'],
+    }),
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     ScheduleModule.forRoot(),
     BooksModule,
     ProjectsModule,
     ProfileModule,
     GoodreadsModule,
+    BackupModule,
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, HealthController],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

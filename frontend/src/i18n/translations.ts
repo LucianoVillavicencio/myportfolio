@@ -61,7 +61,7 @@ const es = {
       READING: 'No hay nada en la mesita de luz ahora.',
       COMPLETED: 'Todavía no hay libros terminados.',
       WANT_TO_READ: 'La cola de lectura está vacía.',
-      ALL: 'Todavía no hay libros en la librería.',
+      ALL: 'Todavía no hay libros en la biblioteca.',
     } as Record<Filter, string>,
   },
   footer: {
@@ -97,7 +97,7 @@ const es = {
       },
       completed: {
         heading: ['YA', 'LEÍDOS'] as Heading,
-        caption: ((n) => plural(n, 'libro terminado y anotado', 'libros terminados')) as Count,
+        caption: ((n) => plural(n, 'libro terminado', 'libros terminados')) as Count,
         empty: 'Todavía no hay libros terminados.',
       },
     },
@@ -127,6 +127,8 @@ const es = {
     title: 'PANEL',
     accent: 'PRIVADO',
     lock: 'Cerrar sesión',
+    backup: 'Descargar backup',
+    backupError: 'No se pudo descargar el backup.',
     tabs: {
       books: (n: number) => `Libros (${n})`,
       projects: (n: number) => `Proyectos (${n})`,
@@ -151,6 +153,7 @@ const es = {
       passphrase: 'Clave de administrador',
       invalid: 'Clave incorrecta.',
       unreachable: 'No se pudo conectar con la API para verificar la clave.',
+      throttled: 'Demasiados intentos. Esperá un minuto y probá de nuevo.',
       verifying: 'Verificando...',
       submit: 'Entrar al panel →',
     },
@@ -373,6 +376,8 @@ const en: Dictionary = {
     title: 'OWNER',
     accent: 'PANEL',
     lock: 'Lock session',
+    backup: 'Download backup',
+    backupError: 'Could not download the backup.',
     tabs: {
       books: (n) => `Books (${n})`,
       projects: (n) => `Projects (${n})`,
@@ -397,6 +402,7 @@ const en: Dictionary = {
       passphrase: 'Admin passphrase',
       invalid: 'Invalid passphrase.',
       unreachable: 'Could not reach the API to verify the passphrase.',
+      throttled: 'Too many attempts. Wait a minute and try again.',
       verifying: 'Verifying...',
       submit: 'Unlock owner panel →',
     },

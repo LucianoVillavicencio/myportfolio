@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { downloadBackup } from '../../lib/api';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { usePortfolioData } from '../../context/PortfolioDataContext';
 import { useI18n } from '../../i18n/LanguageContext';
@@ -15,7 +16,7 @@ const TABS = ['books', 'projects', 'profile'] as const;
 type AdminTab = (typeof TABS)[number];
 
 export const AdminPage: React.FC = () => {
-  const { isAdmin, logout } = useAdminAuth();
+  const { isAdmin, adminKey, logout } = useAdminAuth();
   const { profile, books, projects, loadFailed } = usePortfolioData();
   const { t } = useI18n();
   const [params, setParams] = useSearchParams();
@@ -30,6 +31,25 @@ export const AdminPage: React.FC = () => {
     profile: t.admin.tabs.profile,
   };
 
+  const [backingUp, setBackingUp] = React.useState(false);
+  const handleBackup = async () => {
+    if (!adminKey) return;
+    setBackingUp(true);
+    try {
+      const blob = await downloadBackup(adminKey);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `portfolio-${new Date().toISOString().slice(0, 10)}.sqlite`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      window.alert(t.admin.backupError);
+    } finally {
+      setBackingUp(false);
+    }
+  };
+
   return (
     <div className="admin-page">
       <div className="bf-topbar">
@@ -39,9 +59,19 @@ export const AdminPage: React.FC = () => {
         <div className="pills">
           <LanguageToggle />
           {isAdmin && (
-            <button type="button" className="admin-lock-btn" onClick={logout}>
-              {t.admin.lock}
-            </button>
+            <>
+              <button
+                type="button"
+                className="admin-lock-btn"
+                onClick={handleBackup}
+                disabled={backingUp}
+              >
+                {t.admin.backup}
+              </button>
+              <button type="button" className="admin-lock-btn" onClick={logout}>
+                {t.admin.lock}
+              </button>
+            </>
           )}
         </div>
       </div>

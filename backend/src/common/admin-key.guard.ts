@@ -10,7 +10,7 @@ import { timingSafeEqual } from 'crypto';
 const DEV_FALLBACK_KEY = 'secret-admin-key';
 let cachedKey: Buffer | undefined;
 
-function expectedKey(): Buffer {
+export function expectedKey(): Buffer {
   if (cachedKey) return cachedKey;
   let key = process.env.ADMIN_API_KEY;
   if (!key) {
