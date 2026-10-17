@@ -1,16 +1,18 @@
 import React from 'react';
 import type { Profile } from '../../types';
 import { socialLinks } from '../../lib/profile';
+import { useI18n } from '../../i18n/LanguageContext';
 
 export const ContactFooter: React.FC<{ profile: Profile | null }> = ({ profile }) => {
+  const { t } = useI18n();
   const links = profile ? socialLinks(profile) : [];
 
   return (
     <footer className="foot" id="contact">
       <div className="foot-inner">
         <h2 className="foot-title">
-          <span className="fw1">LET’S</span>
-          <span className="fw2">TALK</span>
+          <span className="fw1">{t.footer.title}</span>
+          <span className="fw2">{t.footer.accent}</span>
         </h2>
 
         {profile && (
@@ -18,7 +20,7 @@ export const ContactFooter: React.FC<{ profile: Profile | null }> = ({ profile }
             <dl className="foot-data">
               {profile.email && (
                 <div>
-                  <dt>Email</dt>
+                  <dt>{t.footer.email}</dt>
                   <dd>
                     <a href={`mailto:${profile.email}`}>{profile.email}</a>
                   </dd>
@@ -26,7 +28,7 @@ export const ContactFooter: React.FC<{ profile: Profile | null }> = ({ profile }
               )}
               {profile.location && (
                 <div>
-                  <dt>Location</dt>
+                  <dt>{t.footer.location}</dt>
                   <dd>{profile.location}</dd>
                 </div>
               )}
@@ -34,7 +36,7 @@ export const ContactFooter: React.FC<{ profile: Profile | null }> = ({ profile }
 
             {links.length > 0 && (
               <div className="foot-social">
-                <p className="foot-label">Social</p>
+                <p className="foot-label">{t.footer.social}</p>
                 <ul>
                   {links.map((link) => (
                     <li key={link.label}>

@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useI18n } from '../i18n/LanguageContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { ShapeSwirl, ShapeLines, ShapeStar } from '../components/illustrations';
 import { TopPills } from '../components/layout/TopPills';
 
 export const NotFoundPage: React.FC = () => {
-  useDocumentTitle('404 — Page Not Found');
+  const { t } = useI18n();
+  useDocumentTitle(t.notFound.docTitle);
 
   return (
     <div className="nf-page">
@@ -18,7 +20,7 @@ export const NotFoundPage: React.FC = () => {
           <ShapeSwirl className="nf-swirl" />
           <ShapeLines className="nf-lines" />
 
-          <p className="nf-eyebrow anim d1">Error 404</p>
+          <p className="nf-eyebrow anim d1">{t.notFound.eyebrow}</p>
 
           <h1 className="nf-code anim d2" aria-label="404">
             <span className="d">4</span>
@@ -26,20 +28,16 @@ export const NotFoundPage: React.FC = () => {
             <span className="d">4</span>
           </h1>
 
-          <p className="nf-title anim d3">PAGE NOT FOUND</p>
+          <p className="nf-title anim d3">{t.notFound.title}</p>
 
-          <p className="nf-lead anim d4">
-            It&apos;s not you, it&apos;s us. The page you&apos;re looking for may be
-            retired, or never existed, or there could be a typo in the link that you
-            followed.
-          </p>
+          <p className="nf-lead anim d4">{t.notFound.lead}</p>
 
           <div className="btns anim d5">
             <Link className="btn btn--y" to="/">
-              Back home <span className="arr">→</span>
+              {t.notFound.back} <span className="arr">→</span>
             </Link>
             <Link className="btn btn--o" to="/#projects-section">
-              See the projects <span className="arr">↗</span>
+              {t.notFound.projects} <span className="arr">↗</span>
             </Link>
           </div>
         </div>

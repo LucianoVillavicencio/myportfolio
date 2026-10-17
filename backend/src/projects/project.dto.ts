@@ -27,10 +27,16 @@ export class CreateProjectDto {
   @IsNotEmpty()
   title: string;
 
+  // At least one of the two summaries is required (checked in the service)
   @Trim()
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  summary: string;
+  summaryEs?: string;
+
+  @Trim()
+  @IsOptional()
+  @IsString()
+  summaryEn?: string;
 
   @CleanTags()
   @IsArray()

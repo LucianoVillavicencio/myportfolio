@@ -1,7 +1,8 @@
 import React from 'react';
 import type { Book } from '../../types';
-import { STATUS_LABELS, progressPercent } from '../../lib/books';
+import { progressPercent } from '../../lib/books';
 import { clickable } from '../../lib/a11y';
+import { useI18n } from '../../i18n/LanguageContext';
 import { BookCover } from './BookCover';
 import { StarRating } from './StarRating';
 
@@ -19,6 +20,7 @@ export const ShelfBookCard: React.FC<ShelfBookCardProps> = ({
   accentColor,
   onInspect,
 }) => {
+  const { t } = useI18n();
   const percent = progressPercent(book);
 
   return (
@@ -30,8 +32,8 @@ export const ShelfBookCard: React.FC<ShelfBookCardProps> = ({
 
       <div
         className="bf-card-cover-col"
-        title="Inspect book & notes"
-        {...clickable(() => onInspect(book), `Inspect ${book.title}`)}
+        title={t.book.inspect}
+        {...clickable(() => onInspect(book), t.book.inspectTitle(book.title))}
       >
         <BookCover book={book} accentColor={accentColor} />
       </div>
@@ -40,7 +42,7 @@ export const ShelfBookCard: React.FC<ShelfBookCardProps> = ({
         <div className="bf-card-top">
           <span className={`bf-status-pill status--${book.status.toLowerCase()}`}>
             <span className="bf-dot" />
-            {STATUS_LABELS[book.status]}
+            {t.status[book.status]}
           </span>
           <span className="bf-index">#{String(index + 1).padStart(2, '0')}</span>
         </div>
@@ -65,7 +67,7 @@ export const ShelfBookCard: React.FC<ShelfBookCardProps> = ({
         <div className="bf-progress-wrap">
           {book.status === 'WANT_TO_READ' ? (
             <div className="bf-progress-meta">
-              <span>{book.totalPages} pages · Queued on shelf</span>
+              <span>{t.book.queued(book.totalPages)}</span>
             </div>
           ) : (
             <>
@@ -73,9 +75,7 @@ export const ShelfBookCard: React.FC<ShelfBookCardProps> = ({
                 <div className="bf-progress-fill" style={{ width: `${percent}%` }} />
               </div>
               <div className="bf-progress-meta">
-                <span>
-                  {book.currentPage} / {book.totalPages} pages ({percent}%)
-                </span>
+                <span>{t.book.progress(book.currentPage, book.totalPages, percent)}</span>
               </div>
             </>
           )}

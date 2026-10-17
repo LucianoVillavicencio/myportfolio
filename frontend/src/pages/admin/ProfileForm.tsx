@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import type { Profile, ProfileInput } from '../../types';
 import { api } from '../../lib/api';
+import { useI18n } from '../../i18n/LanguageContext';
 import { useFormState } from '../../hooks/useFormState';
 import { FormField } from '../../components/form/FormField';
+import { BilingualField } from '../../components/form/BilingualField';
 import { useAdminMutation } from './useAdminMutation';
 
 function toFormValues(profile: Profile): ProfileInput {
@@ -17,10 +19,14 @@ function toFormValues(profile: Profile): ProfileInput {
 const PROFILE_FIELDS: (keyof ProfileInput)[] = [
   'name',
   'location',
-  'roles',
-  'leadHighlight',
-  'leadText',
-  'availability',
+  'rolesEs',
+  'rolesEn',
+  'leadHighlightEs',
+  'leadHighlightEn',
+  'leadTextEs',
+  'leadTextEn',
+  'availabilityEs',
+  'availabilityEn',
   'stack',
   'email',
   'githubUrl',
@@ -28,18 +34,35 @@ const PROFILE_FIELDS: (keyof ProfileInput)[] = [
   'instagramUrl',
 ];
 
+/** Translatable profile fields, as the base name shared by their Es/En pair. */
+type BilingualKey = 'roles' | 'leadHighlight' | 'leadText' | 'availability';
+
 export const ProfileForm: React.FC<{ profile: Profile }> = ({ profile }) => {
+  const { t } = useI18n();
+  const labels = t.admin.profile.fields;
   const { values, setField } = useFormState(toFormValues(profile));
   const { run, isBusy, error } = useAdminMutation();
   const [saved, setSaved] = useState(false);
 
+  const update = (key: keyof ProfileInput, value: string) => {
+    setSaved(false);
+    setField(key, value);
+  };
+
   const text = (key: keyof ProfileInput) => ({
     value: values[key],
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setSaved(false);
-      setField(key, e.target.value);
-    },
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => update(key, e.target.value),
   });
+
+  const bilingual = (key: BilingualKey, rows?: number) => (
+    <BilingualField
+      label={labels[key]}
+      es={values[`${key}Es`]}
+      en={values[`${key}En`]}
+      onChange={(lang, value) => update(`${key}${lang === 'es' ? 'Es' : 'En'}`, value)}
+      rows={rows}
+    />
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,59 +75,48 @@ export const ProfileForm: React.FC<{ profile: Profile }> = ({ profile }) => {
 
   return (
     <section className="admin-panel admin-panel--wide">
-      <h2 className="admin-panel-title">PROFILE &amp; CONTACT</h2>
+      <h2 className="admin-panel-title">{t.admin.profile.title}</h2>
       <form onSubmit={handleSubmit} className="admin-form">
         <div className="form-row">
-          <FormField label="Name">
+          <FormField label={labels.name}>
             <input type="text" required {...text('name')} />
           </FormField>
-          <FormField label="Location">
+          <FormField label={labels.location}>
             <input type="text" {...text('location')} />
           </FormField>
         </div>
 
-        <FormField label="Roles (one per line)">
-          <textarea rows={2} {...text('roles')} />
-        </FormField>
+        <p className="admin-hint">{t.admin.bilingualHint}</p>
+        {bilingual('roles', 2)}
+        {bilingual('leadHighlight')}
+        {bilingual('leadText', 3)}
+        {bilingual('availability')}
 
-        <div className="form-row">
-          <FormField label="Intro — bold sentence">
-            <input type="text" {...text('leadHighlight')} />
-          </FormField>
-          <FormField label="Availability status">
-            <input type="text" {...text('availability')} />
-          </FormField>
-        </div>
-
-        <FormField label="Intro — rest of the paragraph">
-          <textarea rows={3} {...text('leadText')} />
-        </FormField>
-
-        <FormField label="Stack & lab">
+        <FormField label={labels.stack}>
           <input type="text" {...text('stack')} />
         </FormField>
 
         <div className="form-row">
-          <FormField label="Email">
+          <FormField label={labels.email}>
             <input type="email" {...text('email')} />
           </FormField>
-          <FormField label="GitHub URL">
+          <FormField label={labels.github}>
             <input type="url" {...text('githubUrl')} />
           </FormField>
-          <FormField label="LinkedIn URL">
+          <FormField label={labels.linkedin}>
             <input type="url" {...text('linkedinUrl')} />
           </FormField>
-          <FormField label="Instagram URL">
+          <FormField label={labels.instagram}>
             <input type="url" {...text('instagramUrl')} />
           </FormField>
         </div>
 
         {error && <p className="form-error">{error}</p>}
-        {saved && <p className="form-success">Profile saved.</p>}
+        {saved && <p className="form-success">{t.admin.profile.saved}</p>}
 
         <div className="dialog-actions">
           <button type="submit" className="btn-primary-mustard" disabled={isBusy}>
-            {isBusy ? 'Saving...' : 'Save profile'}
+            {isBusy ? t.admin.saving : t.admin.profile.submit}
           </button>
         </div>
       </form>

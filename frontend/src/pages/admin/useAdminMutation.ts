@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { ApiError } from '../../lib/api';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { usePortfolioData } from '../../context/PortfolioDataContext';
+import { useI18n } from '../../i18n/LanguageContext';
 
 /**
  * Runs an authenticated write, then refreshes the shared portfolio data.
@@ -10,6 +11,7 @@ import { usePortfolioData } from '../../context/PortfolioDataContext';
 export function useAdminMutation() {
   const { adminKey, logout } = useAdminAuth();
   const { reload } = usePortfolioData();
+  const { t } = useI18n();
   const [isBusy, setIsBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,13 +28,13 @@ export function useAdminMutation() {
         if (err instanceof ApiError && err.status === 401) {
           logout();
         }
-        setError(err instanceof Error ? err.message : 'Something went wrong');
+        setError(err instanceof Error ? err.message : t.admin.genericError);
         return false;
       } finally {
         setIsBusy(false);
       }
     },
-    [adminKey, logout, reload],
+    [adminKey, logout, reload, t],
   );
 
   return { run, isBusy, error, clearError: () => setError(null) };

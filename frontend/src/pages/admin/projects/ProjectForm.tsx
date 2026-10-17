@@ -1,8 +1,10 @@
 import React from 'react';
 import type { Project, ProjectInput } from '../../../types';
 import { api } from '../../../lib/api';
+import { useI18n } from '../../../i18n/LanguageContext';
 import { useFormState } from '../../../hooks/useFormState';
 import { FormField } from '../../../components/form/FormField';
+import { BilingualField } from '../../../components/form/BilingualField';
 import { useAdminMutation } from '../useAdminMutation';
 
 interface ProjectFormProps {
@@ -13,17 +15,18 @@ interface ProjectFormProps {
 
 type ProjectFormValues = Omit<ProjectInput, 'techStack'> & { techStack: string };
 
-function toFormValues(project?: Project): ProjectFormValues {
+function toFormValues(locale: string, project?: Project): ProjectFormValues {
   return {
     title: project?.title ?? '',
-    summary: project?.summary ?? '',
+    summaryEs: project?.summaryEs ?? '',
+    summaryEn: project?.summaryEn ?? '',
     techStack: project?.techStack.join(', ') ?? '',
     repoUrl: project?.repoUrl ?? '',
     liveUrl: project?.liveUrl ?? '',
     featured: project?.featured ?? true,
     completedDate:
       project?.completedDate ??
-      new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      new Date().toLocaleDateString(locale, { month: 'short', year: 'numeric' }),
   };
 }
 
@@ -38,11 +41,15 @@ function toInput(values: ProjectFormValues): ProjectInput {
 }
 
 export const ProjectForm: React.FC<ProjectFormProps> = ({ project, onDone }) => {
-  const { values, setField } = useFormState(toFormValues(project));
+  const { t, locale } = useI18n();
+  const copy = t.admin.projects;
+  const { values, setField } = useFormState(toFormValues(locale, project));
   const { run, isBusy, error } = useAdminMutation();
+  const missingSummary = !values.summaryEs.trim() && !values.summaryEn.trim();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (missingSummary) return;
     const input = toInput(values);
     const ok = await run((key) =>
       project ? api.updateProject(project.id, input, key) : api.createProject(input, key),
@@ -53,36 +60,36 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ project, onDone }) => 
   return (
     <form onSubmit={handleSubmit} className="admin-form">
       <div className="form-row">
-        <FormField label="Title">
+        <FormField label={copy.fields.title}>
           <input
             type="text"
             value={values.title}
             onChange={(e) => setField('title', e.target.value)}
-            placeholder="e.g. Distributed Queue Engine"
+            placeholder={copy.placeholders.title}
             required
           />
         </FormField>
-        <FormField label="Date / timeline">
+        <FormField label={copy.fields.date}>
           <input
             type="text"
             value={values.completedDate}
             onChange={(e) => setField('completedDate', e.target.value)}
-            placeholder="e.g. Oct 2026"
+            placeholder={copy.placeholders.date}
           />
         </FormField>
       </div>
 
-      <FormField label="Summary">
-        <textarea
-          rows={3}
-          value={values.summary}
-          onChange={(e) => setField('summary', e.target.value)}
-          placeholder="What you built and why it matters..."
-          required
-        />
-      </FormField>
+      <BilingualField
+        label={copy.fields.summary}
+        es={values.summaryEs}
+        en={values.summaryEn}
+        onChange={(lang, value) => setField(lang === 'es' ? 'summaryEs' : 'summaryEn', value)}
+        rows={3}
+        placeholder={copy.placeholders.summary}
+      />
+      <p className="admin-hint">{t.admin.bilingualHint}</p>
 
-      <FormField label="Tech stack (comma separated)">
+      <FormField label={copy.fields.stack}>
         <input
           type="text"
           value={values.techStack}
@@ -93,7 +100,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ project, onDone }) => 
       </FormField>
 
       <div className="form-row">
-        <FormField label="Repository URL (optional)">
+        <FormField label={copy.fields.repo}>
           <input
             type="url"
             value={values.repoUrl}
@@ -101,7 +108,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ project, onDone }) => 
             placeholder="https://github.com/..."
           />
         </FormField>
-        <FormField label="Live demo URL (optional)">
+        <FormField label={copy.fields.live}>
           <input
             type="url"
             value={values.liveUrl}
@@ -117,7 +124,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ project, onDone }) => 
           checked={values.featured}
           onChange={(e) => setField('featured', e.target.checked)}
         />
-        Featured — list this project first
+        {copy.featured}
       </label>
 
       {error && <p className="form-error">{error}</p>}
@@ -125,11 +132,15 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ project, onDone }) => 
       <div className="dialog-actions">
         {project && (
           <button type="button" className="btn-ghost" onClick={onDone}>
-            Cancel
+            {t.admin.cancel}
           </button>
         )}
-        <button type="submit" className="btn-primary-mustard" disabled={isBusy}>
-          {isBusy ? 'Saving...' : project ? 'Save changes' : 'Publish project'}
+        <button
+          type="submit"
+          className="btn-primary-mustard"
+          disabled={isBusy || missingSummary}
+        >
+          {isBusy ? t.admin.saving : project ? t.admin.saveChanges : copy.submit}
         </button>
       </div>
     </form>

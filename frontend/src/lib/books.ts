@@ -1,10 +1,4 @@
-import type { Book, ReadingStatus } from '../types';
-
-export const STATUS_LABELS: Record<ReadingStatus, string> = {
-  READING: 'Currently reading',
-  WANT_TO_READ: 'To-read',
-  COMPLETED: 'Read',
-};
+import type { Book } from '../types';
 
 /** Rotating accent palette used for book spines and fallback covers. */
 const ACCENTS = ['#f0b420', '#f36c5a', '#b0a5fa'];
@@ -24,5 +18,3 @@ export function groupByStatus(books: Book[]) {
   };
 }
 
-export const pluralize = (count: number, word: string) =>
-  `${count} ${count === 1 ? word : `${word}s`}`;

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import type { Book } from '../../types';
-import { STATUS_LABELS } from '../../lib/books';
+import { useI18n } from '../../i18n/LanguageContext';
 import { BookCover } from './BookCover';
 import { StarRating } from './StarRating';
 
@@ -10,6 +10,8 @@ interface BookLightboxProps {
 }
 
 export const BookLightbox: React.FC<BookLightboxProps> = ({ book, onClose }) => {
+  const { t } = useI18n();
+
   // Close on Escape and lock page scroll while open
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -30,7 +32,12 @@ export const BookLightbox: React.FC<BookLightboxProps> = ({ book, onClose }) => 
       aria-modal="true"
       aria-labelledby="bf-lb-title"
     >
-      <button type="button" className="pf-lb-close" onClick={onClose} aria-label="Close">
+      <button
+        type="button"
+        className="pf-lb-close"
+        onClick={onClose}
+        aria-label={t.common.close}
+      >
         ✕
       </button>
 
@@ -42,12 +49,12 @@ export const BookLightbox: React.FC<BookLightboxProps> = ({ book, onClose }) => 
         <div className="bf-lb-details">
           <span className="bf-status-pill">
             <span className="bf-dot" />
-            {STATUS_LABELS[book.status]}
+            {t.status[book.status]}
           </span>
           <h2 id="bf-lb-title" className="bf-lb-title">
             {book.title}
           </h2>
-          <p className="bf-lb-author">by {book.author}</p>
+          <p className="bf-lb-author">{t.common.by(book.author)}</p>
           {book.rating && book.status === 'COMPLETED' && (
             <StarRating rating={book.rating} />
           )}
@@ -55,7 +62,7 @@ export const BookLightbox: React.FC<BookLightboxProps> = ({ book, onClose }) => 
             <blockquote className="bf-lb-notes">“{book.thoughts}”</blockquote>
           )}
           <p className="bf-lb-progress">
-            Progress: {book.currentPage} / {book.totalPages} pages
+            {t.book.lightboxProgress(book.currentPage, book.totalPages)}
           </p>
         </div>
       </div>

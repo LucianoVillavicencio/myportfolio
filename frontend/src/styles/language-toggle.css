@@ -1,0 +1,41 @@
+/* ES / EN language switch, sized to sit alongside the .pill buttons */
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.2rem;
+  border: 1.5px solid #3a3835;
+  border-radius: 100vw;
+  background: #1b1917;
+}
+
+.lang-toggle button {
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: var(--color-ink-dim);
+  background: transparent;
+  border: none;
+  border-radius: 100vw;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  transition:
+    background 0.2s var(--ease-out-back),
+    color 0.2s var(--ease-out-back);
+}
+
+.lang-toggle button:hover {
+  color: var(--color-ink);
+}
+
+.lang-toggle button.is-on {
+  background: var(--color-ink);
+  color: #1b1b1b;
+}
+
+.lang-toggle button:focus-visible {
+  outline: 2px solid var(--color-yellow);
+  outline-offset: 2px;
+}

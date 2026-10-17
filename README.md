@@ -37,6 +37,14 @@ Go to `/admin` (or press **Alt + A** / **Ctrl + Shift + A** anywhere) and enter 
 - **Projects** — add, edit, feature/unfeature (featured ones are listed first), delete.
 - **Profile** — name, roles, intro text, availability, stack, email and social links shown in the hero and footer.
 
+## Languages
+
+The site is in **Spanish by default**, with an **ES / EN** switch in the top bar (the choice is remembered in the browser).
+
+- Fixed UI text lives in `frontend/src/i18n/translations.ts`. The English dictionary is typed against the Spanish one, so a missing key fails the build.
+- The profile intro, roles and availability, and project summaries, have separate ES and EN fields in `/admin`. If one language is left empty, the other one is shown.
+- Book titles and notes are shown exactly as written in both languages.
+
 ## Project structure
 
 ```
@@ -50,6 +58,7 @@ backend/src
 frontend/src
   App.tsx        routes: /, /books, /admin, 404
   context/       AdminAuthContext (session key), PortfolioDataContext (shared data)
+  i18n/          translations (es, en) and LanguageContext
   lib/           api client, book/profile helpers
   hooks/         useDocumentTitle, useFormState
   components/    illustrations/, books/, projects/, layout/, form/

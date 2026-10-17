@@ -28,7 +28,8 @@ export interface BookInput {
 export interface Project {
   id: string;
   title: string;
-  summary: string;
+  summaryEs: string;
+  summaryEn: string;
   techStack: string[];
   repoUrl: string | null;
   liveUrl: string | null;
@@ -39,7 +40,8 @@ export interface Project {
 
 export interface ProjectInput {
   title: string;
-  summary: string;
+  summaryEs: string;
+  summaryEn: string;
   techStack: string[];
   repoUrl: string;
   liveUrl: string;
@@ -51,10 +53,14 @@ export interface Profile {
   name: string;
   location: string;
   /** Newline-separated list of roles. */
-  roles: string;
-  leadHighlight: string;
-  leadText: string;
-  availability: string;
+  rolesEs: string;
+  rolesEn: string;
+  leadHighlightEs: string;
+  leadHighlightEn: string;
+  leadTextEs: string;
+  leadTextEn: string;
+  availabilityEs: string;
+  availabilityEn: string;
   stack: string;
   email: string;
   githubUrl: string | null;

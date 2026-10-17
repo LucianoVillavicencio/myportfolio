@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import type { Book } from '../../../types';
 import { api } from '../../../lib/api';
-import { STATUS_LABELS, accentFor } from '../../../lib/books';
+import { accentFor } from '../../../lib/books';
 import { usePortfolioData } from '../../../context/PortfolioDataContext';
+import { useI18n } from '../../../i18n/LanguageContext';
 import { BookCover } from '../../../components/books/BookCover';
 import { useAdminMutation } from '../useAdminMutation';
 import { AdminRow, ManagerLayout } from '../ManagerLayout';
@@ -12,6 +13,8 @@ const QUICK_PAGES = 10;
 
 export const BooksManager: React.FC = () => {
   const { books } = usePortfolioData();
+  const { t } = useI18n();
+  const copy = t.admin.books;
   const { run, isBusy, error } = useAdminMutation();
   const [editingId, setEditingId] = useState<string | null>(null);
   // Bumped after each save so the "new book" form remounts empty
@@ -34,20 +37,21 @@ export const BooksManager: React.FC = () => {
     );
 
   const remove = async (book: Book) => {
-    if (!window.confirm(`Delete "${book.title}"? This can't be undone.`)) return;
+    if (!window.confirm(t.admin.confirmDelete(book.title))) return;
     const ok = await run((key) => api.deleteBook(book.id, key));
     if (ok && book.id === editingId) closeForm();
   };
 
   return (
     <ManagerLayout
-      listTitle={`BOOKS (${books.length})`}
+      listTitle={copy.listTitle(books.length)}
       onNew={editingBook ? closeForm : undefined}
+      newLabel={t.admin.newItem}
       list={
         <>
           {error && <p className="form-error">{error}</p>}
           {books.length === 0 ? (
-            <p className="admin-hint">No books yet — add your first one.</p>
+            <p className="admin-hint">{copy.empty}</p>
           ) : (
             <ul className="admin-list">
               {books.map((book, i) => (
@@ -58,7 +62,7 @@ export const BooksManager: React.FC = () => {
                     <BookCover book={book} accentColor={accentFor(i)} className="admin-thumb" />
                   }
                   title={book.title}
-                  meta={`${STATUS_LABELS[book.status]} · ${book.currentPage}/${book.totalPages}p`}
+                  meta={`${t.status[book.status]} · ${book.currentPage}/${book.totalPages}p`}
                   actions={
                     <>
                       {book.status === 'READING' && (
@@ -66,22 +70,22 @@ export const BooksManager: React.FC = () => {
                           type="button"
                           disabled={isBusy}
                           onClick={() => addPages(book)}
-                          title={`Add ${QUICK_PAGES} pages`}
+                          title={copy.addPages(QUICK_PAGES)}
                         >
                           +{QUICK_PAGES}p
                         </button>
                       )}
                       <button type="button" onClick={() => setEditingId(book.id)}>
-                        Edit
+                        {t.admin.edit}
                       </button>
                       <button
                         type="button"
                         className="danger-btn"
                         disabled={isBusy}
                         onClick={() => remove(book)}
-                        aria-label={`Delete ${book.title}`}
+                        aria-label={t.admin.deleteLabel(book.title)}
                       >
-                        Delete
+                        {t.admin.delete}
                       </button>
                     </>
                   }
@@ -91,7 +95,7 @@ export const BooksManager: React.FC = () => {
           )}
         </>
       }
-      formTitle={editingBook ? 'EDIT BOOK' : 'ADD A BOOK'}
+      formTitle={editingBook ? copy.editTitle : copy.addTitle}
       form={
         <BookForm
           key={editingBook?.id ?? `new-${formKey}`}

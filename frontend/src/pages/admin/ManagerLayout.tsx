@@ -6,6 +6,7 @@ interface ManagerLayoutProps {
   formTitle: string;
   form: React.ReactNode;
   onNew?: () => void;
+  newLabel?: string;
 }
 
 /** Two-column admin layout: item list on the left, editor form on the right. */
@@ -15,6 +16,7 @@ export const ManagerLayout: React.FC<ManagerLayoutProps> = ({
   formTitle,
   form,
   onNew,
+  newLabel,
 }) => (
   <div className="admin-grid">
     <section className="admin-panel">
@@ -22,7 +24,7 @@ export const ManagerLayout: React.FC<ManagerLayoutProps> = ({
         <h2 className="admin-panel-title">{listTitle}</h2>
         {onNew && (
           <button type="button" className="btn-ghost" onClick={onNew}>
-            + New
+            {newLabel}
           </button>
         )}
       </div>

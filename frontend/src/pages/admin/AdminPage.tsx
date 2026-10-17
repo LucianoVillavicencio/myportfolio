@@ -2,8 +2,10 @@ import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { usePortfolioData } from '../../context/PortfolioDataContext';
+import { useI18n } from '../../i18n/LanguageContext';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { ShapeStar } from '../../components/illustrations';
+import { LanguageToggle } from '../../components/layout/LanguageToggle';
 import { LoginPanel } from './LoginPanel';
 import { BooksManager } from './books/BooksManager';
 import { ProjectsManager } from './projects/ProjectsManager';
@@ -14,42 +16,46 @@ type AdminTab = (typeof TABS)[number];
 
 export const AdminPage: React.FC = () => {
   const { isAdmin, logout } = useAdminAuth();
-  const { profile, books, projects, error } = usePortfolioData();
+  const { profile, books, projects, loadFailed } = usePortfolioData();
+  const { t } = useI18n();
   const [params, setParams] = useSearchParams();
-  useDocumentTitle('Owner Panel');
+  useDocumentTitle(t.admin.docTitle);
 
   const requested = params.get('tab') as AdminTab | null;
   const tab: AdminTab = requested && TABS.includes(requested) ? requested : 'books';
 
   const tabLabels: Record<AdminTab, string> = {
-    books: `Books (${books.length})`,
-    projects: `Projects (${projects.length})`,
-    profile: 'Profile',
+    books: t.admin.tabs.books(books.length),
+    projects: t.admin.tabs.projects(projects.length),
+    profile: t.admin.tabs.profile,
   };
 
   return (
     <div className="admin-page">
       <div className="bf-topbar">
         <Link to="/" className="pill pill--back">
-          <span className="arr">←</span> back home
+          <span className="arr">←</span> {t.common.backHome}
         </Link>
-        {isAdmin && (
-          <button type="button" className="admin-lock-btn" onClick={logout}>
-            Lock session
-          </button>
-        )}
+        <div className="pills">
+          <LanguageToggle />
+          {isAdmin && (
+            <button type="button" className="admin-lock-btn" onClick={logout}>
+              {t.admin.lock}
+            </button>
+          )}
+        </div>
       </div>
 
       <header className="admin-header">
         <h1 className="section-heading">
-          <span>OWNER</span>
+          <span>{t.admin.title}</span>
           <span className="accent">
-            PANEL <ShapeStar className="admin-star" />
+            {t.admin.accent} <ShapeStar className="admin-star" />
           </span>
         </h1>
       </header>
 
-      {error && <p className="api-error-banner">{error}</p>}
+      {loadFailed && <p className="api-error-banner">{t.common.loadError}</p>}
 
       {!isAdmin ? (
         <LoginPanel />
@@ -76,7 +82,7 @@ export const AdminPage: React.FC = () => {
             (profile ? (
               <ProfileForm profile={profile} />
             ) : (
-              <p className="admin-hint">Loading profile…</p>
+              <p className="admin-hint">{t.admin.loadingProfile}</p>
             ))}
         </>
       )}

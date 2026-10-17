@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { Book } from '../../types';
+import { useI18n } from '../../i18n/LanguageContext';
 
 interface BookCoverProps {
   book: Pick<Book, 'title' | 'author' | 'coverUrl'>;
@@ -13,6 +14,7 @@ export const BookCover: React.FC<BookCoverProps> = ({
   accentColor,
   className = '',
 }) => {
+  const { t } = useI18n();
   const [imgFailed, setImgFailed] = useState(false);
 
   // Retry when the cover URL changes (e.g. after editing it in the admin panel)
@@ -23,7 +25,7 @@ export const BookCover: React.FC<BookCoverProps> = ({
       <div className={`bf-cover-frame ${className}`}>
         <img
           src={book.coverUrl}
-          alt={`Cover of ${book.title}`}
+          alt={t.book.coverOf(book.title)}
           loading="lazy"
           decoding="async"
           onError={() => setImgFailed(true)}

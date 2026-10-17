@@ -1,3 +1,4 @@
+import { applyDecorators } from '@nestjs/common';
 import {
   IsEmail,
   IsNotEmpty,
@@ -8,6 +9,9 @@ import {
 } from 'class-validator';
 import { EmptyToNull, Trim } from '../common/transforms';
 
+/** Optional, trimmed free-text field (blank allowed). */
+const OptionalText = () => applyDecorators(Trim(), IsOptional(), IsString());
+
 export class UpdateProfileDto {
   @Trim()
   @IsOptional()
@@ -15,34 +19,34 @@ export class UpdateProfileDto {
   @IsNotEmpty()
   name?: string;
 
-  @Trim()
-  @IsOptional()
-  @IsString()
+  @OptionalText()
   location?: string;
 
-  @Trim()
-  @IsOptional()
-  @IsString()
-  roles?: string;
+  @OptionalText()
+  rolesEs?: string;
 
-  @Trim()
-  @IsOptional()
-  @IsString()
-  leadHighlight?: string;
+  @OptionalText()
+  rolesEn?: string;
 
-  @Trim()
-  @IsOptional()
-  @IsString()
-  leadText?: string;
+  @OptionalText()
+  leadHighlightEs?: string;
 
-  @Trim()
-  @IsOptional()
-  @IsString()
-  availability?: string;
+  @OptionalText()
+  leadHighlightEn?: string;
 
-  @Trim()
-  @IsOptional()
-  @IsString()
+  @OptionalText()
+  leadTextEs?: string;
+
+  @OptionalText()
+  leadTextEn?: string;
+
+  @OptionalText()
+  availabilityEs?: string;
+
+  @OptionalText()
+  availabilityEn?: string;
+
+  @OptionalText()
   stack?: string;
 
   // Blank is allowed and hides the email from the contact footer

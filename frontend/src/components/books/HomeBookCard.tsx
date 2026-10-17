@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Book } from '../../types';
-import { STATUS_LABELS, progressPercent } from '../../lib/books';
+import { progressPercent } from '../../lib/books';
+import { useI18n } from '../../i18n/LanguageContext';
 import { BookCover } from './BookCover';
 
 interface HomeBookCardProps {
@@ -10,6 +11,7 @@ interface HomeBookCardProps {
 
 /** Compact book card used in the home page reading section. */
 export const HomeBookCard: React.FC<HomeBookCardProps> = ({ book, accentColor }) => {
+  const { t } = useI18n();
   const percent = progressPercent(book);
 
   return (
@@ -19,13 +21,13 @@ export const HomeBookCard: React.FC<HomeBookCardProps> = ({ book, accentColor })
         <div className="folio-card-top">
           <span className="folio-badge">
             <span className="dot" aria-hidden="true" />
-            {STATUS_LABELS[book.status]}
+            {t.status[book.status]}
           </span>
           <span className="folio-percent">{percent}%</span>
         </div>
 
         <h3 className="folio-card-title">{book.title}</h3>
-        <p className="folio-card-sub">by {book.author}</p>
+        <p className="folio-card-sub">{t.common.by(book.author)}</p>
 
         {book.thoughts && <p className="folio-card-desc">“{book.thoughts}”</p>}
 
@@ -34,9 +36,7 @@ export const HomeBookCard: React.FC<HomeBookCardProps> = ({ book, accentColor })
             <div className="progress-fill" style={{ width: `${percent}%` }} />
           </div>
           <div className="progress-foot">
-            <span>
-              {book.currentPage} / {book.totalPages} pages
-            </span>
+            <span>{t.common.pages(book.currentPage, book.totalPages)}</span>
           </div>
         </div>
       </div>

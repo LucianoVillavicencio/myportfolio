@@ -1,6 +1,7 @@
 /* Order matters: later files rely on the cascade of earlier ones */
 @import './base.css';
 @import './hero.css';
+@import './language-toggle.css';
 @import './sections.css';
 @import './footer.css';
 @import './home-responsive.css';

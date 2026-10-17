@@ -2,7 +2,12 @@ import { Entity, PrimaryColumn, Column, UpdateDateColumn } from 'typeorm';
 
 export const PROFILE_ID = 1;
 
-/** Single-row table holding the site owner's public info. */
+/**
+ * Single-row table holding the site owner's public info.
+ *
+ * Translatable fields come in Spanish (`*Es`) and English (`*En`) pairs. The
+ * English ones keep the original column names so existing data is preserved.
+ */
 @Entity('profile')
 export class Profile {
   @PrimaryColumn({ type: 'int' })
@@ -16,17 +21,29 @@ export class Profile {
 
   /** One role per line, shown under the name in the hero info card. */
   @Column({ type: 'text', default: '' })
-  roles: string;
+  rolesEs: string;
+
+  @Column({ name: 'roles', type: 'text', default: '' })
+  rolesEn: string;
 
   /** Bold opening sentence of the hero lead paragraph. */
   @Column({ default: '' })
-  leadHighlight: string;
+  leadHighlightEs: string;
+
+  @Column({ name: 'leadHighlight', default: '' })
+  leadHighlightEn: string;
 
   @Column({ type: 'text', default: '' })
-  leadText: string;
+  leadTextEs: string;
+
+  @Column({ name: 'leadText', type: 'text', default: '' })
+  leadTextEn: string;
 
   @Column({ default: '' })
-  availability: string;
+  availabilityEs: string;
+
+  @Column({ name: 'availability', default: '' })
+  availabilityEn: string;
 
   @Column({ default: '' })
   stack: string;

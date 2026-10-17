@@ -13,8 +13,13 @@ export class Project {
   @Column()
   title: string;
 
-  @Column({ type: 'text' })
-  summary: string;
+  /** Summary per language; at least one is required, the other falls back. */
+  @Column({ type: 'text', default: '' })
+  summaryEs: string;
+
+  // Keeps the original column name so existing (English) summaries are preserved
+  @Column({ name: 'summary', type: 'text', default: '' })
+  summaryEn: string;
 
   @Column('simple-json')
   techStack: string[];

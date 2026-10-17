@@ -3,50 +3,57 @@ import { Link } from 'react-router-dom';
 import type { Book, ReadingStatus } from '../../types';
 import { usePortfolioData } from '../../context/PortfolioDataContext';
 import { useAdminAuth } from '../../context/AdminAuthContext';
+import { useI18n } from '../../i18n/LanguageContext';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
-import { groupByStatus, pluralize } from '../../lib/books';
+import { groupByStatus } from '../../lib/books';
 import { ShapeFan, ShapeLines, ShapeStar, ShapeSwirl } from '../../components/illustrations';
 import { BookLightbox } from '../../components/books/BookLightbox';
+import { LanguageToggle } from '../../components/layout/LanguageToggle';
 import { NightstandSpotlight } from './NightstandSpotlight';
 import { ShelfSection } from './ShelfSection';
 
 type ShelfTab = 'ALL' | ReadingStatus;
 
+const TABS: ShelfTab[] = ['ALL', 'READING', 'WANT_TO_READ', 'COMPLETED'];
+
 export const BooksPage: React.FC = () => {
   const { books } = usePortfolioData();
   const { isAdmin } = useAdminAuth();
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<ShelfTab>('ALL');
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const closeLightbox = useCallback(() => setSelectedBook(null), []);
-  useDocumentTitle('BookFolio — Reading Log & Library');
+  useDocumentTitle(t.books.docTitle);
 
   const { reading, toRead, completed } = groupByStatus(books);
   const spotlightBook = reading[0] ?? completed[0] ?? toRead[0] ?? null;
   const shows = (tab: ShelfTab) => activeTab === 'ALL' || activeTab === tab;
-
-  const tabs: [ShelfTab, string][] = [
-    ['ALL', `All (${books.length})`],
-    ['READING', `Currently Reading (${reading.length})`],
-    ['WANT_TO_READ', `To-Read (${toRead.length})`],
-    ['COMPLETED', `Read (${completed.length})`],
-  ];
+  const tabCounts: Record<ShelfTab, number> = {
+    ALL: books.length,
+    READING: reading.length,
+    WANT_TO_READ: toRead.length,
+    COMPLETED: completed.length,
+  };
+  const { shelves } = t.books;
+  const [wordmark1, wordmark2] = t.books.wordmark;
 
   return (
     <div className="pf bf-page">
       <header className="bf-hero">
         <div className="bf-topbar">
           <Link to="/" className="pill pill--back anim d1">
-            <span className="arr">←</span> back home
+            <span className="arr">←</span> {t.common.backHome}
           </Link>
 
           <div className="pills">
+            <LanguageToggle className="anim d2" />
             {isAdmin && (
               <Link to="/admin?tab=books" className="pill pill--admin anim d2">
-                manage books
+                {t.books.manage}
               </Link>
             )}
             <Link to="/#contact" className="pill pill--contact anim d2">
-              contact
+              {t.common.contact}
             </Link>
           </div>
         </div>
@@ -58,9 +65,9 @@ export const BooksPage: React.FC = () => {
 
             <div className="bf-spotlight">
               <div className="bf-spotlight-stats">
-                <Stat value={reading.length} label="CURRENTLY READING" />
-                <Stat value={toRead.length} label="TO-READ QUEUE" />
-                <Stat value={completed.length} label="BOOKS READ" />
+                <Stat value={reading.length} label={t.books.stats.reading} />
+                <Stat value={toRead.length} label={t.books.stats.toRead} />
+                <Stat value={completed.length} label={t.books.stats.read} />
               </div>
 
               {spotlightBook && (
@@ -71,17 +78,17 @@ export const BooksPage: React.FC = () => {
             <div className="pf-hero-copy bf-hero-copy">
               <h1 className="pf-wordmark">
                 <span className="pf-w1">
-                  BOOK
+                  {wordmark1}
                   <ShapeFan />
                 </span>
                 <span className="pf-w2">
-                  SHELF
+                  {wordmark2}
                   <ShapeStar className="pf-star" />
                 </span>
               </h1>
 
               <div className="pf-tabs pf-tabs--hero" role="tablist">
-                {tabs.map(([key, label]) => (
+                {TABS.map((key) => (
                   <button
                     key={key}
                     type="button"
@@ -90,7 +97,7 @@ export const BooksPage: React.FC = () => {
                     className={`pf-tab ${activeTab === key ? 'is-on' : ''}`}
                     onClick={() => setActiveTab(key)}
                   >
-                    {label}
+                    {t.books.tabs[key](tabCounts[key])}
                   </button>
                 ))}
               </div>
@@ -98,10 +105,7 @@ export const BooksPage: React.FC = () => {
           </div>
 
           <div className="pf-print-margin">
-            <span className="pf-print-cap">
-              TECHNICAL &amp; LITERATURE LOG · CURRENTLY READING, TO-READ &amp;
-              COMPLETED ARCHIVE
-            </span>
+            <span className="pf-print-cap">{t.books.printCap}</span>
           </div>
         </div>
       </header>
@@ -109,9 +113,9 @@ export const BooksPage: React.FC = () => {
       <main className="pf-gallery-wrap bf-shelves-wrap">
         {shows('READING') && (
           <ShelfSection
-            heading="CURRENTLY READING"
-            caption={`${pluralize(reading.length, 'book')} open on my desk`}
-            emptyMessage="No books marked as currently reading."
+            heading={shelves.reading.heading}
+            caption={shelves.reading.caption(reading.length)}
+            emptyMessage={shelves.reading.empty}
             books={reading}
             accentOffset={0}
             onInspect={setSelectedBook}
@@ -119,13 +123,10 @@ export const BooksPage: React.FC = () => {
         )}
         {shows('WANT_TO_READ') && (
           <ShelfSection
-            heading={
-              <>
-                TO-READ <span className="text-yellow">QUEUE</span>
-              </>
-            }
-            caption={`${pluralize(toRead.length, 'book')} up next in the stack`}
-            emptyMessage="No books in the To-Read queue yet."
+            heading={shelves.toRead.heading}
+            accentClass="text-yellow"
+            caption={shelves.toRead.caption(toRead.length)}
+            emptyMessage={shelves.toRead.empty}
             books={toRead}
             accentOffset={1}
             onInspect={setSelectedBook}
@@ -133,13 +134,10 @@ export const BooksPage: React.FC = () => {
         )}
         {shows('COMPLETED') && (
           <ShelfSection
-            heading={
-              <>
-                ALREADY <span className="text-coral">READ</span>
-              </>
-            }
-            caption={`${pluralize(completed.length, 'book')} finished & annotated`}
-            emptyMessage="No completed books logged yet."
+            heading={shelves.completed.heading}
+            accentClass="text-coral"
+            caption={shelves.completed.caption(completed.length)}
+            emptyMessage={shelves.completed.empty}
             books={completed}
             accentOffset={2}
             onInspect={setSelectedBook}
@@ -148,9 +146,9 @@ export const BooksPage: React.FC = () => {
       </main>
 
       <footer className="pf-foot">
-        <p className="pf-foot-line">That&apos;s the shelf so far.</p>
+        <p className="pf-foot-line">{t.books.footLine}</p>
         <Link className="btn btn--y" to="/">
-          Back to the portfolio <span className="arr">→</span>
+          {t.books.backToPortfolio} <span className="arr">→</span>
         </Link>
       </footer>
 

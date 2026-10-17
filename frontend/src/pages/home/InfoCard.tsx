@@ -1,10 +1,15 @@
 import React from 'react';
 import type { Profile } from '../../types';
 import { socialLinks } from '../../lib/profile';
+import { localized, useI18n } from '../../i18n/LanguageContext';
 
 /** Right-hand info card of the hero: name, roles, status and links. */
 export const InfoCard: React.FC<{ profile: Profile }> = ({ profile }) => {
-  const roleLines = profile.roles.split('\n').filter(Boolean);
+  const { lang, t } = useI18n();
+  const roleLines = localized(lang, profile.rolesEs, profile.rolesEn)
+    .split('\n')
+    .filter(Boolean);
+  const availability = localized(lang, profile.availabilityEs, profile.availabilityEn);
   const links = socialLinks(profile).filter((l) => l.label !== 'Instagram');
 
   return (
@@ -22,18 +27,18 @@ export const InfoCard: React.FC<{ profile: Profile }> = ({ profile }) => {
       </div>
 
       <dl>
-        {profile.availability && (
+        {availability && (
           <div>
-            <dt>Status</dt>
+            <dt>{t.hero.status}</dt>
             <dd>
               <span className="dot" aria-hidden="true" />
-              {profile.availability}
+              {availability}
             </dd>
           </div>
         )}
         {profile.stack && (
           <div>
-            <dt>Stack &amp; Lab</dt>
+            <dt>{t.hero.stack}</dt>
             <dd>{profile.stack}</dd>
           </div>
         )}

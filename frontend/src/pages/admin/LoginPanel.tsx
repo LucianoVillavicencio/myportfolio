@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
+import { useI18n } from '../../i18n/LanguageContext';
 import { FormField } from '../../components/form/FormField';
 
 export const LoginPanel: React.FC = () => {
   const { login } = useAdminAuth();
+  const { t } = useI18n();
+  const copy = t.admin.login;
   const [passphrase, setPassphrase] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<'invalid' | 'unreachable' | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError(null);
     setIsVerifying(true);
     try {
       const ok = await login(passphrase.trim());
-      if (!ok) setError('Invalid passphrase.');
+      if (!ok) setError('invalid');
     } catch {
-      setError('Could not reach the API to verify the passphrase.');
+      setError('unreachable');
     } finally {
       setIsVerifying(false);
     }
@@ -24,12 +27,10 @@ export const LoginPanel: React.FC = () => {
 
   return (
     <div className="admin-panel admin-login">
-      <h2 className="admin-panel-title">OWNER ACCESS</h2>
+      <h2 className="admin-panel-title">{copy.title}</h2>
       <form onSubmit={handleSubmit} className="admin-form">
-        <p className="admin-hint">
-          Enter your admin passphrase to manage books, projects and profile info.
-        </p>
-        <FormField label="Admin passphrase">
+        <p className="admin-hint">{copy.hint}</p>
+        <FormField label={copy.passphrase}>
           <input
             type="password"
             value={passphrase}
@@ -39,10 +40,10 @@ export const LoginPanel: React.FC = () => {
             autoFocus
           />
         </FormField>
-        {error && <p className="form-error">{error}</p>}
+        {error && <p className="form-error">{copy[error]}</p>}
         <div className="dialog-actions">
           <button type="submit" className="btn-primary-mustard" disabled={isVerifying}>
-            {isVerifying ? 'Verifying...' : 'Unlock owner panel →'}
+            {isVerifying ? copy.verifying : copy.submit}
           </button>
         </div>
       </form>

@@ -5,13 +5,14 @@ import React from 'react';
  * Styled with the exact charcoal (#1e1e1e), cream (#f4eee2), and warm yellow (#f0b420)
  * boil-line aesthetic of jager.ar, with animated character & lab equipment movement.
  */
-export const HardwareNetworkEngineerIllustration: React.FC = () => (
+export const HardwareNetworkEngineerIllustration: React.FC<{ label: string }> = ({ label }) => (
   <svg
     viewBox="0 0 480 410"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className="hero-art-svg boil-anim"
-    aria-label="Illustration of an engineer working at a desk with hardware, router, and laptop"
+    role="img"
+    aria-label={label}
   >
     {/* Floating Wall Shelf: Oscilloscope + Dual-Antenna Router */}
     <g className="shelf-rig">

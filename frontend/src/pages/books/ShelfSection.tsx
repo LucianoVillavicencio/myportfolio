@@ -4,7 +4,9 @@ import { accentFor } from '../../lib/books';
 import { ShelfBookCard } from '../../components/books/ShelfBookCard';
 
 interface ShelfSectionProps {
-  heading: React.ReactNode;
+  /** Plain heading text plus an optional highlighted word. */
+  heading: [string, string?];
+  accentClass?: string;
   caption: string;
   emptyMessage: string;
   books: Book[];
@@ -14,7 +16,8 @@ interface ShelfSectionProps {
 }
 
 export const ShelfSection: React.FC<ShelfSectionProps> = ({
-  heading,
+  heading: [plain, accent],
+  accentClass,
   caption,
   emptyMessage,
   books,
@@ -24,7 +27,15 @@ export const ShelfSection: React.FC<ShelfSectionProps> = ({
   <section className="bf-shelf-section">
     <div className="pf-gallery-head">
       <div>
-        <h2 className="pf-year">{heading}</h2>
+        <h2 className="pf-year">
+          {plain}
+          {accent && (
+            <>
+              {' '}
+              <span className={accentClass}>{accent}</span>
+            </>
+          )}
+        </h2>
         <p className="pf-count">{caption}</p>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Book, BookInput, ReadingStatus } from '../../../types';
 import { api, findOpenLibraryCover } from '../../../lib/api';
-import { STATUS_LABELS } from '../../../lib/books';
+import { useI18n } from '../../../i18n/LanguageContext';
 import { useFormState } from '../../../hooks/useFormState';
 import { FormField } from '../../../components/form/FormField';
 import { BookCover } from '../../../components/books/BookCover';
@@ -12,6 +12,10 @@ interface BookFormProps {
   book?: Book;
   onDone: () => void;
 }
+
+const STATUSES: ReadingStatus[] = ['READING', 'WANT_TO_READ', 'COMPLETED'];
+
+type CoverNote = 'coverNeedsTitle' | 'coverNotFound' | 'coverUnreachable';
 
 // Page counts stay strings while editing so clearing an input doesn't snap it to 0
 type BookFormValues = Omit<BookInput, 'currentPage' | 'totalPages' | 'rating'> & {
@@ -43,9 +47,11 @@ function toInput(values: BookFormValues): BookInput {
 }
 
 export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
+  const { t } = useI18n();
+  const copy = t.admin.books;
   const { values, setField } = useFormState(toFormValues(book));
   const { run, isBusy, error } = useAdminMutation();
-  const [coverNote, setCoverNote] = useState('');
+  const [coverNote, setCoverNote] = useState<CoverNote | null>(null);
   const [isFindingCover, setIsFindingCover] = useState(false);
 
   const handleStatusChange = (status: ReadingStatus) => {
@@ -56,17 +62,17 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
 
   const handleFindCover = async () => {
     if (!values.title.trim()) {
-      setCoverNote('Enter a title first to look up its cover.');
+      setCoverNote('coverNeedsTitle');
       return;
     }
-    setCoverNote('');
+    setCoverNote(null);
     setIsFindingCover(true);
     try {
       const url = await findOpenLibraryCover(values.title, values.author);
       if (url) setField('coverUrl', url);
-      else setCoverNote('No cover found on OpenLibrary — paste an image URL instead.');
+      else setCoverNote('coverNotFound');
     } catch {
-      setCoverNote('Could not reach OpenLibrary — paste an image URL instead.');
+      setCoverNote('coverUnreachable');
     } finally {
       setIsFindingCover(false);
     }
@@ -84,28 +90,28 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
   return (
     <form onSubmit={handleSubmit} className="admin-form">
       <div className="form-row">
-        <FormField label="Title">
+        <FormField label={copy.fields.title}>
           <input
             type="text"
             value={values.title}
             onChange={(e) => setField('title', e.target.value)}
-            placeholder="e.g. Designing Data-Intensive Applications"
+            placeholder={copy.placeholders.title}
             required
           />
         </FormField>
-        <FormField label="Author">
+        <FormField label={copy.fields.author}>
           <input
             type="text"
             value={values.author}
             onChange={(e) => setField('author', e.target.value)}
-            placeholder="e.g. Martin Kleppmann"
+            placeholder={copy.placeholders.author}
             required
           />
         </FormField>
       </div>
 
       <div className="cover-input-row">
-        <FormField label="Cover URL (optional)" className="grow">
+        <FormField label={copy.fields.cover} className="grow">
           <div className="cover-input-group">
             <input
               type="url"
@@ -119,32 +125,36 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
               onClick={handleFindCover}
               disabled={isFindingCover}
             >
-              {isFindingCover ? 'Searching...' : '✨ Auto-find'}
+              {isFindingCover ? copy.searching : copy.autoFind}
             </button>
           </div>
         </FormField>
         <BookCover
-          book={{ title: values.title || 'Untitled', author: values.author, coverUrl: values.coverUrl || null }}
+          book={{
+            title: values.title || copy.untitled,
+            author: values.author,
+            coverUrl: values.coverUrl || null,
+          }}
           accentColor="#f0b420"
           className="cover-mini-preview"
         />
       </div>
-      {coverNote && <p className="admin-hint">{coverNote}</p>}
+      {coverNote && <p className="admin-hint">{copy[coverNote]}</p>}
 
       <div className="form-row">
-        <FormField label="Status">
+        <FormField label={copy.fields.status}>
           <select
             value={values.status}
             onChange={(e) => handleStatusChange(e.target.value as ReadingStatus)}
           >
-            {(Object.keys(STATUS_LABELS) as ReadingStatus[]).map((status) => (
+            {STATUSES.map((status) => (
               <option key={status} value={status}>
-                {STATUS_LABELS[status]}
+                {t.status[status]}
               </option>
             ))}
           </select>
         </FormField>
-        <FormField label="Current page">
+        <FormField label={copy.fields.currentPage}>
           <input
             type="number"
             min={0}
@@ -154,7 +164,7 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
             required
           />
         </FormField>
-        <FormField label="Total pages">
+        <FormField label={copy.fields.totalPages}>
           <input
             type="number"
             min={1}
@@ -164,9 +174,9 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
           />
         </FormField>
         {values.status === 'COMPLETED' && (
-          <FormField label="Rating">
+          <FormField label={copy.fields.rating}>
             <select value={values.rating} onChange={(e) => setField('rating', e.target.value)}>
-              <option value="">No rating</option>
+              <option value="">{copy.noRating}</option>
               {[5, 4, 3, 2, 1].map((n) => (
                 <option key={n} value={n}>
                   {'★'.repeat(n)}
@@ -177,12 +187,12 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
         )}
       </div>
 
-      <FormField label="Notes / takeaways">
+      <FormField label={copy.fields.notes}>
         <textarea
           rows={3}
           value={values.thoughts}
           onChange={(e) => setField('thoughts', e.target.value)}
-          placeholder="What are your thoughts on this book so far?"
+          placeholder={copy.placeholders.notes}
         />
       </FormField>
 
@@ -191,11 +201,11 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
       <div className="dialog-actions">
         {book && (
           <button type="button" className="btn-ghost" onClick={onDone}>
-            Cancel
+            {t.admin.cancel}
           </button>
         )}
         <button type="submit" className="btn-primary-mustard" disabled={isBusy}>
-          {isBusy ? 'Saving...' : book ? 'Save changes' : 'Add book to shelf'}
+          {isBusy ? t.admin.saving : book ? t.admin.saveChanges : copy.submit}
         </button>
       </div>
     </form>

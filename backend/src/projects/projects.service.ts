@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Project } from './project.entity';
@@ -19,7 +19,7 @@ export class ProjectsService {
 
   create(dto: CreateProjectDto): Promise<Project> {
     const project = this.projectsRepo.create(dto);
-    return this.projectsRepo.save(project);
+    return this.projectsRepo.save(requireSummary(project));
   }
 
   async update(id: string, dto: UpdateProjectDto): Promise<Project> {
@@ -28,7 +28,7 @@ export class ProjectsService {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
     Object.assign(project, dto);
-    return this.projectsRepo.save(project);
+    return this.projectsRepo.save(requireSummary(project));
   }
 
   async remove(id: string): Promise<void> {
@@ -37,4 +37,11 @@ export class ProjectsService {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
   }
+}
+
+function requireSummary(project: Project): Project {
+  if (!project.summaryEs && !project.summaryEn) {
+    throw new BadRequestException('A summary is required in at least one language');
+  }
+  return project;
 }
