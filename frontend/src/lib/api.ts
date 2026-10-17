@@ -1,6 +1,8 @@
 import type {
   Book,
   BookInput,
+  GoodreadsStatus,
+  GoodreadsSyncResult,
   Profile,
   ProfileInput,
   Project,
@@ -67,6 +69,14 @@ export const api = {
     send<Book>('PATCH', `/books/${id}`, adminKey, data),
   deleteBook: (id: string, adminKey: string) =>
     send<void>('DELETE', `/books/${id}`, adminKey),
+  resetBook: (id: string, adminKey: string) =>
+    send<Book>('POST', `/books/${id}/reset`, adminKey),
+
+  getGoodreads: (adminKey: string) => send<GoodreadsStatus>('GET', '/goodreads', adminKey),
+  setGoodreadsUser: (userId: string, adminKey: string) =>
+    send<GoodreadsStatus>('PUT', '/goodreads', adminKey, { userId: userId.trim() || null }),
+  syncGoodreads: (adminKey: string) =>
+    send<GoodreadsSyncResult>('POST', '/goodreads/sync', adminKey),
 
   getProjects: () => request<Project[]>('/projects'),
   createProject: (data: ProjectInput, adminKey: string) =>

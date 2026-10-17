@@ -71,3 +71,20 @@ export interface Profile {
 export type ProfileInput = {
   [K in keyof Profile]: string;
 };
+
+export type GoodreadsSyncStatus =
+  | { ok: true; added: number; updated: number; removed: number }
+  | { ok: false; error: string };
+
+export interface GoodreadsStatus {
+  userId: string | null;
+  lastSyncAt: string | null;
+  lastSyncResult: GoodreadsSyncStatus | null;
+  isSyncing: boolean;
+}
+
+export interface GoodreadsSyncResult {
+  added: number;
+  updated: number;
+  removed: number;
+}

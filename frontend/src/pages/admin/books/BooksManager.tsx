@@ -8,6 +8,7 @@ import { BookCover } from '../../../components/books/BookCover';
 import { useAdminMutation } from '../useAdminMutation';
 import { AdminRow, ManagerLayout } from '../ManagerLayout';
 import { BookForm } from './BookForm';
+import { GoodreadsPanel } from './GoodreadsPanel';
 
 export const BooksManager: React.FC = () => {
   const { books } = usePortfolioData();
@@ -25,8 +26,19 @@ export const BooksManager: React.FC = () => {
     setFormKey((k) => k + 1);
   };
 
+  const gr = copy.goodreads;
+
+  const reset = (book: Book) =>
+    run(async (key) => {
+      await api.resetBook(book.id, key);
+      await api.syncGoodreads(key);
+    });
+
   const remove = async (book: Book) => {
-    if (!window.confirm(t.admin.confirmDelete(book.title))) return;
+    const message = book.goodreadsId
+      ? gr.confirmDelete(book.title)
+      : t.admin.confirmDelete(book.title);
+    if (!window.confirm(message)) return;
     const ok = await run((key) => api.deleteBook(book.id, key));
     if (ok && book.id === editingId) closeForm();
   };
@@ -38,6 +50,7 @@ export const BooksManager: React.FC = () => {
       newLabel={t.admin.newItem}
       list={
         <>
+          <GoodreadsPanel />
           {error && <p className="form-error">{error}</p>}
           {books.length === 0 ? (
             <p className="admin-hint">{copy.empty}</p>
@@ -51,9 +64,24 @@ export const BooksManager: React.FC = () => {
                     <BookCover book={book} accentColor={accentFor(i)} className="admin-thumb" />
                   }
                   title={book.title}
-                  meta={`${t.status[book.status]} · ${book.totalPages}p`}
+                  meta={
+                    <>
+                      <span className="source-badge">
+                        {book.goodreadsId ? gr.badgeGoodreads : gr.badgeManual}
+                      </span>
+                      {book.goodreadsId && book.lockedFields.length > 0 && (
+                        <span className="source-badge source-badge--edited">{gr.edited}</span>
+                      )}
+                      {`${t.status[book.status]} · ${book.totalPages}p`}
+                    </>
+                  }
                   actions={
                     <>
+                      {book.goodreadsId && book.lockedFields.length > 0 && (
+                        <button type="button" disabled={isBusy} onClick={() => reset(book)}>
+                          {gr.reset}
+                        </button>
+                      )}
                       <button type="button" onClick={() => setEditingId(book.id)}>
                         {t.admin.edit}
                       </button>
