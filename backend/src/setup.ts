@@ -14,6 +14,8 @@ export function configureApp(app: NestExpressApplication): void {
           fontSrc: ["'self'", 'https://fonts.gstatic.com'],
           // Covers and project images are arbitrary https URLs.
           imgSrc: ["'self'", 'data:', 'https:'],
+          // Chrome's built-in PDF viewer (CV downloads) needs object/embed from self.
+          objectSrc: ["'self'"],
           connectSrc: ["'self'", 'https://openlibrary.org'],
         },
       },

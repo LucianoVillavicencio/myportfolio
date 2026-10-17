@@ -51,7 +51,7 @@ The repo ships a multi-stage `Dockerfile` and a `railway.json`; the backend serv
    - `DB_PATH=/data/portfolio.sqlite`
 4. Generate a domain in the service's networking settings.
 5. The first deploy is green once `/api/health` answers.
-6. Load your content from `/admin`, or upload your local `backend/portfolio.sqlite` to the volume.
+6. Load your content from `/admin`: profile, projects, and your Goodreads user ID followed by **Sync**.
 7. Verify persistence: trigger a redeploy and check the content is still there.
 
 Keep the service at **1 replica** (SQLite is a single file on a single volume).
@@ -59,6 +59,7 @@ Keep the service at **1 replica** (SQLite is a single file on a single volume).
 ### Backups
 
 - Use the **Descargar backup** button in `/admin`, and/or Railway's volume backups.
+- A downloaded backup is a full SQLite file. Restoring it into Railway is not supported yet (a restore/import feature is a planned follow-up).
 - Always download a backup **before deploying entity changes**: `synchronize: true` alters the schema on boot.
 
 ## Languages

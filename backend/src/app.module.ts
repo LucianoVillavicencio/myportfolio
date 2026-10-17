@@ -16,13 +16,17 @@ import { GoodreadsModule } from './goodreads/goodreads.module';
 import { resolveDbPath, resolveStaticDir } from './config';
 import { HealthController } from './health.controller';
 import { BackupModule } from './backup/backup.module';
+import { atomicWriteFile } from './atomic-write';
+
+const dbPath = resolveDbPath(process.env);
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqljs',
-      location: resolveDbPath(process.env),
+      location: dbPath,
       autoSave: true,
+      autoSaveCallback: (data: Uint8Array) => atomicWriteFile(dbPath, data),
       entities: [Book, Project, Profile, GoodreadsSettings],
       synchronize: true,
     }),

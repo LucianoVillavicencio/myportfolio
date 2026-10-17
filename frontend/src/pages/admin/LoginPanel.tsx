@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { useI18n } from '../../i18n/LanguageContext';
 import { FormField } from '../../components/form/FormField';
+import { ApiError } from '../../lib/api';
 
 export const LoginPanel: React.FC = () => {
   const { login } = useAdminAuth();
   const { t } = useI18n();
   const copy = t.admin.login;
   const [passphrase, setPassphrase] = useState('');
-  const [error, setError] = useState<'invalid' | 'unreachable' | null>(null);
+  const [error, setError] = useState<'invalid' | 'unreachable' | 'throttled' | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,8 +19,10 @@ export const LoginPanel: React.FC = () => {
     try {
       const ok = await login(passphrase.trim());
       if (!ok) setError('invalid');
-    } catch {
-      setError('unreachable');
+    } catch (err) {
+      setError(
+        err instanceof ApiError && err.status === 429 ? 'throttled' : 'unreachable',
+      );
     } finally {
       setIsVerifying(false);
     }

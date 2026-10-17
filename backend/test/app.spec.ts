@@ -58,6 +58,13 @@ describe('App (full module)', () => {
     expect(res.headers['x-content-type-options']).toBe('nosniff');
   });
 
+  it('allows object-src self for the PDF viewer', async () => {
+    const res = await request(app.getHttpServer()).get('/api/health');
+    expect(res.headers['content-security-policy']).toContain(
+      "object-src 'self'",
+    );
+  });
+
   it('throttles auth verify', async () => {
     const attempt = () =>
       request(app.getHttpServer())

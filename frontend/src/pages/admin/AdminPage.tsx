@@ -42,7 +42,7 @@ export const AdminPage: React.FC = () => {
       a.href = url;
       a.download = `portfolio-${new Date().toISOString().slice(0, 10)}.sqlite`;
       a.click();
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch {
       window.alert(t.admin.backupError);
     } finally {

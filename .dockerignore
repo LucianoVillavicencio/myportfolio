@@ -6,3 +6,4 @@ backend/portfolio.sqlite
 .superpowers
 docs
 **/*.tsbuildinfo
+**/.env*
