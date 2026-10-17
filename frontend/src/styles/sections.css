@@ -124,13 +124,6 @@
   align-items: center;
 }
 
-.folio-percent {
-  font-family: var(--font-display);
-  color: var(--color-yellow);
-  filter: url(#ink-bleed);
-  font-size: 1.1rem;
-}
-
 .folio-links {
   display: flex;
   gap: 0.85rem;
@@ -189,31 +182,10 @@
   font-weight: 700;
 }
 
-/* Book Progress Bar */
+/* Book page count */
 .book-progress {
-  margin-top: auto;
+  margin: auto 0 0;
   padding-top: 0.5rem;
-}
-
-.progress-bar {
-  height: 7px;
-  background: #181614;
-  border-radius: 100vw;
-  overflow: hidden;
-  margin-bottom: 0.55rem;
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--color-yellow);
-  border-radius: 100vw;
-  transition: width 0.35s var(--ease-out-back);
-}
-
-.progress-foot {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   font-size: 0.8rem;
   color: var(--color-ink-dim);
   font-weight: 600;

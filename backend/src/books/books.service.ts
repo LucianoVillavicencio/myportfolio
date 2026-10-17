@@ -63,15 +63,9 @@ export class BooksService {
   }
 }
 
-/** Keeps page counts and status consistent with each other. */
+/** Fills in defaults for a new book. */
 function normalizeProgress(book: Book): Book {
-  const total = (book.totalPages ??= 300);
+  book.totalPages ??= 300;
   book.status ??= 'READING';
-  book.currentPage = Math.min(Math.max(book.currentPage ?? 0, 0), total);
-  if (book.status === 'COMPLETED') {
-    book.currentPage = total;
-  } else if (book.currentPage === total && book.status === 'READING') {
-    book.status = 'COMPLETED';
-  }
   return book;
 }

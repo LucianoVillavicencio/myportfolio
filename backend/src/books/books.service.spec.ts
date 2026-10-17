@@ -84,4 +84,11 @@ describe('BooksService', () => {
       service.resetToGoodreads('00000000-0000-0000-0000-000000000000'),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
+
+  it('does not change status based on pages', async () => {
+    // currentPage is a legacy column; even a full one must not complete the book.
+    const dto = { title: 'Short', author: 'Me', status: 'READING', totalPages: 10, currentPage: 10 };
+    const saved = await service.create(dto as never);
+    expect(saved.status).toBe('READING');
+  });
 });

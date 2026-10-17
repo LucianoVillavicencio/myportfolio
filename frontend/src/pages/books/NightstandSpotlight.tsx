@@ -1,6 +1,5 @@
 import React from 'react';
 import type { Book } from '../../types';
-import { progressPercent } from '../../lib/books';
 import { clickable } from '../../lib/a11y';
 import { useI18n } from '../../i18n/LanguageContext';
 import { BookCover } from '../../components/books/BookCover';
@@ -27,10 +26,7 @@ export const NightstandSpotlight: React.FC<NightstandSpotlightProps> = ({
         <h2 className="bf-now-title">{book.title}</h2>
         <p className="bf-now-author">{t.common.by(book.author)}</p>
         {book.thoughts && <p className="bf-now-quote">“{book.thoughts}”</p>}
-        <div className="bf-now-bar">
-          <div className="bf-now-bar-fill" style={{ width: `${progressPercent(book)}%` }} />
-        </div>
-        <span className="bf-now-pages">{t.book.pageOf(book.currentPage, book.totalPages)}</span>
+        <span className="bf-now-pages">{t.common.pages(book.totalPages)}</span>
       </div>
     </div>
   );

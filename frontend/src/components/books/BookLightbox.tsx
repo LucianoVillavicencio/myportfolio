@@ -62,7 +62,7 @@ export const BookLightbox: React.FC<BookLightboxProps> = ({ book, onClose }) => 
             <blockquote className="bf-lb-notes">“{book.thoughts}”</blockquote>
           )}
           <p className="bf-lb-progress">
-            {t.book.lightboxProgress(book.currentPage, book.totalPages)}
+            {t.common.pages(book.totalPages)}
           </p>
         </div>
       </div>

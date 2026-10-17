@@ -6,10 +6,11 @@ export interface Book {
   author: string;
   coverUrl: string | null;
   status: ReadingStatus;
-  currentPage: number;
   totalPages: number;
   rating: number | null;
   thoughts: string | null;
+  goodreadsId: string | null;
+  lockedFields: string[];
   startedAt: string;
   updatedAt: string;
 }
@@ -19,7 +20,6 @@ export interface BookInput {
   author: string;
   coverUrl: string;
   status: ReadingStatus;
-  currentPage: number;
   totalPages: number;
   rating: number | null;
   thoughts: string;

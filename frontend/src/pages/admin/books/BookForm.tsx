@@ -18,8 +18,7 @@ const STATUSES: ReadingStatus[] = ['READING', 'WANT_TO_READ', 'COMPLETED'];
 type CoverNote = 'coverNeedsTitle' | 'coverNotFound' | 'coverUnreachable';
 
 // Page counts stay strings while editing so clearing an input doesn't snap it to 0
-type BookFormValues = Omit<BookInput, 'currentPage' | 'totalPages' | 'rating'> & {
-  currentPage: string;
+type BookFormValues = Omit<BookInput, 'totalPages' | 'rating'> & {
   totalPages: string;
   rating: string;
 };
@@ -30,7 +29,6 @@ function toFormValues(book?: Book): BookFormValues {
     author: book?.author ?? '',
     coverUrl: book?.coverUrl ?? '',
     status: book?.status ?? 'READING',
-    currentPage: String(book?.currentPage ?? 0),
     totalPages: String(book?.totalPages ?? 300),
     rating: book?.rating ? String(book.rating) : '',
     thoughts: book?.thoughts ?? '',
@@ -40,7 +38,6 @@ function toFormValues(book?: Book): BookFormValues {
 function toInput(values: BookFormValues): BookInput {
   return {
     ...values,
-    currentPage: Number(values.currentPage) || 0,
     totalPages: Number(values.totalPages) || 1,
     rating: values.status === 'COMPLETED' && values.rating ? Number(values.rating) : null,
   };
@@ -53,12 +50,6 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
   const { run, isBusy, error } = useAdminMutation();
   const [coverNote, setCoverNote] = useState<CoverNote | null>(null);
   const [isFindingCover, setIsFindingCover] = useState(false);
-
-  const handleStatusChange = (status: ReadingStatus) => {
-    setField('status', status);
-    if (status === 'COMPLETED') setField('currentPage', values.totalPages);
-    if (status === 'WANT_TO_READ') setField('currentPage', '0');
-  };
 
   const handleFindCover = async () => {
     if (!values.title.trim()) {
@@ -145,7 +136,7 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
         <FormField label={copy.fields.status}>
           <select
             value={values.status}
-            onChange={(e) => handleStatusChange(e.target.value as ReadingStatus)}
+            onChange={(e) => setField('status', e.target.value as ReadingStatus)}
           >
             {STATUSES.map((status) => (
               <option key={status} value={status}>
@@ -153,16 +144,6 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
               </option>
             ))}
           </select>
-        </FormField>
-        <FormField label={copy.fields.currentPage}>
-          <input
-            type="number"
-            min={0}
-            max={Number(values.totalPages) || undefined}
-            value={values.currentPage}
-            onChange={(e) => setField('currentPage', e.target.value)}
-            required
-          />
         </FormField>
         <FormField label={copy.fields.totalPages}>
           <input

@@ -34,11 +34,6 @@ export class CreateBookDto {
 
   @IsOptional()
   @IsInt()
-  @Min(0)
-  currentPage?: number;
-
-  @IsOptional()
-  @IsInt()
   @Min(1)
   totalPages?: number;
 

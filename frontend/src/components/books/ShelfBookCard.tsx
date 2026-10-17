@@ -1,6 +1,5 @@
 import React from 'react';
 import type { Book } from '../../types';
-import { progressPercent } from '../../lib/books';
 import { clickable } from '../../lib/a11y';
 import { useI18n } from '../../i18n/LanguageContext';
 import { BookCover } from './BookCover';
@@ -21,7 +20,6 @@ export const ShelfBookCard: React.FC<ShelfBookCardProps> = ({
   onInspect,
 }) => {
   const { t } = useI18n();
-  const percent = progressPercent(book);
 
   return (
     <article
@@ -65,20 +63,13 @@ export const ShelfBookCard: React.FC<ShelfBookCardProps> = ({
         {book.thoughts && <p className="bf-book-thoughts">“{book.thoughts}”</p>}
 
         <div className="bf-progress-wrap">
-          {book.status === 'WANT_TO_READ' ? (
-            <div className="bf-progress-meta">
-              <span>{t.book.queued(book.totalPages)}</span>
-            </div>
-          ) : (
-            <>
-              <div className="bf-progress-bar">
-                <div className="bf-progress-fill" style={{ width: `${percent}%` }} />
-              </div>
-              <div className="bf-progress-meta">
-                <span>{t.book.progress(book.currentPage, book.totalPages, percent)}</span>
-              </div>
-            </>
-          )}
+          <div className="bf-progress-meta">
+            <span>
+              {book.status === 'WANT_TO_READ'
+                ? t.book.queued(book.totalPages)
+                : t.common.pages(book.totalPages)}
+            </span>
+          </div>
         </div>
       </div>
     </article>

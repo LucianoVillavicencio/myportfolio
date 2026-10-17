@@ -9,8 +9,6 @@ import { useAdminMutation } from '../useAdminMutation';
 import { AdminRow, ManagerLayout } from '../ManagerLayout';
 import { BookForm } from './BookForm';
 
-const QUICK_PAGES = 10;
-
 export const BooksManager: React.FC = () => {
   const { books } = usePortfolioData();
   const { t } = useI18n();
@@ -26,15 +24,6 @@ export const BooksManager: React.FC = () => {
     setEditingId(null);
     setFormKey((k) => k + 1);
   };
-
-  const addPages = (book: Book) =>
-    run((key) =>
-      api.updateBook(
-        book.id,
-        { currentPage: Math.min(book.totalPages, book.currentPage + QUICK_PAGES) },
-        key,
-      ),
-    );
 
   const remove = async (book: Book) => {
     if (!window.confirm(t.admin.confirmDelete(book.title))) return;
@@ -62,19 +51,9 @@ export const BooksManager: React.FC = () => {
                     <BookCover book={book} accentColor={accentFor(i)} className="admin-thumb" />
                   }
                   title={book.title}
-                  meta={`${t.status[book.status]} · ${book.currentPage}/${book.totalPages}p`}
+                  meta={`${t.status[book.status]} · ${book.totalPages}p`}
                   actions={
                     <>
-                      {book.status === 'READING' && (
-                        <button
-                          type="button"
-                          disabled={isBusy}
-                          onClick={() => addPages(book)}
-                          title={copy.addPages(QUICK_PAGES)}
-                        >
-                          +{QUICK_PAGES}p
-                        </button>
-                      )}
                       <button type="button" onClick={() => setEditingId(book.id)}>
                         {t.admin.edit}
                       </button>
