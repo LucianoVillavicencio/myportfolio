@@ -28,7 +28,8 @@ const es = {
     currentlyReading: (n: number) => `leyendo ahora (${n})`,
   },
   hero: {
-    headline: ['CÓDIGO', 'PAQUETES', 'Y SILICIO'] as [string, string, string],
+    // Kept in English on purpose: it reads better than a literal translation
+    headline: ['CODE', 'PACKETS', '& SILICON'] as [string, string, string],
     getInTouch: 'Escribime',
     projects: 'Proyectos',
     books: 'Libros',
@@ -63,8 +64,9 @@ const es = {
     } as Record<Filter, string>,
   },
   footer: {
-    title: 'CHARLEMOS',
-    accent: 'UN RATO',
+    // Kept in English on purpose, like the hero headline
+    title: 'LET’S',
+    accent: 'TALK',
     email: 'Email',
     location: 'Ubicación',
     social: 'Redes',
