@@ -12,6 +12,7 @@ import type {
   ProfileInput,
   Project,
   ProjectInput,
+  ReadingStats,
   SupportCard,
   SupportCardInput,
   SupportData,
@@ -76,6 +77,7 @@ export const api = {
     send<Profile>('PATCH', '/profile', adminKey, data),
 
   getBooks: () => request<Book[]>('/books'),
+  getReadingStats: () => request<ReadingStats>('/books/stats'),
   createBook: (data: BookInput, adminKey: string) =>
     send<Book>('POST', '/books', adminKey, data),
   updateBook: (id: string, data: Partial<BookInput>, adminKey: string) =>

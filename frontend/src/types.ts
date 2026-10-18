@@ -9,6 +9,7 @@ export interface Book {
   totalPages: number;
   rating: number | null;
   thoughts: string | null;
+  finishedAt: string | null;
   goodreadsId: string | null;
   lockedFields: string[];
   startedAt: string;
@@ -23,6 +24,8 @@ export interface BookInput {
   totalPages: number;
   rating: number | null;
   thoughts: string;
+  /** ISO date (YYYY-MM-DD) or null. */
+  finishedAt: string | null;
 }
 
 export interface Project {
@@ -88,6 +91,7 @@ export interface Profile {
   githubUrl: string | null;
   linkedinUrl: string | null;
   instagramUrl: string | null;
+  readingGoal: number | null;
 }
 
 export type ProfileInput = {
@@ -198,4 +202,13 @@ export interface AnalyticsSummary {
   totals: Record<AnalyticsEventType, number>;
   daily: { day: string; views: number }[];
   top: { type: AnalyticsEventType; key: string; count: number }[];
+}
+
+export interface ReadingStats {
+  year: number;
+  finishedThisYear: number;
+  pagesThisYear: number;
+  goal: number | null;
+  averageRating: number | null;
+  byYear: { year: number; books: number; pages: number }[];
 }
