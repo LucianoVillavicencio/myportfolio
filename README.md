@@ -2,7 +2,7 @@
 
 A full-stack personal website with a tactile neo-brutalist dark aesthetic, built with **React + TypeScript + Vite** and a **NestJS + TypeORM + SQLite** API.
 
-All content — projects, books and your profile/contact info — lives in the database and is managed from the owner panel at `/admin`.
+All content — projects, books and your profile/contact info — lives in the database, and uploaded CV PDFs and project images are stored as files next to it. Everything is managed from the owner panel at `/admin`.
 
 ## Quick start
 
@@ -96,19 +96,28 @@ The site is in **Spanish by default**, with an **ES / EN** switch in the top bar
 
 ```
 backend/src
+  analytics/     /api/analytics  (cookieless daily counters)
   auth/          POST /api/auth/verify
+  backup/        /api/backup     (zip of DB, CVs and images)
   books/         /api/books      (CRUD, writes need x-admin-key)
-  projects/      /api/projects   (CRUD, writes need x-admin-key)
-  profile/       /api/profile    (GET, PATCH)
   common/        admin-key guard, DTO transforms
+  contact/       /api/contact    (Resend mailer)
+  cv/            /api/cv         (uploaded CV PDFs)
+  goodreads/     Goodreads feed sync
+  media/         uploaded project images
+  profile/       /api/profile    (GET, PATCH)
+  projects/      /api/projects   (CRUD, writes need x-admin-key)
+  seo/           server-rendered meta, /sitemap.xml, /robots.txt
+  support/       IT support card and case stories
+  timeline/      journey entries
 
 frontend/src
-  App.tsx        routes: /, /books, /admin, 404
+  App.tsx        routes: /, /books, /projects/:slug, /admin, /login (redirects to /admin), 404
   context/       AdminAuthContext (session key), PortfolioDataContext (shared data)
   i18n/          translations (es, en) and LanguageContext
-  lib/           api client, book/profile helpers
+  lib/           api client, book/profile helpers, analytics
   hooks/         useDocumentTitle, useFormState
   components/    illustrations/, books/, projects/, layout/, form/
-  pages/         home/, books/, admin/, NotFoundPage
+  pages/         home/, books/, projects/, admin/ (Books, Projects, Timeline, Support, Profile, CV, Analytics), NotFoundPage
   styles/        CSS split by area, imported in order from styles/index.css
 ```
