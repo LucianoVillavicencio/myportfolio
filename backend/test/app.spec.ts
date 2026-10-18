@@ -139,6 +139,21 @@ describe('App (full module)', () => {
     expect(res.status).toBe(401);
   });
 
+  it('locks out an ip after repeated wrong keys on any admin route', async () => {
+    const { MAX_FAILED_ATTEMPTS } = await import('../src/common/admin-key.guard');
+    const backup = (key: string) =>
+      request(app.getHttpServer())
+        .get('/api/backup')
+        .set('x-admin-key', key)
+        .set('X-Forwarded-For', '5.5.5.5');
+    for (let i = 0; i < MAX_FAILED_ATTEMPTS; i++) {
+      expect((await backup('wrong')).status).toBe(401);
+    }
+    expect((await backup('wrong')).status).toBe(429);
+    // Even the right key is refused until the window passes.
+    expect((await backup('test-key')).status).toBe(429);
+  });
+
   it('backup returns the sqlite file', async () => {
     const res = await request(app.getHttpServer())
       .get('/api/backup')

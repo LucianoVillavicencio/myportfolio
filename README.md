@@ -28,7 +28,7 @@ The SQLite file `backend/portfolio.sqlite` is created on first launch, with your
 | `DB_PATH`       | `backend/portfolio.sqlite`       | Where the SQLite file is stored. **Required** when `NODE_ENV=production`. |
 | `CV_DIR`        | `cv/` next to `DB_PATH`          | Where CVs uploaded from `/admin` are stored.                 |
 | `STATIC_DIR`    | `frontend/dist`                  | Built frontend served by Nest (the Docker image sets `/app/public`). |
-| `CORS_ORIGIN`   | any origin                       | Comma-separated allow-list, e.g. `https://example.com`. Not needed when Nest serves the frontend. |
+| `CORS_ORIGIN`   | any origin (dev), none (prod)    | Comma-separated allow-list, e.g. `https://example.com`. Not needed when Nest serves the frontend. |
 | `PORT`          | `3000`                           |                                                              |
 
 ## Owner panel

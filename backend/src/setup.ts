@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import type { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { resolveCorsOrigin } from './config';
 
 export function configureApp(app: NestExpressApplication): void {
   app.set('trust proxy', 1);
@@ -31,8 +32,7 @@ export function configureApp(app: NestExpressApplication): void {
   });
   app.setGlobalPrefix('api');
   app.enableCors({
-    // Comma-separated list in production, e.g. "https://mysite.com"
-    origin: process.env.CORS_ORIGIN?.split(',') ?? true,
+    origin: resolveCorsOrigin(process.env),
     allowedHeaders: ['Content-Type', 'x-admin-key'],
   });
   app.useGlobalPipes(
