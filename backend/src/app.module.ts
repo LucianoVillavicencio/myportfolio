@@ -6,6 +6,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { BooksModule } from './books/books.module';
 import { ProjectsModule } from './projects/projects.module';
+import { TimelineModule } from './timeline/timeline.module';
+import { TimelineEntry } from './timeline/timeline-entry.entity';
 import { ProfileModule } from './profile/profile.module';
 import { AuthController } from './auth/auth.controller';
 import { Book } from './books/book.entity';
@@ -29,7 +31,7 @@ const dbPath = resolveDbPath(process.env);
       location: dbPath,
       autoSave: true,
       autoSaveCallback: (data: Uint8Array) => atomicWriteFile(dbPath, data),
-      entities: [Book, Project, Profile, GoodreadsSettings],
+      entities: [Book, Project, Profile, GoodreadsSettings, TimelineEntry],
       synchronize: true,
     }),
     ServeStaticModule.forRoot({
@@ -40,6 +42,7 @@ const dbPath = resolveDbPath(process.env);
     ScheduleModule.forRoot(),
     BooksModule,
     ProjectsModule,
+    TimelineModule,
     ProfileModule,
     GoodreadsModule,
     BackupModule,

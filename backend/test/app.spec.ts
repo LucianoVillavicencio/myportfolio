@@ -201,6 +201,42 @@ describe('App (full module)', () => {
     rmSync(join(cvDir, 'cv_es.pdf'), { force: true });
   });
 
+  describe('timeline', () => {
+    const entry = { kind: 'work', period: '2020', sortYear: 2020, titleEn: 'Job' };
+    const ip = '7.7.7.7';
+
+    it('rejects an unknown kind with 400', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/timeline')
+        .set('x-forwarded-for', ip)
+        .set('x-admin-key', 'test-key')
+        .send({ ...entry, kind: 'hobby' });
+      expect(res.status).toBe(400);
+    });
+
+    it('requires the admin key to write, lists publicly', async () => {
+      const denied = await request(app.getHttpServer())
+        .post('/api/timeline')
+        .set('x-forwarded-for', ip)
+        .send(entry);
+      expect(denied.status).toBe(401);
+      const created = await request(app.getHttpServer())
+        .post('/api/timeline')
+        .set('x-forwarded-for', ip)
+        .set('x-admin-key', 'test-key')
+        .send(entry);
+      expect(created.status).toBe(201);
+      const list = await request(app.getHttpServer()).get('/api/timeline');
+      expect(list.status).toBe(200);
+      expect(list.body.some((e: { id: string }) => e.id === created.body.id)).toBe(true);
+      const del = await request(app.getHttpServer())
+        .delete(`/api/timeline/${created.body.id}`)
+        .set('x-forwarded-for', ip)
+        .set('x-admin-key', 'test-key');
+      expect(del.status).toBe(204);
+    });
+  });
+
   describe('CVs', () => {
     const pdf = Buffer.from('%PDF-1.7\nuploaded cv\n');
     const binary = (r: request.Request) =>
