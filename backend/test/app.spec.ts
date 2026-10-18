@@ -495,10 +495,10 @@ describe('App (full module)', () => {
 
     it('event ignores bots', async () => {
       const before = (await summary()).body.totals.outbound;
-      expect((await send({ type: 'outbound', key: 'github' }, 'Googlebot/2.1')).status).toBe(204);
-      expect((await send({ type: 'outbound', key: 'github' }, null)).status).toBe(204);
+      expect((await send({ type: 'outbound', key: 'flg-gym:repo' }, 'Googlebot/2.1')).status).toBe(204);
+      expect((await send({ type: 'outbound', key: 'flg-gym:repo' }, null)).status).toBe(204);
       expect((await summary()).body.totals.outbound).toBe(before);
-      expect((await send({ type: 'outbound', key: 'github' })).status).toBe(204);
+      expect((await send({ type: 'outbound', key: 'flg-gym:repo' })).status).toBe(204);
       expect((await summary()).body.totals.outbound).toBe(before + 1);
     });
 
@@ -506,6 +506,16 @@ describe('App (full module)', () => {
       expect((await send({ type: 'view', key: '<script>' })).status).toBe(400);
       expect((await send({ type: 'nope', key: 'x' })).status).toBe(400);
       expect((await send({ type: 'view', key: 'a'.repeat(121) })).status).toBe(400);
+    });
+
+    it('rejects cv from the public endpoint and unknown view keys', async () => {
+      expect((await send({ type: 'cv', key: 'en' })).status).toBe(400);
+      expect((await send({ type: 'view', key: '/wp-login.php' })).status).toBe(400);
+      expect((await send({ type: 'contact', key: 'x' })).status).toBe(400);
+    });
+
+    it('accepts a project view', async () => {
+      expect((await send({ type: 'view', key: '/projects/flg-gym' })).status).toBe(204);
     });
 
     it('summary requires admin and validates days', async () => {

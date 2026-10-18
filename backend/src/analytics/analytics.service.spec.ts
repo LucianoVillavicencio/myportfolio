@@ -3,7 +3,7 @@ import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { testDb } from '../../test/test-db';
 import { AnalyticsDaily } from './analytics-daily.entity';
-import { AnalyticsService, isBot } from './analytics.service';
+import { AnalyticsService, isAllowedEventKey, isBot } from './analytics.service';
 
 const d = (s: string) => new Date(`${s}T12:00:00Z`);
 
@@ -99,5 +99,36 @@ describe('isBot', () => {
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       ),
     ).toBe(false);
+  });
+});
+
+describe('isAllowedEventKey', () => {
+  it.each([
+    ['view', '/'],
+    ['view', '/books'],
+    ['view', '/projects/flg-gym'],
+    ['view', '/projects/a1'],
+    ['outbound', 'flg-gym:repo'],
+    ['outbound', 'flg-gym:live'],
+    ['contact', 'sent'],
+  ] as const)('accepts %s %s', (type, key) => {
+    expect(isAllowedEventKey(type, key)).toBe(true);
+  });
+
+  it.each([
+    ['view', '/wp-login.php'],
+    ['view', '/projects/'],
+    ['view', '/projects/Bad_Slug'],
+    ['view', '/projects/a--b'],
+    ['view', '/projects/-a'],
+    ['view', '/projects/a/b'],
+    ['view', '/books/'],
+    ['outbound', 'github'],
+    ['outbound', 'flg-gym:other'],
+    ['outbound', ':repo'],
+    ['contact', 'other'],
+    ['cv', 'en'],
+  ] as const)('rejects %s %s', (type, key) => {
+    expect(isAllowedEventKey(type, key)).toBe(false);
   });
 });

@@ -13,6 +13,18 @@ export function isBot(userAgent: string | undefined): boolean {
   return !userAgent || BOT_RE.test(userAgent);
 }
 
+const SLUG = '[a-z0-9]+(?:-[a-z0-9]+)*';
+const KEY_SHAPES: Partial<Record<EventType, RegExp>> = {
+  view: new RegExp(`^(?:/|/books|/projects/${SLUG})$`),
+  outbound: new RegExp(`^${SLUG}:(?:repo|live)$`),
+  contact: /^sent$/,
+};
+
+/** Only keys the site itself emits, so the public endpoint cannot grow the table without bound. */
+export function isAllowedEventKey(type: EventType, key: string): boolean {
+  return KEY_SHAPES[type]?.test(key) ?? false;
+}
+
 const dayOf = (date: Date) => date.toISOString().slice(0, 10);
 
 export interface AnalyticsSummary {

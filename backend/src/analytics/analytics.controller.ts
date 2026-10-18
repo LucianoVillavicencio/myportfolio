@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -12,7 +13,7 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { AdminKeyGuard } from '../common/admin-key.guard';
 import { AnalyticsEventDto, AnalyticsQueryDto } from './analytics.dto';
-import { AnalyticsService, isBot } from './analytics.service';
+import { AnalyticsService, isAllowedEventKey, isBot } from './analytics.service';
 
 @Controller('analytics')
 export class AnalyticsController {
@@ -27,6 +28,9 @@ export class AnalyticsController {
     @Body() dto: AnalyticsEventDto,
     @Headers('user-agent') userAgent: string | undefined,
   ): Promise<void> {
+    if (!isAllowedEventKey(dto.type, dto.key)) {
+      throw new BadRequestException('Unknown analytics key');
+    }
     if (isBot(userAgent)) return;
     try {
       await this.service.record(dto.type, dto.key);
