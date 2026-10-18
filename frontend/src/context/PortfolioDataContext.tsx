@@ -9,6 +9,17 @@ import React, {
 import { api } from '../lib/api';
 import type { Book, Profile, Project, TimelineEntry } from '../types';
 
+/**
+ * Optional sections must never take the core content down with them: a failed
+ * fetch is logged and falls back to an empty list, so the section just hides.
+ */
+function optional<T>(name: string, request: Promise<T[]>): Promise<T[]> {
+  return request.catch((err) => {
+    console.error(`Error loading optional ${name}:`, err);
+    return [];
+  });
+}
+
 interface PortfolioData {
   profile: Profile | null;
   books: Book[];
@@ -39,7 +50,7 @@ export const PortfolioDataProvider: React.FC<{ children: React.ReactNode }> = ({
         api.getProfile(),
         api.getBooks(),
         api.getProjects(),
-        api.getTimeline(),
+        optional('timeline', api.getTimeline()),
       ]);
       setProfile(profileData);
       setBooks(booksData);

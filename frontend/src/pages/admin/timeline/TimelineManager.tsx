@@ -46,7 +46,7 @@ export const TimelineManager: React.FC = () => {
                   key={entry.id}
                   isSelected={entry.id === editingId}
                   title={titleOf(entry)}
-                  meta={`${t.timeline.kinds[entry.kind]} · ${entry.period}`}
+                  meta={`${t.timeline.kinds[entry.kind]} · ${entry.period} · ${entry.sortYear}`}
                   actions={
                     <>
                       <button type="button" onClick={() => setEditingId(entry.id)}>
