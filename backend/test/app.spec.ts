@@ -475,4 +475,64 @@ describe('App (full module)', () => {
       expect((await post(valid, ip)).status).toBe(429);
     });
   });
+
+  describe('analytics', () => {
+    const chrome =
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+    let n = 0;
+    const ip = () => `10.12.0.${++n}`;
+    const send = (body: object, ua: string | null = chrome) => {
+      const r = request(app.getHttpServer())
+        .post('/api/analytics/event')
+        .set('X-Forwarded-For', ip());
+      return (ua ? r.set('User-Agent', ua) : r).send(body);
+    };
+    const summary = (days = 30) =>
+      request(app.getHttpServer())
+        .get(`/api/analytics?days=${days}`)
+        .set('x-admin-key', 'test-key')
+        .set('X-Forwarded-For', ip());
+
+    it('event ignores bots', async () => {
+      const before = (await summary()).body.totals.outbound;
+      expect((await send({ type: 'outbound', key: 'github' }, 'Googlebot/2.1')).status).toBe(204);
+      expect((await send({ type: 'outbound', key: 'github' }, null)).status).toBe(204);
+      expect((await summary()).body.totals.outbound).toBe(before);
+      expect((await send({ type: 'outbound', key: 'github' })).status).toBe(204);
+      expect((await summary()).body.totals.outbound).toBe(before + 1);
+    });
+
+    it('rejects bad keys', async () => {
+      expect((await send({ type: 'view', key: '<script>' })).status).toBe(400);
+      expect((await send({ type: 'nope', key: 'x' })).status).toBe(400);
+      expect((await send({ type: 'view', key: 'a'.repeat(121) })).status).toBe(400);
+    });
+
+    it('summary requires admin and validates days', async () => {
+      const anon = await request(app.getHttpServer())
+        .get('/api/analytics')
+        .set('X-Forwarded-For', ip());
+      expect(anon.status).toBe(401);
+      expect((await summary(0)).status).toBe(400);
+      expect((await summary(366)).status).toBe(400);
+      const ok = await summary(7);
+      expect(ok.status).toBe(200);
+      expect(ok.body.daily).toHaveLength(7);
+    });
+
+    it('cv download is counted', async () => {
+      const before = (await summary()).body.totals.cv;
+      const get = (ua: string | null) => {
+        const r = request(app.getHttpServer()).get('/api/cv/en').set('X-Forwarded-For', ip());
+        return ua ? r.set('User-Agent', ua) : r;
+      };
+      expect((await get(chrome)).status).toBe(200);
+      expect((await get('Googlebot/2.1')).status).toBe(200);
+      const after = await summary();
+      expect(after.body.totals.cv).toBe(before + 1);
+      expect(after.body.top).toEqual(
+        expect.arrayContaining([expect.objectContaining({ type: 'cv', key: 'en' })]),
+      );
+    });
+  });
 });
