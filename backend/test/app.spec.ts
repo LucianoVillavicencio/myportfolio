@@ -379,4 +379,85 @@ describe('App (full module)', () => {
       expect(res.headers.location).toBe('/api/cv/es');
     });
   });
+  describe('contact', () => {
+    const valid = {
+      name: 'Ada',
+      email: 'ada@example.com',
+      message: 'Hola, me gustaria hablar contigo.',
+    };
+    const saved = { ...process.env };
+    let n = 0;
+    let fetchSpy: jest.SpyInstance;
+    const post = (body: object, ip = `10.11.0.${++n}`) =>
+      request(app.getHttpServer())
+        .post('/api/contact')
+        .set('X-Forwarded-For', ip)
+        .send(body);
+
+    beforeEach(() => {
+      fetchSpy = jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValue({ ok: true, status: 200 } as Response);
+    });
+    afterEach(() => {
+      fetchSpy.mockRestore();
+      for (const k of ['RESEND_API_KEY', 'CONTACT_FROM', 'CONTACT_TO']) {
+        if (saved[k] === undefined) delete process.env[k];
+        else process.env[k] = saved[k];
+      }
+    });
+
+    it('sends via Resend', async () => {
+      process.env.RESEND_API_KEY = 're_test';
+      const res = await post(valid);
+      expect(res.status).toBe(204);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      const [url, init] = fetchSpy.mock.calls[0];
+      expect(url).toBe('https://api.resend.com/emails');
+      expect(init.headers.Authorization).toBe('Bearer re_test');
+      const body = JSON.parse(init.body);
+      expect(body.reply_to).toBe('ada@example.com');
+      expect(body.subject).toBe('Portfolio: mensaje de Ada');
+      expect(body.text).toContain('Ada');
+      expect(body.text).toContain(valid.message);
+    });
+
+    it('honeypot drops silently', async () => {
+      process.env.RESEND_API_KEY = 're_test';
+      const res = await post({ ...valid, website: 'x' });
+      expect(res.status).toBe(204);
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    it('validates input', async () => {
+      process.env.RESEND_API_KEY = 're_test';
+      expect((await post({ ...valid, email: 'nope' })).status).toBe(400);
+      expect((await post({ ...valid, message: 'short' })).status).toBe(400);
+      expect((await post({ ...valid, name: null })).status).toBe(400);
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    it('503 when not configured', async () => {
+      delete process.env.RESEND_API_KEY;
+      const res = await post(valid);
+      expect(res.status).toBe(503);
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    it('503 when Resend fails', async () => {
+      process.env.RESEND_API_KEY = 're_test';
+      fetchSpy.mockResolvedValue({ ok: false, status: 500 } as Response);
+      const res = await post(valid);
+      expect(res.status).toBe(503);
+    });
+
+    it('throttles to 3 per 10 minutes', async () => {
+      process.env.RESEND_API_KEY = 're_test';
+      const ip = '10.99.0.1';
+      for (let i = 0; i < 3; i++) {
+        expect((await post(valid, ip)).status).toBe(204);
+      }
+      expect((await post(valid, ip)).status).toBe(429);
+    });
+  });
 });

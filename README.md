@@ -27,6 +27,10 @@ The SQLite file `backend/portfolio.sqlite` is created on first launch, with your
 | `ADMIN_API_KEY` | `secret-admin-key` (dev only)    | **Required** when `NODE_ENV=production`.                     |
 | `DB_PATH`       | `backend/portfolio.sqlite`       | Where the SQLite file is stored. **Required** when `NODE_ENV=production`. |
 | `CV_DIR`        | `cv/` next to `DB_PATH`          | Where CVs uploaded from `/admin` are stored.                 |
+| `MEDIA_DIR`     | `media/` next to `DB_PATH`       | Where project images uploaded from `/admin` are stored.      |
+| `RESEND_API_KEY` | _(unset)_                       | Optional. Resend API key for the contact form; without it `POST /api/contact` answers 503. |
+| `CONTACT_FROM`  | `Portfolio <onboarding@resend.dev>` | Sender of contact emails. With `onboarding@resend.dev` Resend only delivers to the Resend account's own address; verify a domain to send elsewhere. |
+| `CONTACT_TO`    | the profile email                | Where contact emails are delivered.                          |
 | `STATIC_DIR`    | `frontend/dist`                  | Built frontend served by Nest (the Docker image sets `/app/public`). |
 | `CORS_ORIGIN`   | any origin (dev), none (prod)    | Comma-separated allow-list, e.g. `https://example.com`. Not needed when Nest serves the frontend. |
 | `PORT`          | `3000`                           |                                                              |
