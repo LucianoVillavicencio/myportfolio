@@ -36,6 +36,17 @@ export interface Project {
   featured: boolean;
   completedDate: string;
   createdAt: string;
+  slug: string | null;
+  problemEs: string;
+  problemEn: string;
+  roleEs: string;
+  roleEn: string;
+  decisionsEs: string;
+  decisionsEn: string;
+  resultsEs: string;
+  resultsEn: string;
+  /** Media URLs; the first one is the cover. */
+  images: string[];
 }
 
 export interface ProjectInput {
@@ -47,6 +58,17 @@ export interface ProjectInput {
   liveUrl: string;
   featured: boolean;
   completedDate: string;
+  /** Empty = generate from the title (create) or keep the current one (update). */
+  slug: string;
+  problemEs: string;
+  problemEn: string;
+  roleEs: string;
+  roleEn: string;
+  decisionsEs: string;
+  decisionsEn: string;
+  resultsEs: string;
+  resultsEn: string;
+  images: string[];
 }
 
 export interface Profile {

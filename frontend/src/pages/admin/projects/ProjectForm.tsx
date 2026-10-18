@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useAdminAuth } from '../../../context/AdminAuthContext';
+import { ImageListField } from '../../../components/form/ImageListField';
 import type { Project, ProjectInput } from '../../../types';
 import { api } from '../../../lib/api';
 import { useI18n } from '../../../i18n/LanguageContext';
@@ -27,6 +29,16 @@ function toFormValues(locale: string, project?: Project): ProjectFormValues {
     completedDate:
       project?.completedDate ??
       new Date().toLocaleDateString(locale, { month: 'short', year: 'numeric' }),
+    slug: project?.slug ?? '',
+    problemEs: project?.problemEs ?? '',
+    problemEn: project?.problemEn ?? '',
+    roleEs: project?.roleEs ?? '',
+    roleEn: project?.roleEn ?? '',
+    decisionsEs: project?.decisionsEs ?? '',
+    decisionsEn: project?.decisionsEn ?? '',
+    resultsEs: project?.resultsEs ?? '',
+    resultsEn: project?.resultsEn ?? '',
+    images: project?.images ?? [],
   };
 }
 
@@ -44,6 +56,8 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ project, onDone }) => 
   const { t, locale } = useI18n();
   const copy = t.admin.projects;
   const { values, setField } = useFormState(toFormValues(locale, project));
+  const { adminKey } = useAdminAuth();
+  const [uploading, setUploading] = useState(false);
   const { run, isBusy, error } = useAdminMutation();
   const missingSummary = !values.summaryEs.trim() && !values.summaryEn.trim();
 
@@ -127,6 +141,46 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ project, onDone }) => 
         {copy.featured}
       </label>
 
+      <fieldset className="bilingual-field">
+        <legend>{copy.caseStudy.legend}</legend>
+        <p className="admin-hint">{copy.caseStudy.hint}</p>
+        {(
+          [
+            ['problem', copy.caseStudy.problem],
+            ['role', copy.caseStudy.role],
+            ['decisions', copy.caseStudy.decisions],
+            ['results', copy.caseStudy.results],
+          ] as const
+        ).map(([name, label]) => (
+          <BilingualField
+            key={name}
+            label={label}
+            es={values[`${name}Es`]}
+            en={values[`${name}En`]}
+            onChange={(lang, value) => setField(lang === 'es' ? `${name}Es` : `${name}En`, value)}
+            rows={4}
+          />
+        ))}
+        <FormField label={copy.caseStudy.slug}>
+          <input
+            type="text"
+            value={values.slug}
+            onChange={(e) => setField('slug', e.target.value)}
+            pattern="[a-z0-9]+(-[a-z0-9]+)*"
+            placeholder="my-project"
+          />
+        </FormField>
+        <p className="admin-hint">{copy.caseStudy.slugHint}</p>
+      </fieldset>
+
+      <ImageListField
+        value={values.images}
+        onChange={(urls) => setField('images', urls)}
+        max={8}
+        adminKey={adminKey ?? ''}
+        onBusyChange={setUploading}
+      />
+
       {error && <p className="form-error">{error}</p>}
 
       <div className="dialog-actions">
@@ -138,7 +192,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ project, onDone }) => 
         <button
           type="submit"
           className="btn-primary-mustard"
-          disabled={isBusy || missingSummary}
+          disabled={isBusy || uploading || missingSummary}
         >
           {isBusy ? t.admin.saving : project ? t.admin.saveChanges : copy.submit}
         </button>
