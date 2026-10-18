@@ -10,11 +10,12 @@ import { LanguageToggle } from '../../components/layout/LanguageToggle';
 import { LoginPanel } from './LoginPanel';
 import { BooksManager } from './books/BooksManager';
 import { ProjectsManager } from './projects/ProjectsManager';
+import { SupportManager } from './support/SupportManager';
 import { TimelineManager } from './timeline/TimelineManager';
 import { ProfileForm } from './ProfileForm';
 import { CvManager } from './CvManager';
 
-const TABS = ['books', 'projects', 'timeline', 'profile', 'cv'] as const;
+const TABS = ['books', 'projects', 'timeline', 'support', 'profile', 'cv'] as const;
 type AdminTab = (typeof TABS)[number];
 
 export const AdminPage: React.FC = () => {
@@ -31,6 +32,7 @@ export const AdminPage: React.FC = () => {
     books: t.admin.tabs.books(books.length),
     projects: t.admin.tabs.projects(projects.length),
     timeline: t.admin.tabs.timeline(timeline.length),
+    support: t.admin.tabs.support,
     profile: t.admin.tabs.profile,
     cv: t.admin.tabs.cv,
   };
@@ -113,6 +115,7 @@ export const AdminPage: React.FC = () => {
           {tab === 'books' && <BooksManager />}
           {tab === 'projects' && <ProjectsManager />}
           {tab === 'timeline' && <TimelineManager />}
+          {tab === 'support' && <SupportManager />}
           {tab === 'profile' &&
             (profile ? (
               <ProfileForm profile={profile} />

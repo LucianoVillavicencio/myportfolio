@@ -152,3 +152,42 @@ export interface TimelineInput {
   descriptionEs: string;
   descriptionEn: string;
 }
+
+export interface SupportCard {
+  id: string;
+  enabled: boolean;
+  titleEs: string;
+  titleEn: string;
+  introEs: string;
+  introEn: string;
+  /** One offering per line. */
+  offeringsEs: string;
+  offeringsEn: string;
+  areaEs: string;
+  areaEn: string;
+}
+
+export type SupportCardInput = Omit<SupportCard, 'id'>;
+
+export interface CaseStory {
+  id: string;
+  titleEs: string;
+  titleEn: string;
+  bodyEs: string;
+  bodyEn: string;
+  sortOrder: number;
+  createdAt: string;
+}
+
+export interface CaseStoryInput {
+  titleEs: string;
+  titleEn: string;
+  bodyEs: string;
+  bodyEn: string;
+  sortOrder: number;
+}
+
+export interface SupportData {
+  card: SupportCard | null;
+  stories: CaseStory[];
+}

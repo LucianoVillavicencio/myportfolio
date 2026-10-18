@@ -3,6 +3,8 @@ import type {
   BookInput,
   CvInfo,
   CvLang,
+  CaseStory,
+  CaseStoryInput,
   CvStatus,
   GoodreadsStatus,
   GoodreadsSyncResult,
@@ -10,6 +12,9 @@ import type {
   ProfileInput,
   Project,
   ProjectInput,
+  SupportCard,
+  SupportCardInput,
+  SupportData,
   TimelineEntry,
   TimelineInput,
 } from '../types';
@@ -102,6 +107,18 @@ export const api = {
     send<TimelineEntry>('PATCH', `/timeline/${id}`, adminKey, data),
   deleteTimelineEntry: (id: string, adminKey: string) =>
     send<void>('DELETE', `/timeline/${id}`, adminKey),
+
+  getSupport: () => request<SupportData>('/support'),
+  getSupportAdmin: (adminKey: string) =>
+    send<{ card: SupportCard; stories: CaseStory[] }>('GET', '/support/admin', adminKey),
+  updateSupportCard: (data: Partial<SupportCardInput>, adminKey: string) =>
+    send<SupportCard>('PATCH', '/support', adminKey, data),
+  createCaseStory: (data: CaseStoryInput, adminKey: string) =>
+    send<CaseStory>('POST', '/support/stories', adminKey, data),
+  updateCaseStory: (id: string, data: Partial<CaseStoryInput>, adminKey: string) =>
+    send<CaseStory>('PATCH', `/support/stories/${id}`, adminKey, data),
+  deleteCaseStory: (id: string, adminKey: string) =>
+    send<void>('DELETE', `/support/stories/${id}`, adminKey),
 
   getCvStatus: (adminKey: string) => send<CvStatus>('GET', '/cv', adminKey),
 };
