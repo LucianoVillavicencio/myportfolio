@@ -3,6 +3,9 @@ import type { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { resolveCorsOrigin } from './config';
+import { ProfileService } from './profile/profile.service';
+import { ProjectsService } from './projects/projects.service';
+import { createSeoMiddleware } from './seo/seo.middleware';
 
 export function configureApp(app: NestExpressApplication): void {
   app.set('trust proxy', 1);
@@ -30,6 +33,8 @@ export function configureApp(app: NestExpressApplication): void {
     if (lang) res.redirect(302, `/api/cv/${lang}`);
     else next();
   });
+  // Server-rendered meta, sitemap and robots; runs before ServeStatic.
+  app.use(createSeoMiddleware(app.get(ProjectsService), app.get(ProfileService)));
   app.setGlobalPrefix('api');
   app.enableCors({
     origin: resolveCorsOrigin(process.env),

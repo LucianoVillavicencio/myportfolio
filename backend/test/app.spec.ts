@@ -535,4 +535,58 @@ describe('App (full module)', () => {
       );
     });
   });
+
+  describe('seo', () => {
+    const h = { 'x-forwarded-for': '9.9.9.1', 'x-admin-key': 'test-key' };
+    const html = { Accept: 'text/html' };
+
+    it('project page html carries project meta', async () => {
+      const created = await request(app.getHttpServer())
+        .post('/api/projects')
+        .set(h)
+        .send({
+          title: 'Gestión <FLG>',
+          summaryEs: 'Un sistema para gestionar.\n\nSegundo párrafo.',
+          techStack: ['ts'],
+          images: ['/api/media/shot.png'],
+        });
+      expect(created.status).toBe(201);
+      const res = await request(app.getHttpServer())
+        .get(`/projects/${created.body.slug}`)
+        .set(html);
+      expect(res.status).toBe(200);
+      expect(res.headers['cache-control']).toBe('no-cache');
+      expect(res.text).toContain('property="og:title" content="Gestión &lt;FLG&gt; ·');
+      expect(res.text).toContain('content="Un sistema para gestionar."');
+      expect(res.text).toMatch(/og:image" content="http:\/\/[^"]+\/api\/media\/shot\.png"/);
+      expect(res.text).toContain('id="root"');
+    });
+
+    it('unknown project slug is 404 html with noindex', async () => {
+      for (const slug of ['nope', 'Bad_Slug']) {
+        const res = await request(app.getHttpServer())
+          .get(`/projects/${slug}`)
+          .set(html);
+        expect(res.status).toBe(404);
+        expect(res.headers['content-type']).toMatch(/text\/html/);
+        expect(res.text).toContain('content="noindex"');
+        expect(res.text).toContain('id="root"');
+      }
+    });
+
+    it('sitemap lists project urls', async () => {
+      const res = await request(app.getHttpServer()).get('/sitemap.xml');
+      expect(res.status).toBe(200);
+      expect(res.headers['content-type']).toMatch(/xml/);
+      expect(res.text).toMatch(/<loc>http:\/\/[^<]+\/projects\/gestion-flg<\/loc>/);
+      expect(res.text).toMatch(/<loc>http:\/\/[^<]+\/books<\/loc>/);
+    });
+
+    it('robots disallows /admin and points to sitemap', async () => {
+      const res = await request(app.getHttpServer()).get('/robots.txt');
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('Disallow: /admin');
+      expect(res.text).toMatch(/Sitemap: http:\/\/\S+\/sitemap\.xml/);
+    });
+  });
 });
