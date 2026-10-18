@@ -13,7 +13,7 @@ export const SupportManager: React.FC = () => {
   const { adminKey } = useAdminAuth();
   const { lang, t } = useI18n();
   const copy = t.admin.support;
-  const { run, isBusy, error } = useAdminMutation();
+  const { run, isBusy, error, clearError } = useAdminMutation();
   const [card, setCard] = useState<SupportCard | null>(null);
   const [stories, setStories] = useState<CaseStory[]>([]);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -37,24 +37,19 @@ export const SupportManager: React.FC = () => {
     load();
   }, [load]);
 
-  /** Runs a write, then refreshes this tab's own copy of the data. */
-  const mutate = async (action: (key: string) => Promise<unknown>) => {
-    const ok = await run(action);
-    if (ok) await load();
-    return ok;
-  };
-
   const editingStory = stories.find((s) => s.id === editingId);
   const titleOf = (story: CaseStory) => localized(lang, story.titleEs, story.titleEn);
 
   const closeForm = () => {
+    clearError();
     setEditingId(null);
     setFormKey((k) => k + 1);
   };
 
   const remove = async (story: CaseStory) => {
     if (!window.confirm(t.admin.confirmDelete(titleOf(story)))) return;
-    const ok = await mutate((key) => api.deleteCaseStory(story.id, key));
+    const ok = await run((key) => api.deleteCaseStory(story.id, key));
+    if (ok) await load();
     if (ok && story.id === editingId) closeForm();
   };
 
@@ -70,7 +65,7 @@ export const SupportManager: React.FC = () => {
     <>
       <section className="admin-panel admin-panel--form support-card-panel">
         <h2 className="admin-panel-title">{copy.cardTitle}</h2>
-        <CardForm card={card} onSave={mutate} />
+        <CardForm card={card} onSaved={load} />
       </section>
 
       <ManagerLayout
@@ -92,7 +87,10 @@ export const SupportManager: React.FC = () => {
                     meta={`#${story.sortOrder}`}
                     actions={
                       <>
-                        <button type="button" onClick={() => setEditingId(story.id)}>
+                        <button type="button" onClick={() => {
+                            clearError();
+                            setEditingId(story.id);
+                          }}>
                           {t.admin.edit}
                         </button>
                         <button
@@ -118,7 +116,7 @@ export const SupportManager: React.FC = () => {
             key={editingStory?.id ?? `new-${formKey}`}
             story={editingStory}
             nextOrder={stories.length ? Math.max(...stories.map((s) => s.sortOrder)) + 1 : 1}
-            mutate={mutate}
+            onSaved={load}
             onDone={closeForm}
           />
         }

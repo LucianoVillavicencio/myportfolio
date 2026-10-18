@@ -4,11 +4,12 @@ import { api } from '../../../lib/api';
 import { useI18n } from '../../../i18n/LanguageContext';
 import { useFormState } from '../../../hooks/useFormState';
 import { BilingualField } from '../../../components/form/BilingualField';
+import { useAdminMutation } from '../useAdminMutation';
 
 interface CardFormProps {
   card: SupportCard;
-  /** Runs a write and refreshes the tab's data; resolves true on success. */
-  onSave: (action: (adminKey: string) => Promise<unknown>) => Promise<boolean>;
+  /** Refreshes the tab's data after a successful save. */
+  onSaved: () => Promise<void>;
 }
 
 function toFormValues(card: SupportCard): SupportCardInput {
@@ -27,12 +28,12 @@ function toFormValues(card: SupportCard): SupportCardInput {
 
 type TextBase = 'title' | 'intro' | 'offerings' | 'area';
 
-export const CardForm: React.FC<CardFormProps> = ({ card, onSave }) => {
+export const CardForm: React.FC<CardFormProps> = ({ card, onSaved }) => {
   const { t } = useI18n();
   const copy = t.admin.support;
   const { values, setField } = useFormState(toFormValues(card));
   const [saved, setSaved] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const { run, isBusy, error } = useAdminMutation();
   const missingTitle = values.enabled && !values.titleEs.trim() && !values.titleEn.trim();
 
   const bilingual = (base: TextBase) => ({
@@ -47,9 +48,8 @@ export const CardForm: React.FC<CardFormProps> = ({ card, onSave }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (missingTitle) return;
-    setSaving(true);
-    const ok = await onSave((key) => api.updateSupportCard(values, key));
-    setSaving(false);
+    const ok = await run((key) => api.updateSupportCard(values, key));
+    if (ok) await onSaved();
     setSaved(ok);
   };
 
@@ -79,15 +79,16 @@ export const CardForm: React.FC<CardFormProps> = ({ card, onSave }) => {
 
       <BilingualField label={copy.fields.area} {...bilingual('area')} />
 
-      {saved && (
+      {error && <p className="form-error">{error}</p>}
+      {saved && !error && (
         <p className="admin-hint" role="status">
           {copy.cardSaved}
         </p>
       )}
 
       <div className="dialog-actions">
-        <button type="submit" className="btn-primary-mustard" disabled={saving || missingTitle}>
-          {saving ? t.admin.saving : copy.saveCard}
+        <button type="submit" className="btn-primary-mustard" disabled={isBusy || missingTitle}>
+          {isBusy ? t.admin.saving : copy.saveCard}
         </button>
       </div>
     </form>

@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { CaseStory, CaseStoryInput } from '../../../types';
 import { api } from '../../../lib/api';
 import { useI18n } from '../../../i18n/LanguageContext';
 import { useFormState } from '../../../hooks/useFormState';
 import { FormField } from '../../../components/form/FormField';
 import { BilingualField } from '../../../components/form/BilingualField';
+import { useAdminMutation } from '../useAdminMutation';
 
 interface StoryFormProps {
   /** Story being edited; omit to create a new one. */
   story?: CaseStory;
   /** Suggested sort order for a new story. */
   nextOrder: number;
-  mutate: (action: (adminKey: string) => Promise<unknown>) => Promise<boolean>;
+  /** Refreshes the tab's data after a successful save. */
+  onSaved: () => Promise<void>;
   onDone: () => void;
 }
 
 type StoryFormValues = Omit<CaseStoryInput, 'sortOrder'> & { sortOrder: string };
 
-export const StoryForm: React.FC<StoryFormProps> = ({ story, nextOrder, mutate, onDone }) => {
+export const StoryForm: React.FC<StoryFormProps> = ({ story, nextOrder, onSaved, onDone }) => {
   const { t } = useI18n();
   const copy = t.admin.support;
   const { values, setField } = useFormState<StoryFormValues>({
@@ -27,19 +29,20 @@ export const StoryForm: React.FC<StoryFormProps> = ({ story, nextOrder, mutate, 
     bodyEn: story?.bodyEn ?? '',
     sortOrder: String(story?.sortOrder ?? nextOrder),
   });
-  const [busy, setBusy] = useState(false);
+  const { run, isBusy, error } = useAdminMutation();
   const missingTitle = !values.titleEs.trim() && !values.titleEn.trim();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (missingTitle) return;
     const input: CaseStoryInput = { ...values, sortOrder: Number(values.sortOrder) };
-    setBusy(true);
-    const ok = await mutate((key) =>
+    const ok = await run((key) =>
       story ? api.updateCaseStory(story.id, input, key) : api.createCaseStory(input, key),
     );
-    setBusy(false);
-    if (ok) onDone();
+    if (ok) {
+      await onSaved();
+      onDone();
+    }
   };
 
   return (
@@ -72,14 +75,16 @@ export const StoryForm: React.FC<StoryFormProps> = ({ story, nextOrder, mutate, 
       </FormField>
       <p className="admin-hint">{copy.sortOrderHint}</p>
 
+      {error && <p className="form-error">{error}</p>}
+
       <div className="dialog-actions">
         {story && (
           <button type="button" className="btn-ghost" onClick={onDone}>
             {t.admin.cancel}
           </button>
         )}
-        <button type="submit" className="btn-primary-mustard" disabled={busy || missingTitle}>
-          {busy ? t.admin.saving : story ? t.admin.saveChanges : copy.submitStory}
+        <button type="submit" className="btn-primary-mustard" disabled={isBusy || missingTitle}>
+          {isBusy ? t.admin.saving : story ? t.admin.saveChanges : copy.submitStory}
         </button>
       </div>
     </form>
