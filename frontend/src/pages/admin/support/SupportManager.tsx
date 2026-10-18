@@ -63,7 +63,7 @@ export const SupportManager: React.FC = () => {
 
   return (
     <>
-      <section className="admin-panel admin-panel--form support-card-panel">
+      <section className="admin-panel support-card-panel">
         <h2 className="admin-panel-title">{copy.cardTitle}</h2>
         <CardForm card={card} onSaved={load} />
       </section>
