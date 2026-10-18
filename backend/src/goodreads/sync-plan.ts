@@ -85,13 +85,17 @@ export function planSync(
     );
     if (match) {
       adopted.add(match.id);
-      const lockedFields = Array.from(
-        new Set([...(match.lockedFields ?? []), ...differingFields(item, match)]),
+      const changes: Partial<Book> = { goodreadsId: item.goodreadsId };
+      let differing = differingFields(item, match);
+      // A manual book with no finish date just takes the feed's, rather than locking it.
+      if (match.finishedAt === null && item.readAt !== null) {
+        changes.finishedAt = item.readAt;
+        differing = differing.filter((f) => f !== 'finishedAt');
+      }
+      changes.lockedFields = Array.from(
+        new Set([...(match.lockedFields ?? []), ...differing]),
       );
-      plan.update.push({
-        id: match.id,
-        changes: { goodreadsId: item.goodreadsId, lockedFields },
-      });
+      plan.update.push({ id: match.id, changes });
       continue;
     }
 

@@ -17,7 +17,7 @@ import { AdminKeyGuard } from "../common/admin-key.guard";
 import { MediaService } from "../media/media.service";
 
 /** Adds every regular file of `dir` to `out` under `prefix/`; a missing dir is skipped. */
-async function addDir(
+export async function addDir(
   out: Record<string, Uint8Array>,
   dir: string,
   prefix: string,
@@ -26,8 +26,9 @@ async function addDir(
   let entries;
   try {
     entries = await fs.readdir(dir, { withFileTypes: true });
-  } catch {
-    return;
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return;
+    throw err;
   }
   for (const entry of entries) {
     if (!entry.isFile() || !accept(entry.name)) continue;
