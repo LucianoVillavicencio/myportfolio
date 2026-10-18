@@ -1,4 +1,3 @@
-import { Transform } from 'class-transformer';
 import {
   IsString,
   IsNotEmpty,
@@ -9,14 +8,8 @@ import {
   Max,
   ValidateIf,
 } from 'class-validator';
-import { Trim } from '../common/transforms';
+import { Trim, TextField } from '../common/transforms';
 import { TIMELINE_KINDS, TimelineKind } from './timeline-entry.entity';
-
-/** Trims text; null becomes '' so NOT NULL columns never receive null. */
-const TextField = () =>
-  Transform(({ value }) =>
-    value === null ? '' : typeof value === 'string' ? value.trim() : value,
-  );
 
 export class CreateTimelineEntryDto {
   @IsIn(TIMELINE_KINDS)

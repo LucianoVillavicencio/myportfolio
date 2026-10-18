@@ -272,6 +272,49 @@ describe('App (full module)', () => {
     });
   });
 
+  describe('support', () => {
+    const h = (ip: string) => ({ 'x-forwarded-for': ip, 'x-admin-key': 'test-key' });
+
+    it('public GET hides a disabled card with the documented shape', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/api/support')
+        .set('x-forwarded-for', '9.9.9.1');
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ card: null, stories: [] });
+    });
+
+    it('rejects null enabled with 400, treats null text as empty', async () => {
+      const bad = await request(app.getHttpServer())
+        .patch('/api/support')
+        .set(h('9.9.9.2'))
+        .send({ enabled: null });
+      expect(bad.status).toBe(400);
+      const ok = await request(app.getHttpServer())
+        .patch('/api/support')
+        .set(h('9.9.9.2'))
+        .send({ introEn: null });
+      expect(ok.status).toBe(200);
+      expect(ok.body.introEn).toBe('');
+    });
+
+    it('guards admin routes, rejects null sortOrder', async () => {
+      const denied = await request(app.getHttpServer())
+        .get('/api/support/admin')
+        .set('x-forwarded-for', '9.9.9.3');
+      expect(denied.status).toBe(401);
+      const full = await request(app.getHttpServer())
+        .get('/api/support/admin')
+        .set(h('9.9.9.3'));
+      expect(full.status).toBe(200);
+      expect(full.body.card.enabled).toBe(false);
+      const story = await request(app.getHttpServer())
+        .post('/api/support/stories')
+        .set(h('9.9.9.3'))
+        .send({ titleEn: 'Fixed a LAN', sortOrder: null });
+      expect(story.status).toBe(400);
+    });
+  });
+
   describe('CVs', () => {
     const pdf = Buffer.from('%PDF-1.7\nuploaded cv\n');
     const binary = (r: request.Request) =>

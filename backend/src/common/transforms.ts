@@ -14,3 +14,9 @@ export const EmptyToNull = () =>
 /** Trims a required string field. */
 export const Trim = () =>
   Transform(({ value }) => (typeof value === 'string' ? value.trim() : value));
+
+/** Trims text; null becomes '' so NOT NULL columns never receive null. */
+export const TextField = () =>
+  Transform(({ value }) =>
+    value === null ? '' : typeof value === 'string' ? value.trim() : value,
+  );
