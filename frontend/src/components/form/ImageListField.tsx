@@ -39,18 +39,22 @@ export const ImageListField: React.FC<ImageListFieldProps> = ({
     setUploading(true);
     onBusyChange?.(true);
     const urls = [...value];
+    const accepted = files.slice(0, max - value.length);
+    const skipped = files.length - accepted.length;
     try {
-      for (const file of files.slice(0, max - value.length)) {
+      for (const file of accepted) {
         urls.push((await uploadMedia(file, adminKey)).url);
       }
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t.admin.genericError);
+      return;
     } finally {
       // Keep whatever uploaded before a failure
       if (urls.length !== value.length) onChange(urls);
       setUploading(false);
       onBusyChange?.(false);
     }
+    if (skipped > 0) setError(copy.skipped(skipped, max));
   };
 
   const move = (from: number, to: number) => {
@@ -73,7 +77,7 @@ export const ImageListField: React.FC<ImageListFieldProps> = ({
               <div className="image-list-actions">
                 <button
                   type="button"
-                  disabled={i === 0}
+                  disabled={uploading || i === 0}
                   onClick={() => move(i, i - 1)}
                   aria-label={copy.moveLeft}
                   title={copy.moveLeft}
@@ -82,7 +86,7 @@ export const ImageListField: React.FC<ImageListFieldProps> = ({
                 </button>
                 <button
                   type="button"
-                  disabled={i === value.length - 1}
+                  disabled={uploading || i === value.length - 1}
                   onClick={() => move(i, i + 1)}
                   aria-label={copy.moveRight}
                   title={copy.moveRight}
@@ -91,6 +95,7 @@ export const ImageListField: React.FC<ImageListFieldProps> = ({
                 </button>
                 <button
                   type="button"
+                  disabled={uploading}
                   onClick={() => onChange(value.filter((_, j) => j !== i))}
                   aria-label={copy.remove}
                   title={copy.remove}

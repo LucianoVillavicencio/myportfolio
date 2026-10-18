@@ -257,6 +257,7 @@ const es = {
         moveRight: 'Mover a la derecha',
         badType: 'Solo se aceptan imágenes PNG, JPEG o WebP.',
         alt: (n: number) => `Captura ${n}`,
+        skipped: (n: number, max: number) => `Se omitieron ${n} imagen(es): el máximo es ${max}.`,
       },
     },
     profile: {
@@ -542,6 +543,7 @@ const en: Dictionary = {
         moveRight: 'Move right',
         badType: 'Only PNG, JPEG or WebP images are accepted.',
         alt: (n) => `Screenshot ${n}`,
+        skipped: (n, max) => `${n} image(s) skipped: the maximum is ${max}.`,
       },
     },
     profile: {
