@@ -1,9 +1,6 @@
 import type { Profile } from '../profile/profile.entity';
 import type { Project } from '../projects/project.entity';
 
-// Escapes < in JSON-LD so no value can close the script tag.
-const BACKSLASH = String.fromCharCode(92);
-
 export interface MetaInput {
   origin: string;
   path: string;
@@ -65,21 +62,27 @@ export function buildMeta(input: MetaInput): string {
         : `${name}'s reading log.`;
   }
 
-  const image = origin + (project?.images?.[0] || '/og-image.png');
+  const image = new URL(project?.images?.[0] || '/og-image.png', origin).href;
   const url = origin + path;
   const t = escapeHtml(title);
   const d = escapeHtml(description);
   const lines = [
     `<title>${t}</title>`,
     `<meta name="description" content="${d}" />`,
-    `<link rel="canonical" href="${escapeHtml(url)}" />`,
     `<meta property="og:title" content="${t}" />`,
     `<meta property="og:description" content="${d}" />`,
-    `<meta property="og:url" content="${escapeHtml(url)}" />`,
     `<meta property="og:image" content="${escapeHtml(image)}" />`,
     `<meta property="og:type" content="${project ? 'article' : 'website'}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
   ];
+  if (!notFound) {
+    lines.splice(
+      2,
+      0,
+      `<link rel="canonical" href="${escapeHtml(url)}" />`,
+    );
+    lines.push(`<meta property="og:url" content="${escapeHtml(url)}" />`);
+  }
   if (notFound) lines.push('<meta name="robots" content="noindex" />');
   if (path === '/' && !notFound) {
     const roles = pick(lang, profile.rolesEs, profile.rolesEn);
@@ -96,7 +99,8 @@ export function buildMeta(input: MetaInput): string {
     if (jobTitle) person.jobTitle = jobTitle;
     if (profile.email) person.email = `mailto:${profile.email}`;
     if (sameAs.length) person.sameAs = sameAs;
-    const json = JSON.stringify(person).replace(/</g, BACKSLASH + "u003c");
+    // Escape < so no value can close the script tag.
+    const json = JSON.stringify(person).replace(/</g, '\x5cu003c');
     lines.push(`<script type="application/ld+json">${json}</script>`);
   }
   return lines.join('\n    ');

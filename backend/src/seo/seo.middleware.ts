@@ -1,4 +1,5 @@
-import { NotFoundException } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
+import type { Profile } from '../profile/profile.entity';
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -9,6 +10,23 @@ import { buildMeta, escapeXml } from './seo';
 
 const START = '<!--seo:start-->';
 const END = '<!--seo:end-->';
+const log = new Logger('Seo');
+
+/** Used when the database read fails: generic site-name-only meta. */
+const FALLBACK_PROFILE = {
+  name: 'Luciano Villavicencio',
+  rolesEs: '',
+  rolesEn: '',
+  leadHighlightEs: '',
+  leadTextEs: '',
+  leadHighlightEn: '',
+  leadTextEn: '',
+  email: '',
+  githubUrl: null,
+  linkedinUrl: null,
+  instagramUrl: null,
+} as unknown as Profile;
+
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 interface Shell {
@@ -57,7 +75,12 @@ export function createSeoMiddleware(
         return;
       }
       if (path === '/sitemap.xml') {
-        const list = await projects.findAll();
+        let list: Awaited<ReturnType<ProjectsService['findAll']>> = [];
+        try {
+          list = await projects.findAll();
+        } catch (e) {
+          log.error('sitemap: projects read failed', e);
+        }
         const urls = [
           { loc: '/', lastmod: undefined as Date | undefined },
           { loc: '/books', lastmod: undefined },
@@ -89,21 +112,30 @@ export function createSeoMiddleware(
       const shell = shellFor();
       if (!shell) return next();
 
-      const profile = await profiles.get();
+      let profile = FALLBACK_PROFILE;
+      try {
+        profile = await profiles.get();
+      } catch (e) {
+        log.error('profile read failed, serving generic meta', e);
+      }
       const base = { origin, lang: 'es' as const, profile };
       let status = 200;
       let meta: string;
       if (projectMatch) {
         const slug = decodeURIComponentSafe(projectMatch[1]);
         let project;
+        let failed = false;
         if (SLUG.test(slug)) {
           try {
             project = await projects.findBySlug(slug);
           } catch (e) {
-            if (!(e instanceof NotFoundException)) throw e;
+            if (!(e instanceof NotFoundException)) {
+              failed = true;
+              log.error('project read failed, serving generic meta', e);
+            }
           }
         }
-        if (project) {
+        if (project || failed) {
           meta = buildMeta({ ...base, path: `/projects/${slug}`, project });
         } else {
           status = 404;

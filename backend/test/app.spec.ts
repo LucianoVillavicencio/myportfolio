@@ -588,5 +588,29 @@ describe('App (full module)', () => {
       expect(res.text).toContain('Disallow: /admin');
       expect(res.text).toMatch(/Sitemap: http:\/\/\S+\/sitemap\.xml/);
     });
+  
+    it('serves generic meta when the database reads fail', async () => {
+      const { ProfileService } = await import('../src/profile/profile.service');
+      const { ProjectsService } = await import('../src/projects/projects.service');
+      const spies = [
+        jest.spyOn(app.get(ProfileService), 'get').mockRejectedValue(new Error('db down')),
+        jest.spyOn(app.get(ProjectsService), 'findBySlug').mockRejectedValue(new Error('db down')),
+        jest.spyOn(app.get(ProjectsService), 'findAll').mockRejectedValue(new Error('db down')),
+      ];
+      try {
+        for (const path of ['/', '/books', '/projects/anything']) {
+          const res = await request(app.getHttpServer()).get(path).set(html);
+          expect(res.status).toBe(200);
+          expect(res.headers['content-type']).toMatch(/text\/html/);
+          expect(res.text).toMatch(/og:image" content="[^"]+\/og-image\.png"/);
+          expect(res.text).toContain('id="root"');
+        }
+        const sm = await request(app.getHttpServer()).get('/sitemap.xml');
+        expect(sm.status).toBe(200);
+        expect(sm.text).toContain('/books</loc>');
+      } finally {
+        spies.forEach((s) => s.mockRestore());
+      }
+    });
   });
 });
