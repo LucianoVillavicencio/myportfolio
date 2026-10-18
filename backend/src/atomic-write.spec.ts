@@ -1,4 +1,5 @@
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { promises as fsp } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { atomicWriteFile } from './atomic-write';
@@ -42,5 +43,46 @@ describe('atomicWriteFile', () => {
     const ok = join(dir, 'db.sqlite');
     await atomicWriteFile(ok, new Uint8Array([2]));
     expect(new Uint8Array(readFileSync(ok))).toEqual(new Uint8Array([2]));
+  });
+
+  it('coalesces queued writes: final content is the last payload with fewer fs writes', async () => {
+    const path = join(dir, 'db.sqlite');
+    const spy = jest.spyOn(fsp, 'writeFile');
+    try {
+      const writes = Array.from({ length: 20 }, (_, i) =>
+        atomicWriteFile(path, new Uint8Array([i, i])),
+      );
+      await Promise.all(writes);
+      expect(new Uint8Array(readFileSync(path))).toEqual(new Uint8Array([19, 19]));
+      expect(spy.mock.calls.length).toBeLessThan(20);
+      expect(readdirSync(dir).filter((f) => f.endsWith('.tmp'))).toEqual([]);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('every coalesced caller sees data at least as new as its own on resolve', async () => {
+    const path = join(dir, 'db.sqlite');
+    const seen: number[] = [];
+    const writes = Array.from({ length: 10 }, (_, i) =>
+      atomicWriteFile(path, new Uint8Array([i])).then(() => {
+        seen.push(i);
+        expect(readFileSync(path)[0]).toBeGreaterThanOrEqual(i);
+      }),
+    );
+    await Promise.all(writes);
+    expect(seen).toHaveLength(10);
+  });
+
+  it('a failing write rejects its callers but later writes still land', async () => {
+    const path = join(dir, 'db.sqlite');
+    const spy = jest.spyOn(fsp, 'writeFile').mockRejectedValueOnce(new Error('disk full'));
+    try {
+      await expect(atomicWriteFile(path, new Uint8Array([1]))).rejects.toThrow('disk full');
+      await atomicWriteFile(path, new Uint8Array([2]));
+      expect(new Uint8Array(readFileSync(path))).toEqual(new Uint8Array([2]));
+    } finally {
+      spy.mockRestore();
+    }
   });
 });
