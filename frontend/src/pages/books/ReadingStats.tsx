@@ -75,7 +75,7 @@ export const ReadingStats: React.FC<{ books: Book[] }> = ({ books }) => {
         <div className="bf-rs-goal">
           <div className="bf-rs-goal-head">
             <span className="bf-stat-label">{copy.goalLabel(stats.year)}</span>
-            <span className="bf-rs-goal-text">{copy.goal(stats.finishedThisYear, goal)}</span>
+            <span className="bf-rs-goal-text">{copy.goal(fmt(stats.finishedThisYear), fmt(goal))}</span>
           </div>
           <div
             className="bf-rs-bar"
@@ -83,6 +83,7 @@ export const ReadingStats: React.FC<{ books: Book[] }> = ({ books }) => {
             aria-valuemin={0}
             aria-valuemax={goal}
             aria-valuenow={Math.min(stats.finishedThisYear, goal)}
+            aria-valuetext={copy.goal(fmt(stats.finishedThisYear), fmt(goal))}
             aria-label={copy.goalLabel(stats.year)}
           >
             <div className="bf-rs-bar-fill" style={{ width: `${pct}%` }} />

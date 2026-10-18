@@ -42,8 +42,12 @@ function toInput(
   existing?: Pick<Book, 'rating' | 'finishedAt'>,
 ): BookInput {
   const existingRating = existing?.rating ?? null;
+  const { finishedAt, ...rest } = values;
+  // Send the date only when the user changed it: resending the truncated stored value would
+  // shift its time and lock the field, and sending null would stop the server auto-stamping.
+  const dateChanged = finishedAt !== (existing?.finishedAt?.slice(0, 10) ?? '');
   return {
-    ...values,
+    ...rest,
     totalPages: Number(values.totalPages) || 1,
     // The rating field is only shown for completed books; otherwise keep what is stored
     rating:
@@ -52,9 +56,7 @@ function toInput(
           ? Number(values.rating)
           : null
         : existingRating,
-    // Only meaningful for completed books; otherwise keep what is stored
-    finishedAt:
-      values.status === 'COMPLETED' ? values.finishedAt || null : (existing?.finishedAt ?? null),
+    ...(dateChanged ? { finishedAt: finishedAt || null } : {}),
   };
 }
 

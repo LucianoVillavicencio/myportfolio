@@ -24,8 +24,8 @@ export interface BookInput {
   totalPages: number;
   rating: number | null;
   thoughts: string;
-  /** ISO date (YYYY-MM-DD) or null. */
-  finishedAt: string | null;
+  /** YYYY-MM-DD or null to clear; omit to leave unchanged (the server stamps new completions). */
+  finishedAt?: string | null;
 }
 
 export interface Project {
