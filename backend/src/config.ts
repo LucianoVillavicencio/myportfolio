@@ -17,3 +17,8 @@ export function resolveStaticDir(env: NodeJS.ProcessEnv): string {
 export function resolveCvDir(env: NodeJS.ProcessEnv): string {
   return env.CV_DIR || join(dirname(resolveDbPath(env)), 'cv');
 }
+
+/** Uploaded images live next to the database, so they share its volume. */
+export function resolveMediaDir(env: NodeJS.ProcessEnv): string {
+  return env.MEDIA_DIR || join(dirname(resolveDbPath(env)), 'media');
+}

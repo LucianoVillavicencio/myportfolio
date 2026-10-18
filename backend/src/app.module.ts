@@ -17,6 +17,7 @@ import { resolveDbPath, resolveStaticDir } from './config';
 import { HealthController } from './health.controller';
 import { BackupModule } from './backup/backup.module';
 import { CvModule } from './cv/cv.module';
+import { MediaModule } from './media/media.module';
 import { atomicWriteFile } from './atomic-write';
 
 const dbPath = resolveDbPath(process.env);
@@ -43,6 +44,7 @@ const dbPath = resolveDbPath(process.env);
     GoodreadsModule,
     BackupModule,
     CvModule,
+    MediaModule,
   ],
   controllers: [AuthController, HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

@@ -9,12 +9,14 @@ describe('App (full module)', () => {
   let app: NestExpressApplication;
   const dbPath = join(tmpdir(), `portfolio-app-spec-${process.pid}.sqlite`);
   const cvDir = mkdtempSync(join(tmpdir(), 'portfolio-cv-spec-'));
+  const mediaDir = mkdtempSync(join(tmpdir(), 'portfolio-media-app-spec-'));
 
   beforeAll(async () => {
     process.env.DB_PATH = dbPath;
     process.env.STATIC_DIR = join(__dirname, 'fixtures', 'static');
     process.env.ADMIN_API_KEY = 'test-key';
     process.env.CV_DIR = cvDir;
+    process.env.MEDIA_DIR = mediaDir;
     // Env is read at module load, so import after setting it.
     const { AppModule } = await import('../src/app.module');
     const { configureApp } = await import('../src/setup');
@@ -31,6 +33,43 @@ describe('App (full module)', () => {
     await app.close();
     if (existsSync(dbPath)) rmSync(dbPath);
     rmSync(cvDir, { recursive: true, force: true });
+    rmSync(mediaDir, { recursive: true, force: true });
+  });
+
+  describe('media', () => {
+    const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0]);
+
+    it('media upload requires admin', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/media')
+        .attach('file', png, 'a.png');
+      expect(res.status).toBe(401);
+    });
+
+    it('serves uploaded media', async () => {
+      const up = await request(app.getHttpServer())
+        .post('/api/media')
+        .set('x-admin-key', 'test-key')
+        .attach('file', png, 'a.png');
+      expect(up.status).toBe(201);
+      const res = await request(app.getHttpServer()).get(up.body.url);
+      expect(res.status).toBe(200);
+      expect(res.headers['content-type']).toMatch(/image\/png/);
+      expect(res.headers['cache-control']).toContain('immutable');
+    });
+
+    it('rejects a disguised non-image with 400', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/media')
+        .set('x-admin-key', 'test-key')
+        .attach('file', Buffer.from('<html></html>'), 'a.png');
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects traversal', async () => {
+      const res = await request(app.getHttpServer()).get('/api/media/..%2Fportfolio.sqlite');
+      expect(res.status).toBe(404);
+    });
   });
 
   it('health returns ok', async () => {

@@ -111,6 +111,19 @@ export async function uploadCv(lang: CvLang, file: File, adminKey: string): Prom
   return res.json();
 }
 
+/** Uploads an image (PNG, JPEG or WebP) and returns its public URL. */
+export async function uploadMedia(file: File, adminKey: string): Promise<{ url: string }> {
+  const body = new FormData();
+  body.append('file', file);
+  const res = await fetch(`${API_BASE}/media`, {
+    method: 'POST',
+    headers: { 'x-admin-key': adminKey },
+    body,
+  });
+  if (!res.ok) return throwApiError(res);
+  return res.json();
+}
+
 /** Fetches the SQLite database file as a Blob. */
 export async function downloadBackup(adminKey: string): Promise<Blob> {
   const res = await fetch(`${API_BASE}/backup`, {
