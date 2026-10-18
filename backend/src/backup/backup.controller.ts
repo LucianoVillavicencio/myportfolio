@@ -57,7 +57,7 @@ export class BackupController {
       "portfolio.sqlite": (this.dataSource.driver as SqljsDriver).export(),
     };
     await addDir(files, this.cvDir, "cv", (n) => n.endsWith(".pdf"));
-    await addDir(files, this.media.dir, "media", () => true);
+    await addDir(files, this.media.dir, "media", (n) => !n.endsWith(".tmp"));
     const date = new Date().toISOString().slice(0, 10);
     res.setHeader(
       "Content-Disposition",
