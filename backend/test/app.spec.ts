@@ -451,6 +451,21 @@ describe('App (full module)', () => {
       expect(res.status).toBe(503);
     });
 
+    it('strips control characters from the subject', async () => {
+      process.env.RESEND_API_KEY = 're_test';
+      const res = await post({ ...valid, name: 'Ada\r\nBcc: x@y.z' });
+      expect(res.status).toBe(204);
+      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
+      expect(body.subject).not.toMatch(/[\r\n]/);
+      expect(body.subject).toBe('Portfolio: mensaje de Ada Bcc: x@y.z');
+    });
+
+    it('503 when fetch rejects', async () => {
+      process.env.RESEND_API_KEY = 're_test';
+      fetchSpy.mockRejectedValue(new Error('network'));
+      expect((await post(valid)).status).toBe(503);
+    });
+
     it('throttles to 3 per 10 minutes', async () => {
       process.env.RESEND_API_KEY = 're_test';
       const ip = '10.99.0.1';

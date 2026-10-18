@@ -16,12 +16,13 @@ export class ContactMailer {
     const key = process.env.RESEND_API_KEY;
     if (!key) throw new ServiceUnavailableException('Contact is not configured');
     const from = process.env.CONTACT_FROM || 'Portfolio <onboarding@resend.dev>';
-    const to = process.env.CONTACT_TO || (await this.profile.get()).email;
 
     let res: Response;
     try {
+      const to = process.env.CONTACT_TO || (await this.profile.get()).email;
       res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
+        signal: AbortSignal.timeout(8000),
         headers: {
           Authorization: `Bearer ${key}`,
           'Content-Type': 'application/json',
@@ -30,7 +31,7 @@ export class ContactMailer {
           from,
           to: [to],
           reply_to: msg.email,
-          subject: `Portfolio: mensaje de ${msg.name}`,
+          subject: `Portfolio: mensaje de ${msg.name.replace(/[\r\n\t\x00-\x1f\x7f]+/g, ' ')}`,
           text: `Nombre: ${msg.name}\nEmail: ${msg.email}\n\nMensaje:\n${msg.message}`,
         }),
       });
