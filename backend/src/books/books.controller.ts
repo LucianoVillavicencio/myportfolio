@@ -25,6 +25,11 @@ export class BooksController {
     return this.booksService.findAll(status);
   }
 
+  @Get('stats')
+  stats() {
+    return this.booksService.stats();
+  }
+
   @Post()
   @UseGuards(AdminKeyGuard)
   create(@Body() dto: CreateBookDto) {

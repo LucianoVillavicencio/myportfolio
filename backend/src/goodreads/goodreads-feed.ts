@@ -26,6 +26,7 @@ export interface GoodreadsItem {
   thoughts: string | null;
   totalPages: number | null;
   dateAdded: Date | null;
+  readAt: Date | null;
 }
 
 export class GoodreadsFeedError extends Error {}
@@ -89,6 +90,8 @@ export function parseShelfFeed(
     const pages = parseInt(text(item.book?.num_pages), 10);
     const added = text(item.user_date_added);
     const addedDate = added ? new Date(added) : null;
+    const read = text(item.user_read_at);
+    const readDate = read ? new Date(read) : null;
     return {
       goodreadsId: text(item.book_id),
       title: text(item.title),
@@ -99,6 +102,7 @@ export function parseShelfFeed(
       thoughts: cleanReview(text(item.user_review)),
       totalPages: pages > 0 ? pages : null,
       dateAdded: addedDate && !isNaN(addedDate.getTime()) ? addedDate : null,
+      readAt: readDate && !isNaN(readDate.getTime()) ? readDate : null,
     };
   });
 }

@@ -26,6 +26,12 @@ describe('goodreads-feed', () => {
     expect(items[0].dateAdded?.toISOString()).toBe('2022-01-01T18:00:00.000Z');
   });
 
+  it('parses user_read_at into readAt, empty gives null', () => {
+    const items = parseShelfFeed(fixture('goodreads-shelf.xml'), 'read');
+    expect(items[0].readAt?.toISOString().slice(0, 10)).toBe('2022-02-02');
+    expect(items[1].readAt).toBeNull();
+  });
+
   it('maps missing values to null', () => {
     const [, phm] = parseShelfFeed(fixture('goodreads-shelf.xml'), 'to-read');
     expect(phm).toMatchObject({
