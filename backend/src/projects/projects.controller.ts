@@ -23,6 +23,11 @@ export class ProjectsController {
     return this.projectsService.findAll();
   }
 
+  @Get('slug/:slug')
+  findBySlug(@Param('slug') slug: string) {
+    return this.projectsService.findBySlug(slug);
+  }
+
   @Post()
   @UseGuards(AdminKeyGuard)
   create(@Body() dto: CreateProjectDto) {
