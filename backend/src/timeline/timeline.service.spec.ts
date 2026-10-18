@@ -27,9 +27,9 @@ describe('TimelineService', () => {
   it('lists entries by sortYear', async () => {
     await service.create({ ...base, titleEn: 'B', sortYear: 2022 });
     await service.create({ ...base, titleEn: 'A', sortYear: 2018 });
-    await service.create({ ...base, titleEn: 'C', sortYear: 2022 });
+    await service.create({ ...base, titleEn: 'C', sortYear: 2020 });
     const list = await service.findAll();
-    expect(list.map((e) => e.titleEn)).toEqual(['A', 'B', 'C']);
+    expect(list.map((e) => e.titleEn)).toEqual(['A', 'C', 'B']);
   });
 
   it('requires a title in one language', async () => {

@@ -1,6 +1,13 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { IsString, IsNotEmpty, IsOptional, IsIn, IsInt, Min, Max } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { Trim } from '../common/transforms';
+
+/** Trims text; null becomes '' so NOT NULL columns never receive null. */
+const TextField = () =>
+  Transform(({ value }) =>
+    value === null ? '' : typeof value === 'string' ? value.trim() : value,
+  );
 import { TIMELINE_KINDS, TimelineKind } from './timeline-entry.entity';
 
 export class CreateTimelineEntryDto {
@@ -18,22 +25,22 @@ export class CreateTimelineEntryDto {
   sortYear: number;
 
   // At least one title is required (checked in the service)
-  @Trim()
+  @TextField()
   @IsOptional()
   @IsString()
   titleEs?: string;
 
-  @Trim()
+  @TextField()
   @IsOptional()
   @IsString()
   titleEn?: string;
 
-  @Trim()
+  @TextField()
   @IsOptional()
   @IsString()
   descriptionEs?: string;
 
-  @Trim()
+  @TextField()
   @IsOptional()
   @IsString()
   descriptionEn?: string;

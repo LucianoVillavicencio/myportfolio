@@ -214,6 +214,21 @@ describe('App (full module)', () => {
       expect(res.status).toBe(400);
     });
 
+    it('treats null text fields as empty instead of 500', async () => {
+      const h = { 'x-forwarded-for': '7.7.7.8', 'x-admin-key': 'test-key' };
+      const created = await request(app.getHttpServer())
+        .post('/api/timeline')
+        .set(h)
+        .send({ ...entry, titleEs: 'Trabajo', descriptionEs: null });
+      expect(created.status).toBe(201);
+      const patched = await request(app.getHttpServer())
+        .patch(`/api/timeline/${created.body.id}`)
+        .set(h)
+        .send({ titleEn: null });
+      expect(patched.status).toBe(200);
+      expect(patched.body.titleEn).toBe('');
+    });
+
     it('requires the admin key to write, lists publicly', async () => {
       const denied = await request(app.getHttpServer())
         .post('/api/timeline')
