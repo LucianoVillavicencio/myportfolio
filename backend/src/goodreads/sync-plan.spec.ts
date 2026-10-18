@@ -118,9 +118,9 @@ describe('planSync', () => {
 
   it('adopting a book with no finish date takes the feed read date instead of locking it', () => {
     const readAt = new Date('2024-06-01');
-    const manual = book({ id: 'm', title: 'Dune', author: 'A', status: 'READ', finishedAt: null });
+    const manual = book({ id: 'm', title: 'Dune', author: 'A', status: 'COMPLETED', finishedAt: null });
     const plan = planSync(
-      [item({ goodreadsId: '1', title: 'Dune', author: 'A', status: 'READ', readAt })],
+      [item({ goodreadsId: '1', title: 'Dune', author: 'A', status: 'COMPLETED', readAt })],
       [manual],
       [],
     );
@@ -129,9 +129,9 @@ describe('planSync', () => {
   });
 
   it('adopting keeps a hand-set finish date locked when it differs from the feed', () => {
-    const manual = book({ id: 'm', title: 'Dune', author: 'A', status: 'READ', finishedAt: new Date('2024-01-02') });
+    const manual = book({ id: 'm', title: 'Dune', author: 'A', status: 'COMPLETED', finishedAt: new Date('2024-01-02') });
     const plan = planSync(
-      [item({ goodreadsId: '1', title: 'Dune', author: 'A', status: 'READ', readAt: new Date('2024-06-01') })],
+      [item({ goodreadsId: '1', title: 'Dune', author: 'A', status: 'COMPLETED', readAt: new Date('2024-06-01') })],
       [manual],
       [],
     );
