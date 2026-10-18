@@ -1,8 +1,10 @@
 import { ValidationPipe } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
 import type { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { resolveCorsOrigin } from './config';
+import { NotNullFilter } from './common/not-null.filter';
 import { ProfileService } from './profile/profile.service';
 import { ProjectsService } from './projects/projects.service';
 import { createSeoMiddleware } from './seo/seo.middleware';
@@ -40,6 +42,7 @@ export function configureApp(app: NestExpressApplication): void {
     origin: resolveCorsOrigin(process.env),
     allowedHeaders: ['Content-Type', 'x-admin-key'],
   });
+  app.useGlobalFilters(new NotNullFilter(app.get(HttpAdapterHost).httpAdapter));
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

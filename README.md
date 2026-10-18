@@ -45,7 +45,7 @@ Go to `/admin` (or press **Alt + A** / **Ctrl + Shift + A** anywhere) and enter 
 - **Support** — your IT support card and the case stories shown on the home page.
 - **Profile** — name, roles, intro text, availability, stack, email and social links shown in the hero and footer, and a yearly reading goal shown on `/books`.
 - **CV** — replace the Spanish and English CV PDFs opened from the home page. Uploads are stored next to the database (so on the Railway volume); until you upload one, the PDF bundled in `frontend/public/` is served.
-- **Analytics** — cookieless daily counters for page views, outbound clicks and contact submissions. Nothing is stored per visitor. Your own visits are not counted once you have logged in to `/admin` in that browser.
+- **Analytics** — cookieless daily counters for page views, outbound clicks, contact submissions and CV downloads (counted server-side). Nothing is stored per visitor. Your own visits are not counted once you have logged in to `/admin` in that browser.
 - **Backup** — the **Descargar backup** button downloads a zip with the SQLite database, the uploaded CV PDFs and the uploaded images.
 
 ## Deploy (Railway)

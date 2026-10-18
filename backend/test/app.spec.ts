@@ -546,6 +546,23 @@ describe('App (full module)', () => {
     });
   });
 
+  describe('null into NOT NULL columns', () => {
+    it('PATCH /api/projects/:id with a null title is 400, not 500', async () => {
+      const h = { 'x-forwarded-for': '9.8.7.1', 'x-admin-key': 'test-key' };
+      const created = await request(app.getHttpServer())
+        .post('/api/projects')
+        .set(h)
+        .send({ title: 'Null test', summaryEs: 'x', techStack: ['ts'] });
+      expect(created.status).toBe(201);
+      const res = await request(app.getHttpServer())
+        .patch(`/api/projects/${created.body.id}`)
+        .set(h)
+        .send({ title: null });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toBe('A required field was null');
+    });
+  });
+
   describe('seo', () => {
     const h = { 'x-forwarded-for': '9.9.9.1', 'x-admin-key': 'test-key' };
     const html = { Accept: 'text/html' };
