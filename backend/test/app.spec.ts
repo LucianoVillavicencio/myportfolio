@@ -154,11 +154,29 @@ describe('App (full module)', () => {
     expect((await backup('test-key')).status).toBe(429);
   });
 
-  it('backup returns the sqlite file', async () => {
-    const res = await request(app.getHttpServer())
+  it('backup is a zip with db, cv and media', async () => {
+    const { unzipSync } = await import('fflate');
+    const server = app.getHttpServer();
+    const pdf = Buffer.from('%PDF-1.7\nbackup cv\n');
+    const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2]);
+    const cv = await request(server)
+      .put('/api/cv/es')
+      .set('x-admin-key', 'test-key')
+      .set('X-Forwarded-For', '6.6.6.6')
+      .attach('file', pdf, 'cv.pdf');
+    expect(cv.status).toBeLessThan(300);
+    const up = await request(server)
+      .post('/api/media')
+      .set('x-admin-key', 'test-key')
+      .set('X-Forwarded-For', '6.6.6.6')
+      .attach('file', png, 'a.png');
+    expect(up.status).toBe(201);
+    const mediaName = (up.body.url as string).split('/').pop() as string;
+
+    const res = await request(server)
       .get('/api/backup')
       .set('x-admin-key', 'test-key')
-      .set('X-Forwarded-For', '3.3.3.3')
+      .set('X-Forwarded-For', '6.6.6.6')
       .buffer(true)
       .parse((r, cb) => {
         const chunks: Buffer[] = [];
@@ -166,12 +184,21 @@ describe('App (full module)', () => {
         r.on('end', () => cb(null, Buffer.concat(chunks)));
       });
     expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/application\/zip/);
     expect(res.headers['content-disposition']).toMatch(
-      /portfolio-\d{4}-\d{2}-\d{2}\.sqlite/,
+      /portfolio-\d{4}-\d{2}-\d{2}\.zip/,
     );
-    expect((res.body as Buffer).subarray(0, 15).toString()).toBe(
+    const files = unzipSync(new Uint8Array(res.body as Buffer));
+    expect(Object.keys(files)).toEqual(
+      expect.arrayContaining(['portfolio.sqlite', 'cv/cv_es.pdf', `media/${mediaName}`]),
+    );
+    expect(Buffer.from(files['portfolio.sqlite']).subarray(0, 15).toString()).toBe(
       'SQLite format 3',
     );
+    expect(Buffer.from(files['cv/cv_es.pdf']).equals(pdf)).toBe(true);
+    expect(Buffer.from(files[`media/${mediaName}`]).equals(png)).toBe(true);
+    // Leave no upload behind: the CV tests below expect none.
+    rmSync(join(cvDir, 'cv_es.pdf'), { force: true });
   });
 
   describe('CVs', () => {

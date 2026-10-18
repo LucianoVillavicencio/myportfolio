@@ -38,8 +38,8 @@ Go to `/admin` (or press **Alt + A** / **Ctrl + Shift + A** anywhere) and enter 
 - **Books** — add (with OpenLibrary cover auto-find), edit, rate, bump progress `+10p`, delete.
 - **Projects** — add, edit, feature/unfeature (featured ones are listed first), delete.
 - **Profile** — name, roles, intro text, availability, stack, email and social links shown in the hero and footer.
-- **CV** — replace the Spanish and English CV PDFs opened from the home page. Uploads are stored next to the database (so on the Railway volume); until you upload one, the PDF bundled in `frontend/public/` is served. They are not included in the database backup.
-- **Backup** — the **Descargar backup** button downloads a copy of the SQLite database.
+- **CV** — replace the Spanish and English CV PDFs opened from the home page. Uploads are stored next to the database (so on the Railway volume); until you upload one, the PDF bundled in `frontend/public/` is served.
+- **Backup** — the **Descargar backup** button downloads a zip with the SQLite database, both CV PDFs and the uploaded images.
 
 ## Deploy (Railway)
 
@@ -61,7 +61,7 @@ Keep the service at **1 replica** (SQLite is a single file on a single volume).
 ### Backups
 
 - Use the **Descargar backup** button in `/admin`, and/or Railway's volume backups.
-- A downloaded backup is a full SQLite file. Restoring it into Railway is not supported yet (a restore/import feature is a planned follow-up).
+- A downloaded backup is a zip: `portfolio.sqlite` plus `cv/` and `media/`. Restoring it into Railway is not supported yet (a restore/import feature is a planned follow-up).
 - Always download a backup **before deploying entity changes**: `synchronize: true` alters the schema on boot.
 
 ## Languages

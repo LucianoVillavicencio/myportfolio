@@ -42,7 +42,7 @@ export const AdminPage: React.FC = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `portfolio-${new Date().toISOString().slice(0, 10)}.sqlite`;
+      a.download = `portfolio-${new Date().toISOString().slice(0, 10)}.zip`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch {
