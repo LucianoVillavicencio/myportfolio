@@ -38,6 +38,19 @@ function pick(lang: 'es' | 'en', es: string, en: string): string {
   return first.trim() ? first : second;
 }
 
+/** Resolves `ref` against `origin`; a malformed origin degrades to concatenation instead of throwing. */
+function absoluteUrl(ref: string, origin: string): string {
+  try {
+    return new URL(ref, origin).href;
+  } catch {
+    try {
+      return new URL(ref).href;
+    } catch {
+      return origin + (ref.startsWith('/') ? ref : `/${ref}`);
+    }
+  }
+}
+
 export function buildMeta(input: MetaInput): string {
   const { origin, path, lang, profile, project, notFound } = input;
   const name = profile.name;
@@ -62,7 +75,7 @@ export function buildMeta(input: MetaInput): string {
         : `${name}'s reading log.`;
   }
 
-  const image = new URL(project?.images?.[0] || '/og-image.png', origin).href;
+  const image = absoluteUrl(project?.images?.[0] || '/og-image.png', origin);
   const url = origin + path;
   const t = escapeHtml(title);
   const d = escapeHtml(description);

@@ -38,6 +38,15 @@ describe('buildMeta', () => {
     expect(html).toContain('rel="canonical" href="https://site.dev/projects/p"');
   });
 
+  it('never throws on a malformed origin', () => {
+    const bad = { ...base, origin: 'http://bad host' };
+    expect(() => buildMeta({ ...bad, path: '/' })).not.toThrow();
+    const project = { title: 'P', summaryEs: 'a', images: ['/api/media/a.png'] } as unknown as Project;
+    expect(buildMeta({ ...bad, path: '/projects/p', project })).toContain(
+      'property="og:image" content="http://bad host/api/media/a.png"',
+    );
+  });
+
   it('falls back to /og-image.png', () => {
     expect(buildMeta({ ...base, path: '/' })).toContain(
       'content="https://site.dev/og-image.png"',
