@@ -229,6 +229,26 @@ describe('App (full module)', () => {
       expect(patched.body.titleEn).toBe('');
     });
 
+    it('rejects null kind, period and sortYear on PATCH with 400', async () => {
+      const h = { 'x-forwarded-for': '7.7.7.9', 'x-admin-key': 'test-key' };
+      const created = await request(app.getHttpServer())
+        .post('/api/timeline')
+        .set(h)
+        .send(entry);
+      for (const field of ['kind', 'period', 'sortYear']) {
+        const res = await request(app.getHttpServer())
+          .patch(`/api/timeline/${created.body.id}`)
+          .set(h)
+          .send({ [field]: null });
+        expect(res.status).toBe(400);
+      }
+      const ok = await request(app.getHttpServer())
+        .patch(`/api/timeline/${created.body.id}`)
+        .set(h)
+        .send({ period: '2021' });
+      expect(ok.status).toBe(200);
+    });
+
     it('requires the admin key to write, lists publicly', async () => {
       const denied = await request(app.getHttpServer())
         .post('/api/timeline')
