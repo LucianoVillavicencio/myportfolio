@@ -5,6 +5,7 @@ import { usePortfolioData } from '../../context/PortfolioDataContext';
 import { localized, useI18n } from '../../i18n/LanguageContext';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { ApiError, api } from '../../lib/api';
+import { track } from '../../lib/analytics';
 import { paragraphs } from '../../lib/text';
 import { LanguageToggle } from '../../components/layout/LanguageToggle';
 import { NotFoundPage } from '../NotFoundPage';
@@ -84,12 +85,24 @@ const ProjectView: React.FC<{ project: Project }> = ({ project }) => {
           {(project.repoUrl || project.liveUrl) && (
             <div className="cs-links">
               {project.repoUrl && (
-                <a className="btn btn--o" href={project.repoUrl} target="_blank" rel="noreferrer">
+                <a
+                  className="btn btn--o"
+                  href={project.repoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => project.slug && track('outbound', `${project.slug}:repo`)}
+                >
                   {t.projects.repo} <span className="arr">↗</span>
                 </a>
               )}
               {project.liveUrl && (
-                <a className="btn btn--y" href={project.liveUrl} target="_blank" rel="noreferrer">
+                <a
+                  className="btn btn--y"
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => project.slug && track('outbound', `${project.slug}:live`)}
+                >
                   {t.projects.live} <span className="arr">↗</span>
                 </a>
               )}

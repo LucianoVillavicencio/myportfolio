@@ -5,6 +5,7 @@ import { AdminAuthProvider } from './context/AdminAuthContext';
 import { PortfolioDataProvider } from './context/PortfolioDataContext';
 import { InkBleedFilters } from './components/illustrations';
 import { ScrollManager } from './components/layout/ScrollManager';
+import { PageViewTracker } from './components/layout/PageViewTracker';
 import { AdminShortcut } from './components/layout/AdminShortcut';
 import { HomePage } from './pages/home/HomePage';
 import { BooksPage } from './pages/books/BooksPage';
@@ -22,6 +23,7 @@ export const App: React.FC = () => (
           <div className="paper" aria-hidden="true" />
 
           <ScrollManager />
+          <PageViewTracker />
           <AdminShortcut />
 
           <Routes>

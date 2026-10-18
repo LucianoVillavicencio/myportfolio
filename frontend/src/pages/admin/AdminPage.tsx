@@ -14,8 +14,9 @@ import { SupportManager } from './support/SupportManager';
 import { TimelineManager } from './timeline/TimelineManager';
 import { ProfileForm } from './ProfileForm';
 import { CvManager } from './CvManager';
+import { AnalyticsPanel } from './AnalyticsPanel';
 
-const TABS = ['books', 'projects', 'timeline', 'support', 'profile', 'cv'] as const;
+const TABS = ['books', 'projects', 'timeline', 'support', 'profile', 'cv', 'analytics'] as const;
 type AdminTab = (typeof TABS)[number];
 
 export const AdminPage: React.FC = () => {
@@ -35,6 +36,7 @@ export const AdminPage: React.FC = () => {
     support: t.admin.tabs.support,
     profile: t.admin.tabs.profile,
     cv: t.admin.tabs.cv,
+    analytics: t.admin.tabs.analytics,
   };
 
   const [backingUp, setBackingUp] = React.useState(false);
@@ -123,6 +125,7 @@ export const AdminPage: React.FC = () => {
               <p className="admin-hint">{t.admin.loadingProfile}</p>
             ))}
           {tab === 'cv' && <CvManager />}
+          {tab === 'analytics' && <AnalyticsPanel />}
         </>
       )}
     </div>

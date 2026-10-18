@@ -17,6 +17,7 @@ import type {
   SupportData,
   TimelineEntry,
   TimelineInput,
+  AnalyticsSummary,
 } from '../types';
 
 const API_BASE = '/api';
@@ -179,3 +180,7 @@ export async function findOpenLibraryCover(
   const coverId = data.docs?.find((d) => d.cover_i)?.cover_i;
   return coverId ? `https://covers.openlibrary.org/b/id/${coverId}-L.jpg` : null;
 }
+
+/** Aggregated, cookieless analytics for the last `days` days (admin only). */
+export const getAnalytics = (days: number, adminKey: string) =>
+  request<AnalyticsSummary>(`/analytics?days=${days}`, { adminKey });

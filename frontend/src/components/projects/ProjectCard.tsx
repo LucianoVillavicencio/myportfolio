@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { Project } from '../../types';
+import { track } from '../../lib/analytics';
 import { localized, useI18n } from '../../i18n/LanguageContext';
 
 export const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
@@ -26,12 +27,22 @@ export const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
         <span className="folio-date">{project.completedDate}</span>
         <div className="folio-links">
           {project.repoUrl && (
-            <a href={project.repoUrl} target="_blank" rel="noreferrer">
+            <a
+              href={project.repoUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => project.slug && track('outbound', `${project.slug}:repo`)}
+            >
               {t.projects.repo} ↗
             </a>
           )}
           {project.liveUrl && (
-            <a href={project.liveUrl} target="_blank" rel="noreferrer">
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => project.slug && track('outbound', `${project.slug}:live`)}
+            >
               {t.projects.live} ↗
             </a>
           )}

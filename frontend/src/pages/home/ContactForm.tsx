@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FormField } from '../../components/form/FormField';
 import { api, ApiError } from '../../lib/api';
+import { track } from '../../lib/analytics';
 import { useI18n } from '../../i18n/LanguageContext';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
@@ -26,6 +27,7 @@ export const ContactForm: React.FC<{ email: string }> = ({ email }) => {
     try {
       await api.sendContact(values);
       setStatus('sent');
+      track('contact', 'sent');
     } catch (err) {
       if (err instanceof ApiError && err.status === 429) setError({ kind: 'tooMany' });
       else if (err instanceof ApiError && err.status === 400) {

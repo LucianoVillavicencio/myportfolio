@@ -191,3 +191,11 @@ export interface SupportData {
   card: SupportCard | null;
   stories: CaseStory[];
 }
+
+export type AnalyticsEventType = 'view' | 'cv' | 'outbound' | 'contact';
+
+export interface AnalyticsSummary {
+  totals: Record<AnalyticsEventType, number>;
+  daily: { day: string; views: number }[];
+  top: { type: AnalyticsEventType; key: string; count: number }[];
+}
