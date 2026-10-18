@@ -117,3 +117,72 @@
   font-size: 0.78rem;
 }
 
+
+.copy-pill {
+  margin-left: 0.7rem;
+  padding: 0.12rem 0.65rem;
+  border: 1px solid var(--color-edge);
+  border-radius: 100vw;
+  background: transparent;
+  color: var(--color-ink-dim);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  vertical-align: middle;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.copy-pill:hover,
+.copy-pill:focus-visible {
+  color: var(--color-yellow);
+  border-color: var(--color-yellow);
+}
+
+.foot-form {
+  display: grid;
+  gap: 1rem;
+  position: relative;
+}
+
+.foot-form-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.foot-form-send {
+  justify-self: start;
+  padding: 0.7rem 1.6rem;
+  border: 1.5px solid var(--color-yellow);
+  border-radius: 100vw;
+  background: var(--color-yellow);
+  color: #111;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.foot-form-send:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.foot-form .form-error a {
+  text-decoration: underline;
+}
+
+@media (max-width: 720px) {
+  .foot-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

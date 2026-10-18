@@ -120,6 +120,9 @@ export const api = {
   deleteCaseStory: (id: string, adminKey: string) =>
     send<void>('DELETE', `/support/stories/${id}`, adminKey),
 
+  sendContact: (data: { name: string; email: string; message: string; website: string }) =>
+    request<void>('/contact', { method: 'POST', body: JSON.stringify(data) }),
+
   getCvStatus: (adminKey: string) => send<CvStatus>('GET', '/cv', adminKey),
 };
 
