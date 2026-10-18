@@ -84,6 +84,8 @@ export const api = {
     send<GoodreadsSyncResult>('POST', '/goodreads/sync', adminKey),
 
   getProjects: () => request<Project[]>('/projects'),
+  getProjectBySlug: (slug: string) =>
+    request<Project>(`/projects/slug/${encodeURIComponent(slug)}`),
   createProject: (data: ProjectInput, adminKey: string) =>
     send<Project>('POST', '/projects', adminKey, data),
   updateProject: (id: string, data: Partial<ProjectInput>, adminKey: string) =>

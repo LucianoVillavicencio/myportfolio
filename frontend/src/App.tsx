@@ -8,6 +8,7 @@ import { ScrollManager } from './components/layout/ScrollManager';
 import { AdminShortcut } from './components/layout/AdminShortcut';
 import { HomePage } from './pages/home/HomePage';
 import { BooksPage } from './pages/books/BooksPage';
+import { ProjectPage } from './pages/projects/ProjectPage';
 import { AdminPage } from './pages/admin/AdminPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
@@ -26,6 +27,7 @@ export const App: React.FC = () => (
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/books" element={<BooksPage />} />
+            <Route path="/projects/:slug" element={<ProjectPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/login" element={<Navigate to="/admin" replace />} />
             <Route path="*" element={<NotFoundPage />} />
