@@ -10,6 +10,8 @@ import type {
   ProfileInput,
   Project,
   ProjectInput,
+  TimelineEntry,
+  TimelineInput,
 } from '../types';
 
 const API_BASE = '/api';
@@ -92,6 +94,14 @@ export const api = {
     send<Project>('PATCH', `/projects/${id}`, adminKey, data),
   deleteProject: (id: string, adminKey: string) =>
     send<void>('DELETE', `/projects/${id}`, adminKey),
+
+  getTimeline: () => request<TimelineEntry[]>('/timeline'),
+  createTimelineEntry: (data: TimelineInput, adminKey: string) =>
+    send<TimelineEntry>('POST', '/timeline', adminKey, data),
+  updateTimelineEntry: (id: string, data: Partial<TimelineInput>, adminKey: string) =>
+    send<TimelineEntry>('PATCH', `/timeline/${id}`, adminKey, data),
+  deleteTimelineEntry: (id: string, adminKey: string) =>
+    send<void>('DELETE', `/timeline/${id}`, adminKey),
 
   getCvStatus: (adminKey: string) => send<CvStatus>('GET', '/cv', adminKey),
 };

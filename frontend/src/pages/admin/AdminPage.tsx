@@ -10,15 +10,16 @@ import { LanguageToggle } from '../../components/layout/LanguageToggle';
 import { LoginPanel } from './LoginPanel';
 import { BooksManager } from './books/BooksManager';
 import { ProjectsManager } from './projects/ProjectsManager';
+import { TimelineManager } from './timeline/TimelineManager';
 import { ProfileForm } from './ProfileForm';
 import { CvManager } from './CvManager';
 
-const TABS = ['books', 'projects', 'profile', 'cv'] as const;
+const TABS = ['books', 'projects', 'timeline', 'profile', 'cv'] as const;
 type AdminTab = (typeof TABS)[number];
 
 export const AdminPage: React.FC = () => {
   const { isAdmin, adminKey, logout } = useAdminAuth();
-  const { profile, books, projects, loadFailed } = usePortfolioData();
+  const { profile, books, projects, timeline, loadFailed } = usePortfolioData();
   const { t } = useI18n();
   const [params, setParams] = useSearchParams();
   useDocumentTitle(t.admin.docTitle);
@@ -29,6 +30,7 @@ export const AdminPage: React.FC = () => {
   const tabLabels: Record<AdminTab, string> = {
     books: t.admin.tabs.books(books.length),
     projects: t.admin.tabs.projects(projects.length),
+    timeline: t.admin.tabs.timeline(timeline.length),
     profile: t.admin.tabs.profile,
     cv: t.admin.tabs.cv,
   };
@@ -110,6 +112,7 @@ export const AdminPage: React.FC = () => {
 
           {tab === 'books' && <BooksManager />}
           {tab === 'projects' && <ProjectsManager />}
+          {tab === 'timeline' && <TimelineManager />}
           {tab === 'profile' &&
             (profile ? (
               <ProfileForm profile={profile} />

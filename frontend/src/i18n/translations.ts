@@ -1,4 +1,4 @@
-import type { ReadingStatus } from '../types';
+import type { ReadingStatus, TimelineKind } from '../types';
 
 type Filter = ReadingStatus | 'ALL';
 type Count = (n: number) => string;
@@ -56,6 +56,18 @@ const es = {
     imageAlt: (title: string, n: number) => `${title}, captura ${n}`,
     cover: (title: string) => `Portada de ${title}`,
     viewCase: 'Ver caso de estudio',
+  },
+  timeline: {
+    eyebrow: 'TRAYECTORIA',
+    title: 'MI',
+    accent: 'RECORRIDO',
+    kinds: {
+      education: 'Educación',
+      work: 'Trabajo',
+      competition: 'Competencia',
+      certification: 'Certificación',
+      project: 'Proyecto',
+    } as Record<TimelineKind, string>,
   },
   reading: {
     eyebrow: 'REGISTRO DE LECTURA EN VIVO',
@@ -143,6 +155,7 @@ const es = {
     tabs: {
       books: (n: number) => `Libros (${n})`,
       projects: (n: number) => `Proyectos (${n})`,
+      timeline: (n: number) => `Recorrido (${n})`,
       profile: 'Perfil',
       cv: 'CV',
     },
@@ -224,6 +237,23 @@ const es = {
         confirmDelete: (title: string) =>
           `¿Eliminar "${title}"? No se volverá a importar a menos que lo agregues de nuevo en Goodreads.`,
       },
+    },
+    timeline: {
+      listTitle: (n: number) => `RECORRIDO (${n})`,
+      empty: 'Todavía no hay entradas. Agregá la primera.',
+      editTitle: 'EDITAR ENTRADA',
+      addTitle: 'AGREGAR ENTRADA',
+      fields: {
+        kind: 'Tipo',
+        period: 'Período',
+        sortYear: 'Año de orden',
+        title: 'Título',
+        description: 'Descripción',
+      },
+      placeholders: { period: 'ej. 2019 – 2024' },
+      sortYearHint: 'Año entre 1900 y 2100. Ordena la línea de tiempo de menor a mayor.',
+      descriptionHint: 'Texto plano. Una línea en blanco separa párrafos.',
+      submit: 'Agregar entrada',
     },
     projects: {
       listTitle: (n: number) => `PROYECTOS (${n})`,
@@ -357,6 +387,18 @@ const en: Dictionary = {
     cover: (title) => `Cover of ${title}`,
     viewCase: 'View case study',
   },
+  timeline: {
+    eyebrow: 'BACKGROUND',
+    title: 'MY',
+    accent: 'JOURNEY',
+    kinds: {
+      education: 'Education',
+      work: 'Work',
+      competition: 'Competition',
+      certification: 'Certification',
+      project: 'Project',
+    } as Record<TimelineKind, string>,
+  },
   reading: {
     eyebrow: 'LIVE READING TRACKER',
     title: 'CURRENTLY',
@@ -442,6 +484,7 @@ const en: Dictionary = {
     tabs: {
       books: (n) => `Books (${n})`,
       projects: (n) => `Projects (${n})`,
+      timeline: (n) => `Journey (${n})`,
       profile: 'Profile',
       cv: 'CV',
     },
@@ -521,6 +564,23 @@ const en: Dictionary = {
         confirmDelete: (title) =>
           `Delete "${title}"? It won't be re-imported unless you add it again on Goodreads.`,
       },
+    },
+    timeline: {
+      listTitle: (n) => `JOURNEY (${n})`,
+      empty: 'No entries yet — add your first one.',
+      editTitle: 'EDIT ENTRY',
+      addTitle: 'ADD AN ENTRY',
+      fields: {
+        kind: 'Type',
+        period: 'Period',
+        sortYear: 'Sort year',
+        title: 'Title',
+        description: 'Description',
+      },
+      placeholders: { period: 'e.g. 2019 – 2024' },
+      sortYearHint: 'A year between 1900 and 2100. Orders the timeline, oldest first.',
+      descriptionHint: 'Plain text. A blank line separates paragraphs.',
+      submit: 'Add entry',
     },
     projects: {
       listTitle: (n) => `PROJECTS (${n})`,

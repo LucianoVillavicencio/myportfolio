@@ -7,12 +7,13 @@ import React, {
   useState,
 } from 'react';
 import { api } from '../lib/api';
-import type { Book, Profile, Project } from '../types';
+import type { Book, Profile, Project, TimelineEntry } from '../types';
 
 interface PortfolioData {
   profile: Profile | null;
   books: Book[];
   projects: Project[];
+  timeline: TimelineEntry[];
   isLoading: boolean;
   /** True when the last load failed; pages show a translated message. */
   loadFailed: boolean;
@@ -28,19 +29,22 @@ export const PortfolioDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [profile, setProfile] = useState<Profile | null>(null);
   const [books, setBooks] = useState<Book[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
 
   const reload = useCallback(async () => {
     try {
-      const [profileData, booksData, projectsData] = await Promise.all([
+      const [profileData, booksData, projectsData, timelineData] = await Promise.all([
         api.getProfile(),
         api.getBooks(),
         api.getProjects(),
+        api.getTimeline(),
       ]);
       setProfile(profileData);
       setBooks(booksData);
       setProjects(projectsData);
+      setTimeline(timelineData);
       setLoadFailed(false);
     } catch (err) {
       console.error('Error loading portfolio data:', err);
@@ -55,8 +59,8 @@ export const PortfolioDataProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [reload]);
 
   const value = useMemo(
-    () => ({ profile, books, projects, isLoading, loadFailed, reload }),
-    [profile, books, projects, isLoading, loadFailed, reload],
+    () => ({ profile, books, projects, timeline, isLoading, loadFailed, reload }),
+    [profile, books, projects, timeline, isLoading, loadFailed, reload],
   );
 
   return (

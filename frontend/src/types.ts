@@ -121,3 +121,34 @@ export interface CvInfo {
 }
 
 export type CvStatus = Record<CvLang, CvInfo | null>;
+
+export const TIMELINE_KINDS = [
+  'education',
+  'work',
+  'competition',
+  'certification',
+  'project',
+] as const;
+export type TimelineKind = (typeof TIMELINE_KINDS)[number];
+
+export interface TimelineEntry {
+  id: string;
+  kind: TimelineKind;
+  period: string;
+  sortYear: number;
+  titleEs: string;
+  titleEn: string;
+  descriptionEs: string;
+  descriptionEn: string;
+  createdAt: string;
+}
+
+export interface TimelineInput {
+  kind: TimelineKind;
+  period: string;
+  sortYear: number;
+  titleEs: string;
+  titleEn: string;
+  descriptionEs: string;
+  descriptionEn: string;
+}
