@@ -5,12 +5,15 @@
   background: var(--color-card);
 }
 
-/* Card-level titles use the body font: the display face is unreadable at this size. */
+/* Card titles match .folio-card-title. Stellost has a single weight, so keep
+   font-weight 400: the browser's faux bold smears it. */
 .support-title {
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 1.2;
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  filter: url(#ink-bleed);
+  font-weight: 400;
+  font-size: 1.55rem;
+  line-height: 1;
   color: var(--color-ink);
   margin-bottom: 8px;
   overflow-wrap: anywhere;
@@ -82,10 +85,12 @@
 }
 
 .support-story-title {
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 17px;
-  line-height: 1.3;
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  filter: url(#ink-bleed);
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 1.05;
   color: var(--color-ink);
   overflow-wrap: anywhere;
 }

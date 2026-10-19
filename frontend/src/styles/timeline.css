@@ -61,12 +61,14 @@
   background: var(--tl-accent);
 }
 
-/* Body font: the display face is unreadable at this size. */
+/* Matches .folio-card-title; font-weight 400 avoids faux bold on Stellost. */
 .tl-title {
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 20px;
-  line-height: 1.25;
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  filter: url(#ink-bleed);
+  font-weight: 400;
+  font-size: 1.55rem;
+  line-height: 1;
   color: var(--color-ink);
   margin-bottom: 8px;
   overflow-wrap: anywhere;
