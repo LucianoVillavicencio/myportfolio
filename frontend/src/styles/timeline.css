@@ -53,7 +53,7 @@
 
 .tl-badge {
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 2px 8px;
@@ -61,10 +61,12 @@
   background: var(--tl-accent);
 }
 
+/* Body font: the display face is unreadable at this size. */
 .tl-title {
-  font-family: var(--font-display);
-  font-size: 22px;
-  line-height: 1.15;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.25;
   color: var(--color-ink);
   margin-bottom: 8px;
   overflow-wrap: anywhere;
@@ -85,6 +87,6 @@
     left: -28px;
   }
   .tl-title {
-    font-size: 19px;
+    font-size: 18px;
   }
 }
