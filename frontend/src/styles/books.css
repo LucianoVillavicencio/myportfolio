@@ -72,12 +72,12 @@
     clamp(1.2rem, 3vw, 2.4rem);
   background-image: radial-gradient(
       circle at 80% 22%,
-      rgba(240, 180, 32, 0.1),
+      rgba(244, 137, 58, 0.1),
       transparent 45%
     ),
     radial-gradient(
       circle at 18% 75%,
-      rgba(176, 165, 250, 0.08),
+      rgba(143, 193, 230, 0.08),
       transparent 50%
     );
 }

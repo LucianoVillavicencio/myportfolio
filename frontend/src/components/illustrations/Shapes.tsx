@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * Yellow burst fan next to first word of headline (.headline .fan)
+ * Little sunset sun peeking next to the first headline word (.headline .fan)
  */
 export const ShapeFan: React.FC = () => (
   <svg
@@ -11,13 +11,18 @@ export const ShapeFan: React.FC = () => (
     className="fan boil-anim"
     aria-hidden="true"
   >
-    <path d="M10 72 L62 8 L90 42 Z" fill="#f0b420" />
-    <path d="M16 84 L82 80 L70 104 Z" fill="#f0b420" />
+    <circle cx="55" cy="58" r="22" fill="#f4893a" />
+    <path
+      d="M55 8 V24 M55 92 V104 M8 58 H22 M88 58 H102 M22 24 L32 34 M88 24 L78 34 M22 92 L32 82 M88 92 L78 82"
+      stroke="#f4893a"
+      strokeWidth="7"
+      strokeLinecap="round"
+    />
   </svg>
 );
 
 /**
- * Yellow swirl next to CTA button (.swirl or .nf-swirl)
+ * River wave squiggle (.swirl or .nf-swirl)
  */
 export const ShapeSwirl: React.FC<{ className?: string }> = ({
   className = 'swirl',
@@ -30,8 +35,8 @@ export const ShapeSwirl: React.FC<{ className?: string }> = ({
     aria-hidden="true"
   >
     <path
-      d="M16 74 C6 48 24 28 44 36 C58 42 52 60 36 56 C20 52 26 22 60 14"
-      stroke="#f0b420"
+      d="M6 34 Q16 22 26 34 T46 34 T66 34 M14 58 Q24 46 34 58 T54 58 T74 58"
+      stroke="#f4893a"
       strokeWidth="7"
       strokeLinecap="round"
       fill="none"
@@ -40,7 +45,7 @@ export const ShapeSwirl: React.FC<{ className?: string }> = ({
 );
 
 /**
- * Purple lines doodle below topbar pills (.decor--lines or .nf-lines)
+ * Twinkling sparkles (.decor--lines or .nf-lines)
  */
 export const ShapeLines: React.FC<{ className?: string }> = ({
   className = 'decor decor--lines',
@@ -53,30 +58,44 @@ export const ShapeLines: React.FC<{ className?: string }> = ({
     aria-hidden="true"
   >
     <path
-      d="M10 32 L18 8 M28 36 L44 16 M34 48 L58 42"
-      stroke="#b0a5fa"
+      d="M20 6 V30 M8 18 H32 M48 34 V54 M38 44 H58"
+      stroke="#8fc1e6"
       strokeWidth="6"
       strokeLinecap="round"
     />
   </svg>
 );
 
+const RAYS = Array.from({ length: 16 }, (_, i) => i * 22.5);
+
 /**
- * 9-point coral/red star (.decor--star or .nf-zero on 404 page)
+ * Sol de Mayo: alternating straight and wavy rays (.decor--star or .nf-zero on 404 page)
  */
 export const ShapeStar: React.FC<{ className?: string }> = ({
   className = 'decor decor--star',
 }) => (
   <svg
-    viewBox="0 0 220 220"
+    viewBox="-110 -110 220 220"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={`${className} boil-anim`}
     aria-hidden="true"
   >
-    <path
-      d="M106 10 L131 58 L182 36 L168 88 L214 116 L165 142 L183 192 L131 172 L105 214 L81 167 L29 185 L49 134 L8 106 L54 81 L40 29 L88 54 Z"
-      fill="#f36c5a"
-    />
+    {RAYS.map((angle, i) =>
+      i % 2 === 0 ? (
+        <path key={angle} d="M-9 -44 L0 -104 L9 -44 Z" fill="#e8919a" transform={`rotate(${angle})`} />
+      ) : (
+        <path
+          key={angle}
+          d="M0 -46 C-10 -58 10 -70 0 -82 C-8 -92 6 -98 0 -104"
+          stroke="#e8919a"
+          strokeWidth="7"
+          strokeLinecap="round"
+          transform={`rotate(${angle})`}
+        />
+      ),
+    )}
+    <circle r="48" fill="#e8919a" />
+    <path d="M-20 -8 Q-14 -14 -8 -8 M8 -8 Q14 -14 20 -8 M-14 14 Q0 26 14 14" stroke="#1e1e1e" strokeWidth="5" strokeLinecap="round" />
   </svg>
 );

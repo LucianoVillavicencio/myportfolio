@@ -1,7 +1,7 @@
 import type { Book } from '../types';
 
 /** Rotating accent palette used for book spines and fallback covers. */
-export const ACCENTS = ['#f0b420', '#f36c5a', '#b0a5fa'];
+export const ACCENTS = ['#f4893a', '#e8919a', '#8fc1e6'];
 
 export const accentFor = (index: number) => ACCENTS[index % ACCENTS.length];
 

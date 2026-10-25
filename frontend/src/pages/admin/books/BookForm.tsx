@@ -143,7 +143,7 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
             author: values.author,
             coverUrl: values.coverUrl || null,
           }}
-          accentColor="#f0b420"
+          accentColor="#f4893a"
           className="cover-mini-preview"
         />
       </div>
