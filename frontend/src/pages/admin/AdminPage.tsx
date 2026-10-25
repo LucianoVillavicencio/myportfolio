@@ -15,8 +15,9 @@ import { TimelineManager } from './timeline/TimelineManager';
 import { ProfileForm } from './ProfileForm';
 import { CvManager } from './CvManager';
 import { AnalyticsPanel } from './AnalyticsPanel';
+import { SpotifyManager } from './SpotifyManager';
 
-const TABS = ['books', 'projects', 'timeline', 'support', 'profile', 'cv', 'analytics'] as const;
+const TABS = ['books', 'projects', 'timeline', 'support', 'profile', 'cv', 'spotify', 'analytics'] as const;
 type AdminTab = (typeof TABS)[number];
 
 export const AdminPage: React.FC = () => {
@@ -36,6 +37,7 @@ export const AdminPage: React.FC = () => {
     support: t.admin.tabs.support,
     profile: t.admin.tabs.profile,
     cv: t.admin.tabs.cv,
+    spotify: t.admin.tabs.spotify,
     analytics: t.admin.tabs.analytics,
   };
 
@@ -125,6 +127,7 @@ export const AdminPage: React.FC = () => {
               <p className="admin-hint">{t.admin.loadingProfile}</p>
             ))}
           {tab === 'cv' && <CvManager />}
+          {tab === 'spotify' && <SpotifyManager />}
           {tab === 'analytics' && <AnalyticsPanel />}
         </>
       )}

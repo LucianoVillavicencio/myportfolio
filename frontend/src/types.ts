@@ -212,3 +212,33 @@ export interface ReadingStats {
   averageRating: number | null;
   byYear: { year: number; books: number; pages: number }[];
 }
+
+export interface SpotifyTrack {
+  title: string;
+  artists: string;
+  album: string;
+  imageUrl: string | null;
+  url: string | null;
+}
+
+export interface SpotifyPlaylist {
+  id: string;
+  name: string;
+  imageUrl: string | null;
+  url: string | null;
+  trackCount: number | null;
+  isPublic: boolean;
+}
+
+export interface SpotifyNowPlaying {
+  isPlaying: boolean;
+  /** The current track while playing, otherwise the last one played. */
+  track: SpotifyTrack | null;
+}
+
+export interface SpotifyStatus {
+  configured: boolean;
+  connected: boolean;
+  selectedIds: string[];
+  playlistsSyncedAt: string | null;
+}

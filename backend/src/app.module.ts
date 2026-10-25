@@ -20,6 +20,8 @@ import { Project } from './projects/project.entity';
 import { Profile } from './profile/profile.entity';
 import { GoodreadsSettings } from './goodreads/goodreads-settings.entity';
 import { GoodreadsModule } from './goodreads/goodreads.module';
+import { SpotifySettings } from './spotify/spotify-settings.entity';
+import { SpotifyModule } from './spotify/spotify.module';
 import { resolveDbPath, resolveStaticDir } from './config';
 import { HealthController } from './health.controller';
 import { BackupModule } from './backup/backup.module';
@@ -42,6 +44,7 @@ const dbPath = resolveDbPath(process.env);
         Project,
         Profile,
         GoodreadsSettings,
+        SpotifySettings,
         TimelineEntry,
         SupportCard,
         CaseStory,
@@ -61,6 +64,7 @@ const dbPath = resolveDbPath(process.env);
     SupportModule,
     ProfileModule,
     GoodreadsModule,
+    SpotifyModule,
     BackupModule,
     CvModule,
     MediaModule,
