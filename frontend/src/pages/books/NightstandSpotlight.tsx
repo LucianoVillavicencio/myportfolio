@@ -17,7 +17,7 @@ export const NightstandSpotlight: React.FC<NightstandSpotlightProps> = ({
 
   return (
     <div className="bf-now-card" {...clickable(() => onInspect(book))}>
-      <BookCover book={book} accentColor="#f0b420" className="bf-now-cover" />
+      <BookCover book={book} accentColor="#f4893a" className="bf-now-cover" />
       <div className="bf-now-info">
         <div className="bf-now-eyebrow">
           <span className="dot" />{' '}

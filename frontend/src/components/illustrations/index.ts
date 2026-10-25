@@ -1,3 +1,3 @@
 export { InkBleedFilters } from './InkBleedFilters';
-export { HardwareNetworkEngineerIllustration } from './EngineerIllustration';
+export { RosarioIllustration } from './RosarioIllustration';
 export { ShapeFan, ShapeSwirl, ShapeLines, ShapeStar } from './Shapes';

@@ -45,7 +45,7 @@ export const BookLightbox: React.FC<BookLightboxProps> = ({ book, onClose }) => 
         className="bf-lightbox-card bf-lightbox-with-cover"
         onClick={(e) => e.stopPropagation()}
       >
-        <BookCover book={book} accentColor="#f0b420" className="bf-lb-cover" />
+        <BookCover book={book} accentColor="#f4893a" className="bf-lb-cover" />
         <div className="bf-lb-details">
           <span className="bf-status-pill">
             <span className="bf-dot" />

@@ -4,7 +4,7 @@ import type { Profile } from '../../types';
 import { cvUrl } from '../../lib/api';
 import { localized, useI18n } from '../../i18n/LanguageContext';
 import {
-  HardwareNetworkEngineerIllustration,
+  RosarioIllustration,
   ShapeFan,
   ShapeLines,
   ShapeStar,
@@ -46,7 +46,7 @@ export const HeroStage: React.FC<HeroStageProps> = ({
         </h1>
 
         <div className="art">
-          <HardwareNetworkEngineerIllustration label={t.hero.illustration} />
+          <RosarioIllustration label={t.hero.illustration} />
         </div>
 
         <div className="ctext">

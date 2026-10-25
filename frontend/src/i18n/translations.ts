@@ -28,15 +28,14 @@ const es = {
     currentlyReading: (n: number) => `leyendo ahora (${n})`,
   },
   hero: {
-    // Kept in English on purpose: it reads better than a literal translation
-    headline: ['CODE', 'PACKETS', '& SILICON'] as [string, string, string],
+    headline: ['DESDE', 'ROSARIO', 'CON CÓDIGO'] as [string, string, string],
     getInTouch: 'Escribime',
     projects: 'Proyectos',
     books: 'Libros',
     cv: 'CV',
     status: 'Estado',
     stack: 'Stack y laboratorio',
-    illustration: 'Ilustración de un ingeniero trabajando en un escritorio con hardware, un router y una notebook',
+    illustration: 'Ilustración de Luciano sentado a orillas del Paraná al atardecer, con su notebook y un mate, frente al Monumento a la Bandera',
   },
   projects: {
     eyebrow: 'SOFTWARE · HARDWARE · REDES',
@@ -476,14 +475,14 @@ const en: Dictionary = {
     currentlyReading: (n) => `currently reading (${n})`,
   },
   hero: {
-    headline: ['CODE', 'PACKETS', '& SILICON'],
+    headline: ['FROM', 'ROSARIO', 'WITH CODE'],
     getInTouch: 'Get in touch',
     projects: 'Projects',
     books: 'Books',
     cv: 'Resume',
     status: 'Status',
     stack: 'Stack & Lab',
-    illustration: 'Illustration of an engineer working at a desk with hardware, router, and laptop',
+    illustration: 'Illustration of Luciano sitting by the Paraná river at sunset with his laptop and a mate, facing the Flag Memorial',
   },
   projects: {
     eyebrow: 'SOFTWARE · HARDWARE · NETWORKING',
