@@ -28,7 +28,7 @@ const es = {
     currentlyReading: (n: number) => `leyendo ahora (${n})`,
   },
   hero: {
-    headline: ['DESDE', 'ROSARIO', 'CON CÓDIGO'] as [string, string, string],
+    headline: ['DESDE', 'ROSARIO', 'CON CODIGO'] as [string, string, string],
     getInTouch: 'Escribime',
     projects: 'Proyectos',
     books: 'Libros',

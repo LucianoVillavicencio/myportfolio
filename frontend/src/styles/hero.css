@@ -181,7 +181,7 @@
 .hero-art-svg {
   filter: drop-shadow(0 24px 40px #00000059);
   width: 100%;
-  max-width: 560px;
+  max-width: 720px;
   height: auto;
   margin-bottom: -4px;
   display: block;
@@ -605,8 +605,8 @@
   height: auto;
   animation: 0.5s 0.62s both fadeIn;
   position: absolute;
-  top: 72%;
-  left: 64%;
+  top: 58%;
+  left: 31%;
   transform: rotate(40deg);
 }
 
