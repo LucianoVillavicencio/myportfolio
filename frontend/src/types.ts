@@ -9,6 +9,7 @@ export interface Book {
   totalPages: number;
   rating: number | null;
   thoughts: string | null;
+  finishedAt: string | null;
   goodreadsId: string | null;
   lockedFields: string[];
   startedAt: string;
@@ -23,6 +24,8 @@ export interface BookInput {
   totalPages: number;
   rating: number | null;
   thoughts: string;
+  /** YYYY-MM-DD or null to clear; omit to leave unchanged (the server stamps new completions). */
+  finishedAt?: string | null;
 }
 
 export interface Project {
@@ -36,6 +39,17 @@ export interface Project {
   featured: boolean;
   completedDate: string;
   createdAt: string;
+  slug: string | null;
+  problemEs: string;
+  problemEn: string;
+  roleEs: string;
+  roleEn: string;
+  decisionsEs: string;
+  decisionsEn: string;
+  resultsEs: string;
+  resultsEn: string;
+  /** Media URLs; the first one is the cover. */
+  images: string[];
 }
 
 export interface ProjectInput {
@@ -47,6 +61,17 @@ export interface ProjectInput {
   liveUrl: string;
   featured: boolean;
   completedDate: string;
+  /** Empty = generate from the title (create) or keep the current one (update). */
+  slug: string;
+  problemEs: string;
+  problemEn: string;
+  roleEs: string;
+  roleEn: string;
+  decisionsEs: string;
+  decisionsEn: string;
+  resultsEs: string;
+  resultsEn: string;
+  images: string[];
 }
 
 export interface Profile {
@@ -66,6 +91,7 @@ export interface Profile {
   githubUrl: string | null;
   linkedinUrl: string | null;
   instagramUrl: string | null;
+  readingGoal: number | null;
 }
 
 export type ProfileInput = {
@@ -99,3 +125,90 @@ export interface CvInfo {
 }
 
 export type CvStatus = Record<CvLang, CvInfo | null>;
+
+export const TIMELINE_KINDS = [
+  'education',
+  'work',
+  'competition',
+  'certification',
+  'project',
+] as const;
+export type TimelineKind = (typeof TIMELINE_KINDS)[number];
+
+export interface TimelineEntry {
+  id: string;
+  kind: TimelineKind;
+  period: string;
+  sortYear: number;
+  titleEs: string;
+  titleEn: string;
+  descriptionEs: string;
+  descriptionEn: string;
+  createdAt: string;
+}
+
+export interface TimelineInput {
+  kind: TimelineKind;
+  period: string;
+  sortYear: number;
+  titleEs: string;
+  titleEn: string;
+  descriptionEs: string;
+  descriptionEn: string;
+}
+
+export interface SupportCard {
+  id: string;
+  enabled: boolean;
+  titleEs: string;
+  titleEn: string;
+  introEs: string;
+  introEn: string;
+  /** One offering per line. */
+  offeringsEs: string;
+  offeringsEn: string;
+  areaEs: string;
+  areaEn: string;
+}
+
+export type SupportCardInput = Omit<SupportCard, 'id'>;
+
+export interface CaseStory {
+  id: string;
+  titleEs: string;
+  titleEn: string;
+  bodyEs: string;
+  bodyEn: string;
+  sortOrder: number;
+  createdAt: string;
+}
+
+export interface CaseStoryInput {
+  titleEs: string;
+  titleEn: string;
+  bodyEs: string;
+  bodyEn: string;
+  sortOrder: number;
+}
+
+export interface SupportData {
+  card: SupportCard | null;
+  stories: CaseStory[];
+}
+
+export type AnalyticsEventType = 'view' | 'cv' | 'outbound' | 'contact';
+
+export interface AnalyticsSummary {
+  totals: Record<AnalyticsEventType, number>;
+  daily: { day: string; views: number }[];
+  top: { type: AnalyticsEventType; key: string; count: number }[];
+}
+
+export interface ReadingStats {
+  year: number;
+  finishedThisYear: number;
+  pagesThisYear: number;
+  goal: number | null;
+  averageRating: number | null;
+  byYear: { year: number; books: number; pages: number }[];
+}

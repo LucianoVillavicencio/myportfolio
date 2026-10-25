@@ -11,6 +11,7 @@ import { BookLightbox } from '../../components/books/BookLightbox';
 import { LanguageToggle } from '../../components/layout/LanguageToggle';
 import { NightstandSpotlight } from './NightstandSpotlight';
 import { ShelfSection } from './ShelfSection';
+import { ReadingStats } from './ReadingStats';
 
 type ShelfTab = 'ALL' | ReadingStatus;
 
@@ -111,6 +112,7 @@ export const BooksPage: React.FC = () => {
       </header>
 
       <main className="pf-gallery-wrap bf-shelves-wrap">
+        <ReadingStats books={books} />
         {shows('READING') && (
           <ShelfSection
             heading={shelves.reading.heading}

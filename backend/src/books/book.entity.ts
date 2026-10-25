@@ -17,6 +17,7 @@ export const SYNCED_FIELDS = [
   'rating',
   'thoughts',
   'totalPages',
+  'finishedAt',
 ] as const;
 export type SyncedField = (typeof SYNCED_FIELDS)[number];
 
@@ -54,6 +55,9 @@ export class Book {
 
   @Column({ type: 'simple-json', default: '[]' })
   lockedFields: SyncedField[];
+
+  @Column({ type: 'datetime', nullable: true })
+  finishedAt: Date | null;
 
   @CreateDateColumn()
   startedAt: Date;

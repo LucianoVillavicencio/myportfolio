@@ -60,6 +60,9 @@ export class Profile {
   @Column({ type: 'varchar', nullable: true })
   instagramUrl: string | null;
 
+  @Column({ type: 'int', nullable: true })
+  readingGoal: number | null;
+
   @UpdateDateColumn()
   updatedAt: Date;
 }

@@ -2,6 +2,8 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Headers,
+  Logger,
   NotFoundException,
   Param,
   ParseEnumPipe,
@@ -13,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
+import { AnalyticsService, isBot } from '../analytics/analytics.service';
 import { AdminKeyGuard } from '../common/admin-key.guard';
 import { CV_LANGS, CvLang, CvService } from './cv.service';
 
@@ -21,7 +24,12 @@ const langPipe = new ParseEnumPipe(Object.fromEntries(CV_LANGS.map((l) => [l, l]
 
 @Controller('cv')
 export class CvController {
-  constructor(private readonly cvs: CvService) {}
+  private readonly logger = new Logger(CvController.name);
+
+  constructor(
+    private readonly cvs: CvService,
+    private readonly analytics: AnalyticsService,
+  ) {}
 
   @Get()
   @UseGuards(AdminKeyGuard)
@@ -33,9 +41,17 @@ export class CvController {
   async download(
     @Param('lang', langPipe) lang: CvLang,
     @Res() res: Response,
+    @Headers('user-agent') userAgent?: string,
   ): Promise<void> {
     const found = await this.cvs.resolve(lang);
     if (!found) throw new NotFoundException('CV not found');
+    if (!isBot(userAgent)) {
+      try {
+        await this.analytics.record('cv', lang);
+      } catch (err) {
+        this.logger.error(`analytics failed: ${(err as Error).message}`);
+      }
+    }
     res.setHeader('Content-Disposition', `inline; filename="cv_${lang}.pdf"`);
     // Revalidate every time so a fresh upload shows up right away.
     res.setHeader('Cache-Control', 'no-cache');

@@ -4,6 +4,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { testDb } from '../../test/test-db';
 import { Book } from './book.entity';
+import { Profile } from '../profile/profile.entity';
 import { BooksService } from './books.service';
 import { GoodreadsModule } from '../goodreads/goodreads.module';
 import { GOODREADS_FETCH } from '../goodreads/goodreads.service';
@@ -17,7 +18,7 @@ describe('BooksService', () => {
 
   beforeEach(async () => {
     moduleRef = await Test.createTestingModule({
-      imports: [testDb(), TypeOrmModule.forFeature([Book]), GoodreadsModule],
+      imports: [testDb(), TypeOrmModule.forFeature([Book, Profile]), GoodreadsModule],
       providers: [BooksService],
     })
       .overrideProvider(GOODREADS_FETCH)
@@ -53,6 +54,35 @@ describe('BooksService', () => {
     );
     const saved = await service.update(b.id, { rating: 5 });
     expect(saved.lockedFields).toEqual(['rating']);
+  });
+
+  it('completing a book stamps finishedAt', async () => {
+    const b = await repo.save(repo.create({ title: 'Mine', author: 'Me', status: 'READING' }));
+    const before = Date.now();
+    const saved = await service.update(b.id, { status: 'COMPLETED' });
+    expect(saved.finishedAt!.getTime()).toBeGreaterThanOrEqual(before);
+    const created = await service.create({ title: 'New', author: 'A', status: 'COMPLETED' });
+    expect(created.finishedAt).toBeInstanceOf(Date);
+  });
+
+  it('explicit finishedAt is kept', async () => {
+    const b = await repo.save(repo.create({ title: 'Mine', author: 'Me', status: 'READING' }));
+    const saved = await service.update(b.id, {
+      status: 'COMPLETED',
+      finishedAt: '2020-05-05T00:00:00.000Z',
+    });
+    expect(saved.finishedAt!.toISOString()).toBe('2020-05-05T00:00:00.000Z');
+  });
+
+  it('locks finishedAt only when its value changes on a goodreads book', async () => {
+    const d = new Date('2021-01-01T00:00:00.000Z');
+    const b = await repo.save(
+      repo.create({ title: 'D', author: 'F', goodreadsId: '9', status: 'COMPLETED', finishedAt: d }),
+    );
+    let saved = await service.update(b.id, { finishedAt: d.toISOString() });
+    expect(saved.lockedFields).toEqual([]);
+    saved = await service.update(b.id, { finishedAt: '2021-02-02T00:00:00.000Z' });
+    expect(saved.lockedFields).toEqual(['finishedAt']);
   });
 
   it('never locks hand-added books', async () => {

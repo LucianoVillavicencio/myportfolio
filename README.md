@@ -2,7 +2,7 @@
 
 A full-stack personal website with a tactile neo-brutalist dark aesthetic, built with **React + TypeScript + Vite** and a **NestJS + TypeORM + SQLite** API.
 
-All content — projects, books and your profile/contact info — lives in the database and is managed from the owner panel at `/admin`.
+All content — projects, books and your profile/contact info — lives in the database, and uploaded CV PDFs and project images are stored as files next to it. Everything is managed from the owner panel at `/admin`.
 
 ## Quick start
 
@@ -27,8 +27,12 @@ The SQLite file `backend/portfolio.sqlite` is created on first launch, with your
 | `ADMIN_API_KEY` | `secret-admin-key` (dev only)    | **Required** when `NODE_ENV=production`.                     |
 | `DB_PATH`       | `backend/portfolio.sqlite`       | Where the SQLite file is stored. **Required** when `NODE_ENV=production`. |
 | `CV_DIR`        | `cv/` next to `DB_PATH`          | Where CVs uploaded from `/admin` are stored.                 |
+| `MEDIA_DIR`     | `media/` next to `DB_PATH`       | Where project images uploaded from `/admin` are stored.      |
+| `RESEND_API_KEY` | _(unset)_                       | Optional. Resend API key for the contact form; without it `POST /api/contact` answers 503. |
+| `CONTACT_FROM`  | `Portfolio <onboarding@resend.dev>` | Sender of contact emails. With `onboarding@resend.dev` Resend only delivers to the Resend account's own address; verify a domain to send elsewhere. |
+| `CONTACT_TO`    | the profile email                | Where contact emails are delivered.                          |
 | `STATIC_DIR`    | `frontend/dist`                  | Built frontend served by Nest (the Docker image sets `/app/public`). |
-| `CORS_ORIGIN`   | any origin                       | Comma-separated allow-list, e.g. `https://example.com`. Not needed when Nest serves the frontend. |
+| `CORS_ORIGIN`   | any origin (dev), none (prod)    | Comma-separated allow-list, e.g. `https://example.com`. Not needed when Nest serves the frontend. |
 | `PORT`          | `3000`                           |                                                              |
 
 ## Owner panel
@@ -36,10 +40,13 @@ The SQLite file `backend/portfolio.sqlite` is created on first launch, with your
 Go to `/admin` (or press **Alt + A** / **Ctrl + Shift + A** anywhere) and enter your `ADMIN_API_KEY`. From there you can:
 
 - **Books** — add (with OpenLibrary cover auto-find), edit, rate, bump progress `+10p`, delete.
-- **Projects** — add, edit, feature/unfeature (featured ones are listed first), delete.
-- **Profile** — name, roles, intro text, availability, stack, email and social links shown in the hero and footer.
-- **CV** — replace the Spanish and English CV PDFs opened from the home page. Uploads are stored next to the database (so on the Railway volume); until you upload one, the PDF bundled in `frontend/public/` is served. They are not included in the database backup.
-- **Backup** — the **Descargar backup** button downloads a copy of the SQLite database.
+- **Projects** — add, edit, feature/unfeature (featured ones are listed first), delete. Each project can have case study fields and up to 8 screenshots, uploaded from here.
+- **Journey** — the timeline of your career and education entries shown on the home page.
+- **Support** — your IT support card and the case stories shown on the home page.
+- **Profile** — name, roles, intro text, availability, stack, email and social links shown in the hero and footer, and a yearly reading goal shown on `/books`.
+- **CV** — replace the Spanish and English CV PDFs opened from the home page. Uploads are stored next to the database (so on the Railway volume); until you upload one, the PDF bundled in `frontend/public/` is served.
+- **Analytics** — cookieless daily counters for page views, outbound clicks, contact submissions and CV downloads (counted server-side). Nothing is stored per visitor. Your own visits are not counted once you have logged in to `/admin` in that browser.
+- **Backup** — the **Descargar backup** button downloads a zip with the SQLite database, the uploaded CV PDFs and the uploaded images.
 
 ## Deploy (Railway)
 
@@ -58,10 +65,23 @@ The repo ships a multi-stage `Dockerfile` and a `railway.json`; the backend serv
 
 Keep the service at **1 replica** (SQLite is a single file on a single volume).
 
+The backend also serves `/sitemap.xml` and `/robots.txt` (the sitemap lists the home page, `/books` and every project). Project pages get their own server-rendered title and social preview (Open Graph / Twitter card), so links shared on social networks show the project, not the generic site.
+
+### Contact form (Resend)
+
+The contact form sends mail through [Resend](https://resend.com). It is optional: without a key the form shows a fallback with your email address.
+
+1. Create a free account at Resend and create an API key (Dashboard → API Keys).
+2. In Railway, set `RESEND_API_KEY` to that key on the service and redeploy.
+3. Optional: to send to any address, verify your domain in Resend (Domains), then set `CONTACT_FROM` to a sender on it, e.g. `Portfolio <hola@yourdomain.com>`.
+4. Optional: set `CONTACT_TO` if the messages should go somewhere other than the profile email.
+
+Until a domain is verified, Resend only delivers to the email address of your Resend account, so keep the default `CONTACT_FROM` for testing only.
+
 ### Backups
 
 - Use the **Descargar backup** button in `/admin`, and/or Railway's volume backups.
-- A downloaded backup is a full SQLite file. Restoring it into Railway is not supported yet (a restore/import feature is a planned follow-up).
+- A downloaded backup is a zip with `portfolio.sqlite`, the uploaded CV PDFs in `cv/` and the uploaded images in `media/`. Restoring it into Railway is not supported yet (a restore/import feature is a planned follow-up).
 - Always download a backup **before deploying entity changes**: `synchronize: true` alters the schema on boot.
 
 ## Languages
@@ -76,19 +96,28 @@ The site is in **Spanish by default**, with an **ES / EN** switch in the top bar
 
 ```
 backend/src
+  analytics/     /api/analytics  (cookieless daily counters)
   auth/          POST /api/auth/verify
+  backup/        /api/backup     (zip of DB, CVs and images)
   books/         /api/books      (CRUD, writes need x-admin-key)
-  projects/      /api/projects   (CRUD, writes need x-admin-key)
-  profile/       /api/profile    (GET, PATCH)
   common/        admin-key guard, DTO transforms
+  contact/       /api/contact    (Resend mailer)
+  cv/            /api/cv         (uploaded CV PDFs)
+  goodreads/     Goodreads feed sync
+  media/         uploaded project images
+  profile/       /api/profile    (GET, PATCH)
+  projects/      /api/projects   (CRUD, writes need x-admin-key)
+  seo/           server-rendered meta, /sitemap.xml, /robots.txt
+  support/       IT support card and case stories
+  timeline/      journey entries
 
 frontend/src
-  App.tsx        routes: /, /books, /admin, 404
+  App.tsx        routes: /, /books, /projects/:slug, /admin, /login (redirects to /admin), 404
   context/       AdminAuthContext (session key), PortfolioDataContext (shared data)
   i18n/          translations (es, en) and LanguageContext
-  lib/           api client, book/profile helpers
+  lib/           api client, book/profile helpers, analytics
   hooks/         useDocumentTitle, useFormState
   components/    illustrations/, books/, projects/, layout/, form/
-  pages/         home/, books/, admin/, NotFoundPage
+  pages/         home/, books/, projects/, admin/ (Books, Projects, Timeline, Support, Profile, CV, Analytics), NotFoundPage
   styles/        CSS split by area, imported in order from styles/index.css
 ```

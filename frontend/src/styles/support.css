@@ -1,0 +1,109 @@
+.support-card {
+  max-width: 760px;
+  padding: 24px;
+  border: 2px solid var(--color-edge);
+  background: var(--color-card);
+}
+
+/* Card titles match .folio-card-title. Stellost has a single weight, so keep
+   font-weight 400: the browser's faux bold smears it. */
+.support-title {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  filter: url(#ink-bleed);
+  font-weight: 400;
+  font-size: 1.55rem;
+  line-height: 1;
+  color: var(--color-ink);
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
+
+.support-text {
+  color: var(--color-ink-dim);
+  line-height: 1.6;
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+}
+
+.support-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-dim);
+}
+
+.support-label--gap {
+  margin-top: 18px;
+}
+
+.support-tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.support-tag {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-ink);
+  border: 2px solid var(--color-edge);
+  overflow-wrap: anywhere;
+}
+
+.support-area {
+  margin-top: 16px;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+.support-cta {
+  margin-top: 22px;
+  background: var(--color-yellow);
+  text-decoration: none;
+}
+
+.support-stories-label {
+  margin-top: 28px;
+}
+
+.support-stories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 10px;
+  max-width: 1000px;
+}
+
+.support-story {
+  padding: 16px;
+  border: 2px solid var(--color-edge);
+}
+
+.support-story-title {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  filter: url(#ink-bleed);
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 1.05;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+.support-card-panel {
+  margin-bottom: 24px;
+}
+
+@media (max-width: 480px) {
+  .support-card {
+    padding: 16px;
+  }
+  .support-title {
+    font-size: 21px;
+  }
+}

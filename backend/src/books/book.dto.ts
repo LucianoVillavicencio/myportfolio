@@ -8,6 +8,7 @@ import {
   Max,
   IsNotEmpty,
   IsUrl,
+  IsDateString,
 } from 'class-validator';
 import { READING_STATUSES, ReadingStatus } from './book.entity';
 import { EmptyToNull, Trim } from '../common/transforms';
@@ -42,6 +43,11 @@ export class CreateBookDto {
   @Min(1)
   @Max(5)
   rating?: number | null;
+
+  @EmptyToNull()
+  @IsOptional()
+  @IsDateString()
+  finishedAt?: string | null;
 
   @EmptyToNull()
   @IsOptional()

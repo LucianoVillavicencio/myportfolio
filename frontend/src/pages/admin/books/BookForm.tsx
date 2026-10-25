@@ -18,9 +18,10 @@ const STATUSES: ReadingStatus[] = ['READING', 'WANT_TO_READ', 'COMPLETED'];
 type CoverNote = 'coverNeedsTitle' | 'coverNotFound' | 'coverUnreachable';
 
 // Page counts stay strings while editing so clearing an input doesn't snap it to 0
-type BookFormValues = Omit<BookInput, 'totalPages' | 'rating'> & {
+type BookFormValues = Omit<BookInput, 'totalPages' | 'rating' | 'finishedAt'> & {
   totalPages: string;
   rating: string;
+  finishedAt: string;
 };
 
 function toFormValues(book?: Book): BookFormValues {
@@ -32,12 +33,21 @@ function toFormValues(book?: Book): BookFormValues {
     totalPages: String(book?.totalPages ?? 300),
     rating: book?.rating ? String(book.rating) : '',
     thoughts: book?.thoughts ?? '',
+    finishedAt: book?.finishedAt?.slice(0, 10) ?? '',
   };
 }
 
-function toInput(values: BookFormValues, existingRating: number | null): BookInput {
+function toInput(
+  values: BookFormValues,
+  existing?: Pick<Book, 'rating' | 'finishedAt'>,
+): BookInput {
+  const existingRating = existing?.rating ?? null;
+  const { finishedAt, ...rest } = values;
+  // Send the date only when the user changed it: resending the truncated stored value would
+  // shift its time and lock the field, and sending null would stop the server auto-stamping.
+  const dateChanged = finishedAt !== (existing?.finishedAt?.slice(0, 10) ?? '');
   return {
-    ...values,
+    ...rest,
     totalPages: Number(values.totalPages) || 1,
     // The rating field is only shown for completed books; otherwise keep what is stored
     rating:
@@ -46,6 +56,7 @@ function toInput(values: BookFormValues, existingRating: number | null): BookInp
           ? Number(values.rating)
           : null
         : existingRating,
+    ...(dateChanged ? { finishedAt: finishedAt || null } : {}),
   };
 }
 
@@ -77,7 +88,7 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const input = toInput(values, book?.rating ?? null);
+    const input = toInput(values, book);
     const ok = await run((key) =>
       book ? api.updateBook(book.id, input, key) : api.createBook(input, key),
     );
@@ -170,6 +181,15 @@ export const BookForm: React.FC<BookFormProps> = ({ book, onDone }) => {
                 </option>
               ))}
             </select>
+          </FormField>
+        )}
+        {values.status === 'COMPLETED' && (
+          <FormField label={copy.fields.finishedAt}>
+            <input
+              type="date"
+              value={values.finishedAt}
+              onChange={(e) => setField('finishedAt', e.target.value)}
+            />
           </FormField>
         )}
       </div>

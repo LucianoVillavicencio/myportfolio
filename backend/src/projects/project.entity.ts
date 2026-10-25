@@ -38,6 +38,31 @@ export class Project {
   @Column({ type: 'varchar', default: '' })
   completedDate: string;
 
+  /** URL identifier for the case-study page; unique, backfilled on startup. */
+  @Column({ type: 'varchar', nullable: true, unique: true })
+  slug: string | null;
+
+  @Column({ type: 'text', default: '' })
+  problemEs: string;
+  @Column({ type: 'text', default: '' })
+  problemEn: string;
+  @Column({ type: 'text', default: '' })
+  roleEs: string;
+  @Column({ type: 'text', default: '' })
+  roleEn: string;
+  @Column({ type: 'text', default: '' })
+  decisionsEs: string;
+  @Column({ type: 'text', default: '' })
+  decisionsEn: string;
+  @Column({ type: 'text', default: '' })
+  resultsEs: string;
+  @Column({ type: 'text', default: '' })
+  resultsEn: string;
+
+  /** Screenshot media URLs; the first one is the cover. */
+  @Column('simple-json', { default: '[]' })
+  images: string[];
+
   @CreateDateColumn()
   createdAt: Date;
 }

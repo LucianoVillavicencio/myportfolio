@@ -10,15 +10,18 @@ import { LanguageToggle } from '../../components/layout/LanguageToggle';
 import { LoginPanel } from './LoginPanel';
 import { BooksManager } from './books/BooksManager';
 import { ProjectsManager } from './projects/ProjectsManager';
+import { SupportManager } from './support/SupportManager';
+import { TimelineManager } from './timeline/TimelineManager';
 import { ProfileForm } from './ProfileForm';
 import { CvManager } from './CvManager';
+import { AnalyticsPanel } from './AnalyticsPanel';
 
-const TABS = ['books', 'projects', 'profile', 'cv'] as const;
+const TABS = ['books', 'projects', 'timeline', 'support', 'profile', 'cv', 'analytics'] as const;
 type AdminTab = (typeof TABS)[number];
 
 export const AdminPage: React.FC = () => {
   const { isAdmin, adminKey, logout } = useAdminAuth();
-  const { profile, books, projects, loadFailed } = usePortfolioData();
+  const { profile, books, projects, timeline, loadFailed } = usePortfolioData();
   const { t } = useI18n();
   const [params, setParams] = useSearchParams();
   useDocumentTitle(t.admin.docTitle);
@@ -29,8 +32,11 @@ export const AdminPage: React.FC = () => {
   const tabLabels: Record<AdminTab, string> = {
     books: t.admin.tabs.books(books.length),
     projects: t.admin.tabs.projects(projects.length),
+    timeline: t.admin.tabs.timeline(timeline.length),
+    support: t.admin.tabs.support,
     profile: t.admin.tabs.profile,
     cv: t.admin.tabs.cv,
+    analytics: t.admin.tabs.analytics,
   };
 
   const [backingUp, setBackingUp] = React.useState(false);
@@ -42,7 +48,7 @@ export const AdminPage: React.FC = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `portfolio-${new Date().toISOString().slice(0, 10)}.sqlite`;
+      a.download = `portfolio-${new Date().toISOString().slice(0, 10)}.zip`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch {
@@ -110,6 +116,8 @@ export const AdminPage: React.FC = () => {
 
           {tab === 'books' && <BooksManager />}
           {tab === 'projects' && <ProjectsManager />}
+          {tab === 'timeline' && <TimelineManager />}
+          {tab === 'support' && <SupportManager />}
           {tab === 'profile' &&
             (profile ? (
               <ProfileForm profile={profile} />
@@ -117,6 +125,7 @@ export const AdminPage: React.FC = () => {
               <p className="admin-hint">{t.admin.loadingProfile}</p>
             ))}
           {tab === 'cv' && <CvManager />}
+          {tab === 'analytics' && <AnalyticsPanel />}
         </>
       )}
     </div>

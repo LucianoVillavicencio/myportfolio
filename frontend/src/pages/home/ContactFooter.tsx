@@ -1,6 +1,8 @@
 import React from 'react';
 import type { Profile } from '../../types';
 import { socialLinks } from '../../lib/profile';
+import { CopyEmailButton } from '../../components/layout/CopyEmailButton';
+import { ContactForm } from './ContactForm';
 import { useI18n } from '../../i18n/LanguageContext';
 
 export const ContactFooter: React.FC<{ profile: Profile | null }> = ({ profile }) => {
@@ -23,6 +25,7 @@ export const ContactFooter: React.FC<{ profile: Profile | null }> = ({ profile }
                   <dt>{t.footer.email}</dt>
                   <dd>
                     <a href={`mailto:${profile.email}`}>{profile.email}</a>
+                    <CopyEmailButton email={profile.email} />
                   </dd>
                 </div>
               )}
@@ -48,6 +51,7 @@ export const ContactFooter: React.FC<{ profile: Profile | null }> = ({ profile }
                 </ul>
               </div>
             )}
+            {profile.email && <ContactForm email={profile.email} />}
           </div>
         )}
 

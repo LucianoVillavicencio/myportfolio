@@ -97,3 +97,14 @@ a {
   }
 }
 
+/* Honour reduced motion: stop loops (boil, float) and keep entrance animations at their final state */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

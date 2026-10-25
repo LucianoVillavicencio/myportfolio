@@ -3,6 +3,8 @@ import type {
   BookInput,
   CvInfo,
   CvLang,
+  CaseStory,
+  CaseStoryInput,
   CvStatus,
   GoodreadsStatus,
   GoodreadsSyncResult,
@@ -10,6 +12,13 @@ import type {
   ProfileInput,
   Project,
   ProjectInput,
+  ReadingStats,
+  SupportCard,
+  SupportCardInput,
+  SupportData,
+  TimelineEntry,
+  TimelineInput,
+  AnalyticsSummary,
 } from '../types';
 
 const API_BASE = '/api';
@@ -68,6 +77,7 @@ export const api = {
     send<Profile>('PATCH', '/profile', adminKey, data),
 
   getBooks: () => request<Book[]>('/books'),
+  getReadingStats: () => request<ReadingStats>('/books/stats'),
   createBook: (data: BookInput, adminKey: string) =>
     send<Book>('POST', '/books', adminKey, data),
   updateBook: (id: string, data: Partial<BookInput>, adminKey: string) =>
@@ -84,12 +94,37 @@ export const api = {
     send<GoodreadsSyncResult>('POST', '/goodreads/sync', adminKey),
 
   getProjects: () => request<Project[]>('/projects'),
+  getProjectBySlug: (slug: string) =>
+    request<Project>(`/projects/slug/${encodeURIComponent(slug)}`),
   createProject: (data: ProjectInput, adminKey: string) =>
     send<Project>('POST', '/projects', adminKey, data),
   updateProject: (id: string, data: Partial<ProjectInput>, adminKey: string) =>
     send<Project>('PATCH', `/projects/${id}`, adminKey, data),
   deleteProject: (id: string, adminKey: string) =>
     send<void>('DELETE', `/projects/${id}`, adminKey),
+
+  getTimeline: () => request<TimelineEntry[]>('/timeline'),
+  createTimelineEntry: (data: TimelineInput, adminKey: string) =>
+    send<TimelineEntry>('POST', '/timeline', adminKey, data),
+  updateTimelineEntry: (id: string, data: Partial<TimelineInput>, adminKey: string) =>
+    send<TimelineEntry>('PATCH', `/timeline/${id}`, adminKey, data),
+  deleteTimelineEntry: (id: string, adminKey: string) =>
+    send<void>('DELETE', `/timeline/${id}`, adminKey),
+
+  getSupport: () => request<SupportData>('/support'),
+  getSupportAdmin: (adminKey: string) =>
+    send<{ card: SupportCard; stories: CaseStory[] }>('GET', '/support/admin', adminKey),
+  updateSupportCard: (data: Partial<SupportCardInput>, adminKey: string) =>
+    send<SupportCard>('PATCH', '/support', adminKey, data),
+  createCaseStory: (data: CaseStoryInput, adminKey: string) =>
+    send<CaseStory>('POST', '/support/stories', adminKey, data),
+  updateCaseStory: (id: string, data: Partial<CaseStoryInput>, adminKey: string) =>
+    send<CaseStory>('PATCH', `/support/stories/${id}`, adminKey, data),
+  deleteCaseStory: (id: string, adminKey: string) =>
+    send<void>('DELETE', `/support/stories/${id}`, adminKey),
+
+  sendContact: (data: { name: string; email: string; message: string; website: string }) =>
+    request<void>('/contact', { method: 'POST', body: JSON.stringify(data) }),
 
   getCvStatus: (adminKey: string) => send<CvStatus>('GET', '/cv', adminKey),
 };
@@ -104,6 +139,19 @@ export async function uploadCv(lang: CvLang, file: File, adminKey: string): Prom
   // No Content-Type header: the browser sets the multipart boundary itself.
   const res = await fetch(`${API_BASE}/cv/${lang}`, {
     method: 'PUT',
+    headers: { 'x-admin-key': adminKey },
+    body,
+  });
+  if (!res.ok) return throwApiError(res);
+  return res.json();
+}
+
+/** Uploads an image (PNG, JPEG or WebP) and returns its public URL. */
+export async function uploadMedia(file: File, adminKey: string): Promise<{ url: string }> {
+  const body = new FormData();
+  body.append('file', file);
+  const res = await fetch(`${API_BASE}/media`, {
+    method: 'POST',
     headers: { 'x-admin-key': adminKey },
     body,
   });
@@ -134,3 +182,7 @@ export async function findOpenLibraryCover(
   const coverId = data.docs?.find((d) => d.cover_i)?.cover_i;
   return coverId ? `https://covers.openlibrary.org/b/id/${coverId}-L.jpg` : null;
 }
+
+/** Aggregated, cookieless analytics for the last `days` days (admin only). */
+export const getAnalytics = (days: number, adminKey: string) =>
+  request<AnalyticsSummary>(`/analytics?days=${days}`, { adminKey });

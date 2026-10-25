@@ -6,6 +6,13 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { BooksModule } from './books/books.module';
 import { ProjectsModule } from './projects/projects.module';
+import { TimelineModule } from './timeline/timeline.module';
+import { TimelineEntry } from './timeline/timeline-entry.entity';
+import { SupportModule } from './support/support.module';
+import { SupportCard } from './support/support-card.entity';
+import { CaseStory } from './support/case-story.entity';
+import { AnalyticsDaily } from './analytics/analytics-daily.entity';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { ProfileModule } from './profile/profile.module';
 import { AuthController } from './auth/auth.controller';
 import { Book } from './books/book.entity';
@@ -17,6 +24,8 @@ import { resolveDbPath, resolveStaticDir } from './config';
 import { HealthController } from './health.controller';
 import { BackupModule } from './backup/backup.module';
 import { CvModule } from './cv/cv.module';
+import { MediaModule } from './media/media.module';
+import { ContactModule } from './contact/contact.module';
 import { atomicWriteFile } from './atomic-write';
 
 const dbPath = resolveDbPath(process.env);
@@ -28,7 +37,16 @@ const dbPath = resolveDbPath(process.env);
       location: dbPath,
       autoSave: true,
       autoSaveCallback: (data: Uint8Array) => atomicWriteFile(dbPath, data),
-      entities: [Book, Project, Profile, GoodreadsSettings],
+      entities: [
+        Book,
+        Project,
+        Profile,
+        GoodreadsSettings,
+        TimelineEntry,
+        SupportCard,
+        CaseStory,
+        AnalyticsDaily,
+      ],
       synchronize: true,
     }),
     ServeStaticModule.forRoot({
@@ -39,10 +57,15 @@ const dbPath = resolveDbPath(process.env);
     ScheduleModule.forRoot(),
     BooksModule,
     ProjectsModule,
+    TimelineModule,
+    SupportModule,
     ProfileModule,
     GoodreadsModule,
     BackupModule,
     CvModule,
+    MediaModule,
+    ContactModule,
+    AnalyticsModule,
   ],
   controllers: [AuthController, HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

@@ -33,6 +33,7 @@ const DEFAULT_PROFILE: Omit<Profile, 'updatedAt'> = {
   githubUrl: 'https://github.com/LucianoVillavicencio',
   linkedinUrl: 'https://linkedin.com/in/lucianovillavicencio',
   instagramUrl: 'https://www.instagram.com/lucho.villavicencio/',
+  readingGoal: null,
 };
 
 @Injectable()

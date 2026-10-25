@@ -561,3 +561,131 @@
   background: var(--color-ink);
   color: #1b1b1b;
 }
+
+/* Project form: screenshot list */
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.image-list-item {
+  position: relative;
+  width: 140px;
+}
+
+.image-list-item img {
+  display: block;
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #302e2b;
+}
+
+.image-list-cover {
+  position: absolute;
+  top: 0.3rem;
+  left: 0.3rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 100vw;
+  background: var(--color-ink);
+  color: #1b1b1b;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.image-list-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.3rem;
+}
+
+.image-list-actions button {
+  flex: 1;
+  padding: 0.2rem 0;
+  border: 0;
+  border-radius: 6px;
+  background: #302e2b;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.image-list-actions button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* Analytics panel */
+.an-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.an-note {
+  color: var(--color-ink-dim);
+  font-size: 0.85rem;
+  margin: 0;
+}
+.an-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.an-tile {
+  border: 2px solid var(--color-edge);
+  padding: 1rem;
+}
+.an-tile strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1.1;
+}
+.an-tile span {
+  color: var(--color-ink-dim);
+  font-size: 0.85rem;
+}
+.an-chart {
+  border: 2px solid var(--color-edge);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+.an-chart h3,
+.an-tables h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+.an-chart svg {
+  display: block;
+  width: 100%;
+  height: 160px;
+}
+.an-tables {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+.an-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.an-table th,
+.an-table td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--color-edge);
+  overflow-wrap: anywhere;
+}
+.an-table th:last-child,
+.an-table td:last-child {
+  text-align: right;
+}

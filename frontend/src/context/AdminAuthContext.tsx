@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { api } from '../lib/api';
+import { setNoTrack } from '../lib/analytics';
 
 const STORAGE_KEY = 'portfolio_admin_key';
 
@@ -31,6 +32,8 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (ok) {
       sessionStorage.setItem(STORAGE_KEY, key);
       setAdminKey(key);
+      // The owner's own visits shouldn't count
+      setNoTrack();
     }
     return ok;
   }, []);

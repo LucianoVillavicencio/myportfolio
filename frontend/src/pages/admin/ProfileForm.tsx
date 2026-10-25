@@ -13,6 +13,7 @@ function toFormValues(profile: Profile): ProfileInput {
     githubUrl: profile.githubUrl ?? '',
     linkedinUrl: profile.linkedinUrl ?? '',
     instagramUrl: profile.instagramUrl ?? '',
+    readingGoal: profile.readingGoal == null ? '' : String(profile.readingGoal),
   };
 }
 
@@ -32,6 +33,7 @@ const PROFILE_FIELDS: (keyof ProfileInput)[] = [
   'githubUrl',
   'linkedinUrl',
   'instagramUrl',
+  'readingGoal',
 ];
 
 /** Translatable profile fields, as the base name shared by their Es/En pair. */
@@ -108,6 +110,9 @@ export const ProfileForm: React.FC<{ profile: Profile }> = ({ profile }) => {
           </FormField>
           <FormField label={labels.instagram}>
             <input type="url" {...text('instagramUrl')} />
+          </FormField>
+          <FormField label={labels.readingGoal}>
+            <input type="number" min={1} max={500} step={1} {...text('readingGoal')} />
           </FormField>
         </div>
 

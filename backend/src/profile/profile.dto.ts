@@ -6,7 +6,11 @@ import {
   IsString,
   IsUrl,
   ValidateIf,
+  IsInt,
+  Min,
+  Max,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { EmptyToNull, Trim } from '../common/transforms';
 
 /** Optional, trimmed free-text field (blank allowed). */
@@ -70,4 +74,14 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsUrl()
   instagramUrl?: string | null;
+
+  // '' clears the goal; numeric strings become numbers (Type would turn '' into 0)
+  @Transform(({ value }) =>
+    typeof value === 'string' ? (value.trim() === '' ? null : Number(value)) : value,
+  )
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(500)
+  readingGoal?: number | null;
 }

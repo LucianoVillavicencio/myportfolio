@@ -13,6 +13,7 @@ function item(overrides: Partial<GoodreadsItem> = {}): GoodreadsItem {
     thoughts: null,
     totalPages: null,
     dateAdded: null,
+    readAt: null,
     ...overrides,
   };
 }
@@ -30,6 +31,7 @@ function book(overrides: Partial<Book> = {}): Book {
     thoughts: null,
     goodreadsId: null,
     lockedFields: [],
+    finishedAt: null,
     startedAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
     ...overrides,
@@ -53,6 +55,20 @@ describe('planSync', () => {
     );
     expect(plan.create[0].startedAt).toBe(d);
     expect(plan.create[1]).not.toHaveProperty('startedAt');
+  });
+
+  it('maps readAt to finishedAt, compares by value and respects locks', () => {
+    const d = new Date('2023-05-05T00:00:00Z');
+    expect(planSync([item({ readAt: d })], [], []).create[0].finishedAt).toBe(d);
+    const same = book({ id: 'a', goodreadsId: '1', finishedAt: new Date(d.getTime()) });
+    expect(planSync([item({ readAt: d })], [same], []).update).toEqual([]);
+    const other = book({ id: 'a', goodreadsId: '1', finishedAt: new Date('2020-01-01') });
+    expect(planSync([item({ readAt: d })], [other], []).update).toEqual([
+      { id: 'a', changes: { finishedAt: d } },
+    ]);
+    const locked = book({ id: 'a', goodreadsId: '1', finishedAt: new Date('2020-01-01'), lockedFields: ['finishedAt'] });
+    expect(planSync([item({ readAt: d })], [locked], []).update).toEqual([]);
+    expect(planSync([item()], [other], []).update).toEqual([]);
   });
 
   it('updates changed unlocked fields only', () => {
@@ -98,6 +114,29 @@ describe('planSync', () => {
     expect(plan.update[0].changes).toMatchObject({ goodreadsId: '1' });
     expect(plan.update[0].changes.lockedFields).toEqual(expect.arrayContaining(['title', 'thoughts']));
     expect(plan.update[0].changes.lockedFields).not.toContain('rating');
+  });
+
+  it('adopting a book with no finish date takes the feed read date instead of locking it', () => {
+    const readAt = new Date('2024-06-01');
+    const manual = book({ id: 'm', title: 'Dune', author: 'A', status: 'COMPLETED', finishedAt: null });
+    const plan = planSync(
+      [item({ goodreadsId: '1', title: 'Dune', author: 'A', status: 'COMPLETED', readAt })],
+      [manual],
+      [],
+    );
+    expect(plan.update[0].changes).toMatchObject({ goodreadsId: '1', finishedAt: readAt });
+    expect(plan.update[0].changes.lockedFields).not.toContain('finishedAt');
+  });
+
+  it('adopting keeps a hand-set finish date locked when it differs from the feed', () => {
+    const manual = book({ id: 'm', title: 'Dune', author: 'A', status: 'COMPLETED', finishedAt: new Date('2024-01-02') });
+    const plan = planSync(
+      [item({ goodreadsId: '1', title: 'Dune', author: 'A', status: 'COMPLETED', readAt: new Date('2024-06-01') })],
+      [manual],
+      [],
+    );
+    expect(plan.update[0].changes.lockedFields).toContain('finishedAt');
+    expect(plan.update[0].changes.finishedAt).toBeUndefined();
   });
 
   it('adopts each hand-added book at most once', () => {
