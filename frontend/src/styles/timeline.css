@@ -27,13 +27,26 @@
 
 .tl-node {
   position: absolute;
-  left: -32px;
-  top: 4px;
+  left: -38px;
+  top: -2px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-page);
+  color: var(--tl-accent);
+  border: 2px solid var(--tl-accent);
+  transition: transform 0.28s var(--ease-out-back);
+}
+
+.tl-node svg {
   width: 16px;
   height: 16px;
-  background: var(--tl-accent);
-  border: 2px solid var(--color-page);
-  box-shadow: 0 0 0 2px var(--tl-accent);
+}
+
+.tl-item:hover .tl-node {
+  transform: rotate(-12deg) scale(1.12);
 }
 
 .tl-meta {
@@ -86,7 +99,7 @@
     padding-left: 28px;
   }
   .tl-node {
-    left: -28px;
+    left: -34px;
   }
   .tl-title {
     font-size: 18px;

@@ -4,6 +4,7 @@ import { ACCENTS } from '../../lib/books';
 import { paragraphs } from '../../lib/text';
 import { localized, useI18n } from '../../i18n/LanguageContext';
 import { SectionHead } from '../../components/layout/SectionHead';
+import { TimelineIcon } from '../../components/illustrations/TimelineIcon';
 
 const KIND_ACCENT: Record<TimelineKind, string> = {
   education: ACCENTS[0],
@@ -32,7 +33,9 @@ export const TimelineSection: React.FC<{ entries: TimelineEntry[] }> = ({ entrie
               className="tl-item"
               style={{ '--tl-accent': KIND_ACCENT[entry.kind] } as React.CSSProperties}
             >
-              <span className="tl-node" aria-hidden="true" />
+              <span className="tl-node" aria-hidden="true">
+                <TimelineIcon kind={entry.kind} />
+              </span>
               <div className="tl-meta">
                 <span className="tl-period">{entry.period}</span>
                 <span className="tl-badge">{t.timeline.kinds[entry.kind]}</span>

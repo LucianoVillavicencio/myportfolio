@@ -125,12 +125,23 @@ export const RosarioIllustration: React.FC<{ label: string }> = ({ label }) => (
         </g>
 
         <g className="kid-head">
-          <circle cx="98" cy="198" r="11" fill={INK} stroke={CREAM} strokeWidth="2" />
-          <circle cx="111" cy="189" r="12" fill={INK} stroke={CREAM} strokeWidth="2" />
-          <circle cx="127" cy="187" r="12" fill={INK} stroke={CREAM} strokeWidth="2" />
-          <circle cx="141" cy="195" r="11" fill={INK} stroke={CREAM} strokeWidth="2" />
+          <ellipse cx="93" cy="221" rx="5" ry="7" fill={CREAM} stroke={INK} strokeWidth="3" />
+          <ellipse cx="147" cy="221" rx="5" ry="7" fill={CREAM} stroke={INK} strokeWidth="3" />
           <circle cx="120" cy="216" r="27" fill={CREAM} stroke={INK} strokeWidth="3.5" />
-          <path d="M96 206 C100 194 140 192 145 206 C132 200 108 200 96 206 Z" fill={INK} />
+          <path d="M97 209 V218" stroke="#4a3426" strokeWidth="4" strokeLinecap="round" />
+          <path d="M143 209 V218" stroke="#4a3426" strokeWidth="4" strokeLinecap="round" />
+          <path
+            d="M94 212 C91 194 104 185 120 185 C136 185 149 194 146 212 C142 205 136 201 130 203 C125 197 115 197 110 202 C104 200 98 205 94 212 Z"
+            fill="#4a3426"
+            stroke={INK}
+            strokeWidth="3"
+            strokeLinejoin="round"
+          />
+          <path d="M90 214 C88 166 152 166 150 214" stroke={INK} strokeWidth="10" strokeLinecap="round" />
+          <path d="M90 214 C88 166 152 166 150 214" stroke={SKY} strokeWidth="5" strokeLinecap="round" />
+          <rect x="82" y="206" width="15" height="27" rx="6" fill={ORANGE} stroke={INK} strokeWidth="3" />
+          <rect x="143" y="206" width="15" height="27" rx="6" fill={ORANGE} stroke={INK} strokeWidth="3" />
+          <path d="M87 213 V226 M153 213 V226" stroke={INK} strokeWidth="2" strokeLinecap="round" />
           <circle cx="110" cy="219" r="7" stroke={INK} strokeWidth="2.6" />
           <circle cx="131" cy="219" r="7" stroke={INK} strokeWidth="2.6" />
           <path d="M117 219 H124" stroke={INK} strokeWidth="2.6" strokeLinecap="round" />

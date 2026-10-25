@@ -60,8 +60,14 @@ export function buildMeta(input: MetaInput): string {
     `${profile.leadHighlightEn} ${profile.leadTextEn}`,
   );
 
+  const place = profile.location?.trim();
+  const fallback =
+    lang === 'es'
+      ? `Portfolio de ${name}${place ? `, desarrollador de software en ${place}` : ''}: proyectos, experiencia y lecturas.`
+      : `${name}'s portfolio${place ? `, software developer in ${place}` : ''}: projects, experience and reading.`;
+
   let title = name;
-  let description = describe(home);
+  let description = describe(home.trim()) || fallback;
   if (notFound) {
     title = `${name} · 404`;
   } else if (project) {
@@ -86,7 +92,12 @@ export function buildMeta(input: MetaInput): string {
     `<meta property="og:description" content="${d}" />`,
     `<meta property="og:image" content="${escapeHtml(image)}" />`,
     `<meta property="og:type" content="${project ? 'article' : 'website'}" />`,
+    `<meta property="og:site_name" content="${escapeHtml(name)}" />`,
+    `<meta property="og:locale" content="${lang === 'es' ? 'es_AR' : 'en_US'}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
+    `<meta name="twitter:title" content="${t}" />`,
+    `<meta name="twitter:description" content="${d}" />`,
+    `<meta name="twitter:image" content="${escapeHtml(image)}" />`,
   ];
   if (!notFound) {
     lines.splice(
@@ -110,6 +121,19 @@ export function buildMeta(input: MetaInput): string {
       url: origin + '/',
     };
     if (jobTitle) person.jobTitle = jobTitle;
+    if (place) {
+      person.address = {
+        '@type': 'PostalAddress',
+        addressLocality: place,
+        addressCountry: 'AR',
+      };
+    }
+    const skills = (profile.stack ?? '')
+      .split(/[,·|\n]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (skills.length) person.knowsAbout = skills;
+    person.image = absoluteUrl('/og-image.png', origin);
     if (profile.email) person.email = `mailto:${profile.email}`;
     if (sameAs.length) person.sameAs = sameAs;
     // Escape < so no value can close the script tag.
