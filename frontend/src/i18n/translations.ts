@@ -28,7 +28,8 @@ const es = {
     currentlyReading: (n: number) => `leyendo ahora (${n})`,
   },
   hero: {
-    headline: ['DESDE', 'ROSARIO', 'CON CODIGO'] as [string, string, string],
+    // Kept in English on purpose, in both languages
+    headline: ['FROM', 'ROSARIO', 'WITH CODE'] as [string, string, string],
     getInTouch: 'Escribime',
     projects: 'Proyectos',
     books: 'Libros',
