@@ -22,6 +22,8 @@ The SQLite file `backend/portfolio.sqlite` is created on first launch, with your
 
 ### Environment variables (backend)
 
+For local development, copy `backend/.env.example` to `backend/.env` and fill it in; it is git-ignored and only loaded outside production. Real environment variables always win.
+
 | Variable        | Default                          | Notes                                                        |
 | --------------- | -------------------------------- | ------------------------------------------------------------ |
 | `ADMIN_API_KEY` | `secret-admin-key` (dev only)    | **Required** when `NODE_ENV=production`.                     |
@@ -47,7 +49,7 @@ Go to `/admin` (or press **Alt + A** / **Ctrl + Shift + A** anywhere) and enter 
 - **Support** — your IT support card and the case stories shown on the home page.
 - **Profile** — name, roles, intro text, availability, stack, email and social links shown in the hero and footer, and a yearly reading goal shown on `/books`.
 - **CV** — replace the Spanish and English CV PDFs opened from the home page. Uploads are stored next to the database (so on the Railway volume); until you upload one, the PDF bundled in `frontend/public/` is served.
-- **Spotify** — connect your account and pick (and order) the playlists shown on the home page. The "now playing" card (or "last played" when idle) needs no setup.
+- **Spotify** — connect your account and pick (and order) the playlists shown on the home page. Your most listened artist of the last month (a Spotify "short term" top artist) shows above them with no setup.
 - **Analytics** — cookieless daily counters for page views, outbound clicks, contact submissions and CV downloads (counted server-side). Nothing is stored per visitor. Your own visits are not counted once you have logged in to `/admin` in that browser.
 - **Backup** — the **Descargar backup** button downloads a zip with the SQLite database, the uploaded CV PDFs and the uploaded images.
 
@@ -87,7 +89,7 @@ Until a domain is verified, Resend only delivers to the email address of your Re
 2. Set `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET` and `SPOTIFY_REDIRECT_URI` on the backend.
 3. In `/admin` → **Spotify**, press **Connect Spotify**, approve access, then pick your playlists.
 
-The refresh token is stored in the SQLite database (so it is part of the backup zip). Visitors never call Spotify: the playlists are a snapshot refreshed hourly, and "now playing" is cached on the server for 10 seconds.
+The refresh token is stored in the SQLite database (so it is part of the backup zip). Visitors never call Spotify: the playlists are a snapshot refreshed hourly, and the top artist is cached on the server for an hour.
 
 ### Backups
 

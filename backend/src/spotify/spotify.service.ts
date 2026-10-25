@@ -15,11 +15,11 @@ import {
   SpotifyApiError,
   SpotifyConfig,
   SpotifyPlaylist,
-  SpotifyTrack,
+  SpotifyArtist,
   buildAuthUrl,
   exchangeCode,
   mapPlaylist,
-  mapTrack,
+  mapArtist,
   refreshAccessToken,
   signState,
   spotifyGet,
@@ -29,9 +29,10 @@ import {
 export const SPOTIFY_FETCH = Symbol('SPOTIFY_FETCH');
 export const SPOTIFY_CONFIG = Symbol('SPOTIFY_CONFIG');
 
-/** Visitors share one Spotify call per window, which keeps us far below rate limits. */
-export const NOW_PLAYING_TTL_MS = 10_000;
-export const RECENT_TTL_MS = 60_000;
+/** The top artist moves slowly; one Spotify call per hour is plenty. */
+export const TOP_ARTIST_TTL_MS = 60 * 60_000;
+/** After a failed call, retry sooner than the normal window. */
+const TOP_ARTIST_RETRY_MS = 60_000;
 const TOKEN_SKEW_MS = 30_000;
 const MAX_PLAYLIST_PAGES = 4;
 
@@ -42,16 +43,13 @@ export interface SpotifyStatus {
   playlistsSyncedAt: Date | null;
 }
 
-export interface NowPlaying {
-  isPlaying: boolean;
-  /** The current track while playing, otherwise the last one played. */
-  track: SpotifyTrack | null;
+export interface TopArtist {
+  /** Most listened artist of the last four weeks; null until known. */
+  artist: SpotifyArtist | null;
 }
 
-const IDLE: NowPlaying = { isPlaying: false, track: null };
-
 interface Cached<T> {
-  at: number;
+  expiresAt: number;
   value: Promise<T>;
 }
 
@@ -59,9 +57,8 @@ interface Cached<T> {
 export class SpotifyService {
   private readonly logger = new Logger(SpotifyService.name);
   private token: { value: string; expiresAt: number } | null = null;
-  private nowCache: Cached<NowPlaying> | null = null;
-  private recentCache: Cached<SpotifyTrack | null> | null = null;
-  private lastGood: NowPlaying = IDLE;
+  private topArtistCache: Cached<TopArtist> | null = null;
+  private lastGood: TopArtist = { artist: null };
 
   constructor(
     @InjectRepository(SpotifySettings)
@@ -140,9 +137,8 @@ export class SpotifyService {
   }
 
   private resetCaches() {
-    this.nowCache = null;
-    this.recentCache = null;
-    this.lastGood = IDLE;
+    this.topArtistCache = null;
+    this.lastGood = { artist: null };
   }
 
   /** Returns a valid access token, refreshing it when needed; null if not connected. */
@@ -239,47 +235,31 @@ export class SpotifyService {
     return (await this.loadSettings()).playlists;
   }
 
-  // --- now playing ----------------------------------------------------------
+  // --- top artist -----------------------------------------------------------
 
-  async getNowPlaying(): Promise<NowPlaying> {
-    const now = Date.now();
-    if (this.nowCache && now - this.nowCache.at < NOW_PLAYING_TTL_MS) return this.nowCache.value;
-    const value = this.fetchNowPlaying();
-    this.nowCache = { at: now, value };
+  async getTopArtist(): Promise<TopArtist> {
+    if (this.topArtistCache && this.topArtistCache.expiresAt > Date.now()) {
+      return this.topArtistCache.value;
+    }
+    const value = this.fetchTopArtist();
+    this.topArtistCache = { expiresAt: Date.now() + TOP_ARTIST_TTL_MS, value };
     return value;
   }
 
-  /** Never throws: the public widget falls back to the last good answer. */
-  private async fetchNowPlaying(): Promise<NowPlaying> {
+  /** Never throws: the public card falls back to the last good answer. */
+  private async fetchTopArtist(): Promise<TopArtist> {
     try {
-      if (!(await this.getAccessToken())) return IDLE;
-      const current = await this.get<{ is_playing?: boolean; item?: unknown }>(
-        '/me/player/currently-playing?additional_types=episode',
+      if (!(await this.getAccessToken())) return this.lastGood;
+      const body = await this.get<{ items?: unknown[] }>(
+        '/me/top/artists?time_range=short_term&limit=1',
       );
-      const track = current?.is_playing ? mapTrack(current.item) : null;
-      this.lastGood = track
-        ? { isPlaying: true, track }
-        : { isPlaying: false, track: await this.getLastPlayed() };
-      return this.lastGood;
+      this.lastGood = { artist: mapArtist(body?.items?.[0]) };
     } catch (err) {
-      this.logger.warn(`Now playing failed: ${err instanceof Error ? err.message : err}`);
-      return this.lastGood.isPlaying ? { ...this.lastGood, isPlaying: false } : this.lastGood;
+      this.logger.warn(`Top artist failed: ${err instanceof Error ? err.message : err}`);
+      // e.g. a token granted before the user-top-read scope existed: retry soon, not in an hour
+      if (this.topArtistCache) this.topArtistCache.expiresAt = Date.now() + TOP_ARTIST_RETRY_MS;
     }
-  }
-
-  private getLastPlayed(): Promise<SpotifyTrack | null> {
-    const now = Date.now();
-    if (this.recentCache && now - this.recentCache.at < RECENT_TTL_MS) {
-      return this.recentCache.value;
-    }
-    const value = this.get<{ items?: { track?: unknown }[] }>('/me/player/recently-played?limit=1')
-      .then((body) => mapTrack(body?.items?.[0]?.track))
-      .catch((err) => {
-        this.recentCache = null;
-        throw err;
-      });
-    this.recentCache = { at: now, value };
-    return value;
+    return this.lastGood;
   }
 
   private async wrapped<T>(fn: () => Promise<T>): Promise<T> {

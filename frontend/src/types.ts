@@ -213,10 +213,8 @@ export interface ReadingStats {
   byYear: { year: number; books: number; pages: number }[];
 }
 
-export interface SpotifyTrack {
-  title: string;
-  artists: string;
-  album: string;
+export interface SpotifyArtist {
+  name: string;
   imageUrl: string | null;
   url: string | null;
 }
@@ -230,10 +228,9 @@ export interface SpotifyPlaylist {
   isPublic: boolean;
 }
 
-export interface SpotifyNowPlaying {
-  isPlaying: boolean;
-  /** The current track while playing, otherwise the last one played. */
-  track: SpotifyTrack | null;
+export interface SpotifyTopArtist {
+  /** Most listened artist of the last four weeks. */
+  artist: SpotifyArtist | null;
 }
 
 export interface SpotifyStatus {

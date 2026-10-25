@@ -13,7 +13,7 @@ import type {
   Project,
   ProjectInput,
   ReadingStats,
-  SpotifyNowPlaying,
+  SpotifyTopArtist,
   SpotifyPlaylist,
   SpotifyStatus,
   SupportCard,
@@ -96,7 +96,7 @@ export const api = {
   syncGoodreads: (adminKey: string) =>
     send<GoodreadsSyncResult>('POST', '/goodreads/sync', adminKey),
 
-  getSpotifyNowPlaying: () => request<SpotifyNowPlaying>('/spotify/now-playing'),
+  getSpotifyTopArtist: () => request<SpotifyTopArtist>('/spotify/top-artist'),
   getSpotifyPlaylists: () => request<SpotifyPlaylist[]>('/spotify/playlists'),
   getSpotifyStatus: (adminKey: string) => send<SpotifyStatus>('GET', '/spotify', adminKey),
   getSpotifyAuthUrl: (adminKey: string) =>

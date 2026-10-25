@@ -1,9 +1,9 @@
-/* Spotify: now playing bar, playlist cards and the admin picker */
-.spotify-now {
+/* Spotify: top artist card, playlist cards and the admin picker */
+.spotify-artist {
   display: flex;
   align-items: center;
   gap: 1.1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   padding: 1rem 1.2rem;
   background: #262320;
   border: 1px solid #3a3733;
@@ -12,72 +12,34 @@
   transition: border-color 0.28s var(--ease-out-back);
 }
 
-a.spotify-now:hover,
-.spotify-now.is-live {
+a.spotify-artist:hover {
   border-color: var(--color-yellow);
 }
 
-.spotify-now-art {
+.spotify-artist-art {
   flex: none;
   width: 4.5rem;
   height: 4.5rem;
-  border-radius: 10px;
+  border-radius: 50%;
   object-fit: cover;
   background: #1b1917;
 }
 
-.spotify-now-info {
+.spotify-artist-info {
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.spotify-now-info .folio-card-title,
-.spotify-now-info .folio-card-sub {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.spotify-artist-info .folio-card-title {
+  overflow-wrap: anywhere;
 }
 
-.spotify-eq {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 0.8rem;
-  margin-right: 0.5rem;
-}
-
-.spotify-eq i {
-  width: 3px;
-  height: 100%;
-  background: var(--color-yellow);
-  transform-origin: bottom;
-  animation: spotify-eq 0.9s ease-in-out infinite;
-}
-
-.spotify-eq i:nth-child(2) {
-  animation-delay: 0.3s;
-}
-
-.spotify-eq i:nth-child(3) {
-  animation-delay: 0.6s;
-}
-
-@keyframes spotify-eq {
-  0%,
-  100% {
-    transform: scaleY(0.25);
-  }
-  50% {
-    transform: scaleY(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .spotify-eq i {
-    animation: none;
-  }
+.spotify-note {
+  margin-bottom: 1rem;
+  color: var(--color-ink-dim);
+  font-size: 0.95rem;
 }
 
 .spotify-grid {

@@ -97,12 +97,11 @@ const es = {
     } as Record<Filter, string>,
   },
   spotify: {
-    eyebrow: 'LO QUE ESTOY ESCUCHANDO',
+    eyebrow: 'LO QUE ESCUCHO',
     title: 'MI MÚSICA',
-    accent: 'AHORA',
-    nowPlaying: 'Escuchando ahora',
-    lastPlayed: 'Último escuchado',
-    playlists: 'Playlists',
+    accent: 'DEL MES',
+    topArtist: 'Artista más escuchado del mes',
+    playlistsNote: 'Algunas de mis playlists.',
     tracks: (n: number) => (n === 1 ? '1 tema' : `${n} temas`),
     open: 'Abrir en Spotify',
   },
@@ -305,7 +304,7 @@ const es = {
     },
     spotify: {
       title: 'SPOTIFY',
-      hint: 'Elegí qué playlists se muestran en la página de inicio. Lo que estás escuchando se muestra solo.',
+      hint: 'Elegí qué playlists se muestran en la página de inicio. Tu artista más escuchado del mes se muestra solo.',
       notConfigured:
         'Falta configurar Spotify en el servidor (SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET y SPOTIFY_REDIRECT_URI).',
       notConnected: 'Todavía no conectaste tu cuenta de Spotify.',
@@ -543,12 +542,11 @@ const en: Dictionary = {
     },
   },
   spotify: {
-    eyebrow: 'WHAT I AM LISTENING TO',
+    eyebrow: 'WHAT I LISTEN TO',
     title: 'MY MUSIC',
-    accent: 'RIGHT NOW',
-    nowPlaying: 'Now playing',
-    lastPlayed: 'Last played',
-    playlists: 'Playlists',
+    accent: 'THIS MONTH',
+    topArtist: 'Most listened artist this month',
+    playlistsNote: 'Some of my playlists.',
     tracks: (n: number) => (n === 1 ? '1 track' : `${n} tracks`),
     open: 'Open in Spotify',
   },
@@ -748,7 +746,7 @@ const en: Dictionary = {
     },
     spotify: {
       title: 'SPOTIFY',
-      hint: 'Pick which playlists show on the home page. What you are listening to shows up on its own.',
+      hint: 'Pick which playlists show on the home page. Your most listened artist of the month shows up on its own.',
       notConfigured:
         'Spotify is not configured on the server (SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET and SPOTIFY_REDIRECT_URI).',
       notConnected: 'You have not connected your Spotify account yet.',

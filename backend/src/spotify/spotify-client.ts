@@ -3,12 +3,7 @@ import { FetchFn } from '../goodreads/goodreads-client';
 
 export { FetchFn };
 
-export const SPOTIFY_SCOPES = [
-  'user-read-currently-playing',
-  'user-read-playback-state',
-  'user-read-recently-played',
-  'playlist-read-private',
-];
+export const SPOTIFY_SCOPES = ['user-top-read', 'playlist-read-private'];
 
 const ACCOUNTS = 'https://accounts.spotify.com';
 const API = 'https://api.spotify.com/v1';
@@ -21,10 +16,8 @@ export interface SpotifyConfig {
   redirectUri: string;
 }
 
-export interface SpotifyTrack {
-  title: string;
-  artists: string;
-  album: string;
+export interface SpotifyArtist {
+  name: string;
   imageUrl: string | null;
   url: string | null;
 }
@@ -136,7 +129,7 @@ export const exchangeCode = (fetchFn: FetchFn, cfg: SpotifyConfig, code: string)
 export const refreshAccessToken = (fetchFn: FetchFn, cfg: SpotifyConfig, refreshToken: string) =>
   requestToken(fetchFn, cfg, { grant_type: 'refresh_token', refresh_token: refreshToken });
 
-/** GET against the Web API. Returns null on 204 (e.g. nothing is playing). */
+/** GET against the Web API. Returns null on 204 . */
 export async function spotifyGet<T>(
   fetchFn: FetchFn,
   accessToken: string,
@@ -175,18 +168,12 @@ function pickImage(images: RawImage[] | undefined): string | null {
   return (mid ?? images[0]).url ?? null;
 }
 
-/** Maps a track or podcast episode; returns null for anything unusable. */
-export function mapTrack(item: any): SpotifyTrack | null {
-  if (!item?.name) return null;
-  const artists: string = Array.isArray(item.artists)
-    ? item.artists.map((a: any) => a.name).filter(Boolean).join(', ')
-    : (item.show?.publisher ?? '');
+export function mapArtist(raw: any): SpotifyArtist | null {
+  if (!raw?.name) return null;
   return {
-    title: item.name,
-    artists,
-    album: item.album?.name ?? item.show?.name ?? '',
-    imageUrl: pickImage(item.album?.images ?? item.images),
-    url: item.external_urls?.spotify ?? null,
+    name: raw.name,
+    imageUrl: pickImage(raw.images),
+    url: raw.external_urls?.spotify ?? null,
   };
 }
 

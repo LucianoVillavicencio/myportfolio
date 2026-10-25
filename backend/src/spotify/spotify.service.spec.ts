@@ -12,11 +12,10 @@ const CONFIG = { clientId: 'id', clientSecret: 'secret', redirectUri: 'http://x/
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
-const track = (name: string) => ({
+const artist = (name: string) => ({
   name,
-  artists: [{ name: 'Artist A' }, { name: 'Artist B' }],
-  album: { name: 'Album', images: [{ url: 'https://img/640', width: 640 }, { url: 'https://img/300', width: 300 }] },
-  external_urls: { spotify: `https://open.spotify.com/track/${name}` },
+  images: [{ url: 'https://img/640', width: 640 }, { url: 'https://img/300', width: 300 }],
+  external_urls: { spotify: `https://open.spotify.com/artist/${name}` },
 });
 
 const playlist = (id: string, extra: object = {}) => ({
@@ -76,66 +75,50 @@ describe('SpotifyService', () => {
     expect(await service.getStatus()).toMatchObject({ configured: true, connected: true });
   });
 
-  it('is idle when not connected, without calling Spotify', async () => {
+  it('has no top artist when not connected, without calling Spotify', async () => {
     await build();
-    expect(await service.getNowPlaying()).toEqual({ isPlaying: false, track: null });
+    expect(await service.getTopArtist()).toEqual({ artist: null });
     expect(fakeFetch).not.toHaveBeenCalled();
   });
 
-  it('returns the current track while playing', async () => {
+  it('returns the top artist of the last four weeks', async () => {
     await build();
     await connect();
-    routes['currently-playing'] = () => json({ is_playing: true, item: track('Song') });
-    const result = await service.getNowPlaying();
-    expect(result).toEqual({
-      isPlaying: true,
-      track: {
-        title: 'Song',
-        artists: 'Artist A, Artist B',
-        album: 'Album',
+    routes['/me/top/artists'] = () => json({ items: [artist('Cerati')] });
+    expect(await service.getTopArtist()).toEqual({
+      artist: {
+        name: 'Cerati',
         imageUrl: 'https://img/300',
-        url: 'https://open.spotify.com/track/Song',
+        url: 'https://open.spotify.com/artist/Cerati',
       },
     });
+    expect(fakeFetch.mock.calls.find(([u]) => String(u).includes('/me/top/artists'))?.[0]).toContain(
+      'time_range=short_term',
+    );
   });
 
-  it('falls back to the last played track when nothing is playing (204)', async () => {
+  it('shares one Spotify call between visitors for the cache window', async () => {
     await build();
     await connect();
-    routes['currently-playing'] = () => new Response(null, { status: 204 });
-    routes['recently-played'] = () => json({ items: [{ track: track('Old') }] });
-    const result = await service.getNowPlaying();
-    expect(result.isPlaying).toBe(false);
-    expect(result.track?.title).toBe('Old');
-  });
-
-  it('falls back to last played when paused', async () => {
-    await build();
-    await connect();
-    routes['currently-playing'] = () => json({ is_playing: false, item: track('Paused') });
-    routes['recently-played'] = () => json({ items: [{ track: track('Before') }] });
-    expect((await service.getNowPlaying()).track?.title).toBe('Before');
-  });
-
-  it('shares one Spotify call between concurrent visitors', async () => {
-    await build();
-    await connect();
-    routes['currently-playing'] = () => json({ is_playing: true, item: track('Song') });
-    await Promise.all([service.getNowPlaying(), service.getNowPlaying(), service.getNowPlaying()]);
-    expect(calls('currently-playing')).toBe(1);
+    routes['/me/top/artists'] = () => json({ items: [artist('Cerati')] });
+    await Promise.all([service.getTopArtist(), service.getTopArtist(), service.getTopArtist()]);
+    await service.getTopArtist();
+    expect(calls('/me/top/artists')).toBe(1);
     expect(calls('/api/token')).toBe(1);
   });
 
-  it('never throws: keeps the last track but stops claiming it is playing', async () => {
+  it('never throws: keeps the last artist and retries after a minute', async () => {
     await build();
     await connect();
-    routes['currently-playing'] = () => json({ is_playing: true, item: track('Song') });
-    await service.getNowPlaying();
-    jest.useFakeTimers({ now: Date.now() + 20_000, doNotFake: ['setImmediate', 'nextTick'] });
+    routes['/me/top/artists'] = () => json({ items: [artist('Cerati')] });
+    await service.getTopArtist();
+    jest.useFakeTimers({ now: Date.now() + 2 * 60 * 60_000, doNotFake: ['setImmediate', 'nextTick'] });
     try {
-      routes['currently-playing'] = () => json({ error: { message: 'boom' } }, 500);
-      const result = await service.getNowPlaying();
-      expect(result).toMatchObject({ isPlaying: false, track: { title: 'Song' } });
+      routes['/me/top/artists'] = () => json({ error: { message: 'boom' } }, 500);
+      expect((await service.getTopArtist()).artist?.name).toBe('Cerati');
+      jest.setSystemTime(Date.now() + 2 * 60_000);
+      routes['/me/top/artists'] = () => json({ items: [artist('Spinetta')] });
+      expect((await service.getTopArtist()).artist?.name).toBe('Spinetta');
     } finally {
       jest.useRealTimers();
     }
@@ -145,7 +128,7 @@ describe('SpotifyService', () => {
     await build();
     await connect();
     routes['/api/token'] = () => json({ error: 'invalid_grant' }, 400);
-    await service.getNowPlaying();
+    await service.getTopArtist();
     expect((await service.getStatus()).connected).toBe(false);
   });
 

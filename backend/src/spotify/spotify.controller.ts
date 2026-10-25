@@ -10,9 +10,9 @@ export class SpotifyController {
 
   // --- public ---------------------------------------------------------------
 
-  @Get('now-playing')
-  nowPlaying() {
-    return this.spotify.getNowPlaying();
+  @Get('top-artist')
+  topArtist() {
+    return this.spotify.getTopArtist();
   }
 
   @Get('playlists')
