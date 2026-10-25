@@ -34,6 +34,7 @@ const DEFAULT_PROFILE: Omit<Profile, 'updatedAt'> = {
   linkedinUrl: 'https://linkedin.com/in/lucianovillavicencio',
   instagramUrl: 'https://www.instagram.com/lucho.villavicencio/',
   readingGoal: null,
+  showReadingStats: true,
 };
 
 @Injectable()

@@ -9,6 +9,7 @@ backend/cv/
 
 .env
 .env.*
+!.env.example
 
 # Local tooling and working notes; never commit
 .claude/

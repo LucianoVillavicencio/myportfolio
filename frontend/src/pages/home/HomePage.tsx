@@ -7,6 +7,7 @@ import { ProjectsSection } from './ProjectsSection';
 import { SupportSection } from './SupportSection';
 import { TimelineSection } from './TimelineSection';
 import { ReadingSection } from './ReadingSection';
+import { SpotifySection } from './SpotifySection';
 import { ContactFooter } from './ContactFooter';
 
 export const HomePage: React.FC = () => {
@@ -26,6 +27,7 @@ export const HomePage: React.FC = () => {
       <SupportSection card={support.card} stories={support.stories} />
       <TimelineSection entries={timeline} />
       <ReadingSection books={books} />
+      <SpotifySection />
       <ContactFooter profile={profile} />
     </div>
   );

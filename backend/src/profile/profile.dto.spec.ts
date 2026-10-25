@@ -16,3 +16,17 @@ describe('UpdateProfileDto.readingGoal', () => {
     expect(validateSync(run(v))).not.toHaveLength(0);
   });
 });
+
+describe('UpdateProfileDto.showReadingStats', () => {
+  const run = (v: unknown) => plainToInstance(UpdateProfileDto, { showReadingStats: v });
+
+  it('accepts booleans and omission', () => {
+    expect(validateSync(run(true))).toHaveLength(0);
+    expect(validateSync(run(false))).toHaveLength(0);
+    expect(validateSync(plainToInstance(UpdateProfileDto, {}))).toHaveLength(0);
+  });
+
+  it.each(['yes', 1, null])('rejects %p', (v) => {
+    expect(validateSync(run(v))).not.toHaveLength(0);
+  });
+});

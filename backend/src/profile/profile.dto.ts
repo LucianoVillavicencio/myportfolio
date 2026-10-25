@@ -6,6 +6,7 @@ import {
   IsString,
   IsUrl,
   ValidateIf,
+  IsBoolean,
   IsInt,
   Min,
   Max,
@@ -84,4 +85,9 @@ export class UpdateProfileDto {
   @Min(1)
   @Max(500)
   readingGoal?: number | null;
+
+  // Not IsOptional: that would let null through to a NOT NULL column
+  @ValidateIf((_o, value) => value !== undefined)
+  @IsBoolean()
+  showReadingStats?: boolean;
 }

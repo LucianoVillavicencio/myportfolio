@@ -8,6 +8,7 @@ import { CaseStory } from '../src/support/case-story.entity';
 import { AnalyticsDaily } from '../src/analytics/analytics-daily.entity';
 import { Profile } from '../src/profile/profile.entity';
 import { GoodreadsSettings } from '../src/goodreads/goodreads-settings.entity';
+import { SpotifySettings } from '../src/spotify/spotify-settings.entity';
 
 /** In-memory sql.js database for service tests. */
 export function testDb(): DynamicModule {
@@ -18,6 +19,7 @@ export function testDb(): DynamicModule {
       Project,
       Profile,
       GoodreadsSettings,
+      SpotifySettings,
       TimelineEntry,
       SupportCard,
       CaseStory,

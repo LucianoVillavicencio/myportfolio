@@ -22,6 +22,8 @@ The SQLite file `backend/portfolio.sqlite` is created on first launch, with your
 
 ### Environment variables (backend)
 
+For local development, copy `backend/.env.example` to `backend/.env` and fill it in; it is git-ignored and only loaded outside production. Real environment variables always win.
+
 | Variable        | Default                          | Notes                                                        |
 | --------------- | -------------------------------- | ------------------------------------------------------------ |
 | `ADMIN_API_KEY` | `secret-admin-key` (dev only)    | **Required** when `NODE_ENV=production`.                     |
@@ -31,6 +33,8 @@ The SQLite file `backend/portfolio.sqlite` is created on first launch, with your
 | `RESEND_API_KEY` | _(unset)_                       | Optional. Resend API key for the contact form; without it `POST /api/contact` answers 503. |
 | `CONTACT_FROM`  | `Portfolio <onboarding@resend.dev>` | Sender of contact emails. With `onboarding@resend.dev` Resend only delivers to the Resend account's own address; verify a domain to send elsewhere. |
 | `CONTACT_TO`    | the profile email                | Where contact emails are delivered.                          |
+| `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` | _(unset)_             | Optional. Credentials of a Spotify developer app; see [Spotify](#spotify). |
+| `SPOTIFY_REDIRECT_URI` | _(unset)_                 | Must match a Redirect URI of that app, e.g. `https://your-site/api/spotify/callback`. |
 | `STATIC_DIR`    | `frontend/dist`                  | Built frontend served by Nest (the Docker image sets `/app/public`). |
 | `CORS_ORIGIN`   | any origin (dev), none (prod)    | Comma-separated allow-list, e.g. `https://example.com`. Not needed when Nest serves the frontend. |
 | `PORT`          | `3000`                           |                                                              |
@@ -45,6 +49,7 @@ Go to `/admin` (or press **Alt + A** / **Ctrl + Shift + A** anywhere) and enter 
 - **Support** — your IT support card and the case stories shown on the home page.
 - **Profile** — name, roles, intro text, availability, stack, email and social links shown in the hero and footer, and a yearly reading goal shown on `/books`.
 - **CV** — replace the Spanish and English CV PDFs opened from the home page. Uploads are stored next to the database (so on the Railway volume); until you upload one, the PDF bundled in `frontend/public/` is served.
+- **Spotify** — connect your account and pick (and order) the playlists shown on the home page. Your most listened artist of the last month (a Spotify "short term" top artist) shows above them with no setup.
 - **Analytics** — cookieless daily counters for page views, outbound clicks, contact submissions and CV downloads (counted server-side). Nothing is stored per visitor. Your own visits are not counted once you have logged in to `/admin` in that browser.
 - **Backup** — the **Descargar backup** button downloads a zip with the SQLite database, the uploaded CV PDFs and the uploaded images.
 
@@ -77,6 +82,14 @@ The contact form sends mail through [Resend](https://resend.com). It is optional
 4. Optional: set `CONTACT_TO` if the messages should go somewhere other than the profile email.
 
 Until a domain is verified, Resend only delivers to the email address of your Resend account, so keep the default `CONTACT_FROM` for testing only.
+
+### Spotify
+
+1. Create an app at <https://developer.spotify.com/dashboard> and add a Redirect URI (`http://127.0.0.1:3000/api/spotify/callback` locally, `https://<your-domain>/api/spotify/callback` in production).
+2. Set `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET` and `SPOTIFY_REDIRECT_URI` on the backend.
+3. In `/admin` → **Spotify**, press **Connect Spotify**, approve access, then pick your playlists.
+
+The refresh token is stored in the SQLite database (so it is part of the backup zip). Visitors never call Spotify: the playlists are a snapshot refreshed hourly, and the top artist is cached on the server for an hour.
 
 ### Backups
 

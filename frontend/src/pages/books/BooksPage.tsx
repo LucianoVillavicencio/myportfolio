@@ -18,7 +18,7 @@ type ShelfTab = 'ALL' | ReadingStatus;
 const TABS: ShelfTab[] = ['ALL', 'READING', 'WANT_TO_READ', 'COMPLETED'];
 
 export const BooksPage: React.FC = () => {
-  const { books } = usePortfolioData();
+  const { books, profile } = usePortfolioData();
   const { isAdmin } = useAdminAuth();
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<ShelfTab>('ALL');
@@ -112,7 +112,7 @@ export const BooksPage: React.FC = () => {
       </header>
 
       <main className="pf-gallery-wrap bf-shelves-wrap">
-        <ReadingStats books={books} />
+        {profile?.showReadingStats !== false && <ReadingStats books={books} />}
         {shows('READING') && (
           <ShelfSection
             heading={shelves.reading.heading}

@@ -92,10 +92,11 @@ export interface Profile {
   linkedinUrl: string | null;
   instagramUrl: string | null;
   readingGoal: number | null;
+  showReadingStats: boolean;
 }
 
 export type ProfileInput = {
-  [K in keyof Profile]: string;
+  [K in keyof Profile]: K extends 'showReadingStats' ? boolean : string;
 };
 
 export type GoodreadsSyncStatus =
@@ -211,4 +212,31 @@ export interface ReadingStats {
   goal: number | null;
   averageRating: number | null;
   byYear: { year: number; books: number; pages: number }[];
+}
+
+export interface SpotifyArtist {
+  name: string;
+  imageUrl: string | null;
+  url: string | null;
+}
+
+export interface SpotifyPlaylist {
+  id: string;
+  name: string;
+  imageUrl: string | null;
+  url: string | null;
+  trackCount: number | null;
+  isPublic: boolean;
+}
+
+export interface SpotifyTopArtist {
+  /** Most listened artist of the last four weeks. */
+  artist: SpotifyArtist | null;
+}
+
+export interface SpotifyStatus {
+  configured: boolean;
+  connected: boolean;
+  selectedIds: string[];
+  playlistsSyncedAt: string | null;
 }
