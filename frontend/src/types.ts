@@ -92,10 +92,11 @@ export interface Profile {
   linkedinUrl: string | null;
   instagramUrl: string | null;
   readingGoal: number | null;
+  showReadingStats: boolean;
 }
 
 export type ProfileInput = {
-  [K in keyof Profile]: string;
+  [K in keyof Profile]: K extends 'showReadingStats' ? boolean : string;
 };
 
 export type GoodreadsSyncStatus =

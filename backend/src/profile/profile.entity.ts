@@ -63,6 +63,10 @@ export class Profile {
   @Column({ type: 'int', nullable: true })
   readingGoal: number | null;
 
+  /** Shows the reading stats panel on the bookshelf page. */
+  @Column({ type: 'boolean', default: true })
+  showReadingStats: boolean;
+
   @UpdateDateColumn()
   updatedAt: Date;
 }

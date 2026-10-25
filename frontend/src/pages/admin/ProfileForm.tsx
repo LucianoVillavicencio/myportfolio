@@ -34,6 +34,7 @@ const PROFILE_FIELDS: (keyof ProfileInput)[] = [
   'linkedinUrl',
   'instagramUrl',
   'readingGoal',
+  'showReadingStats',
 ];
 
 /** Translatable profile fields, as the base name shared by their Es/En pair. */
@@ -46,12 +47,12 @@ export const ProfileForm: React.FC<{ profile: Profile }> = ({ profile }) => {
   const { run, isBusy, error } = useAdminMutation();
   const [saved, setSaved] = useState(false);
 
-  const update = (key: keyof ProfileInput, value: string) => {
+  const update = <K extends keyof ProfileInput>(key: K, value: ProfileInput[K]) => {
     setSaved(false);
     setField(key, value);
   };
 
-  const text = (key: keyof ProfileInput) => ({
+  const text = (key: Exclude<keyof ProfileInput, 'showReadingStats'>) => ({
     value: values[key],
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => update(key, e.target.value),
   });
@@ -115,6 +116,16 @@ export const ProfileForm: React.FC<{ profile: Profile }> = ({ profile }) => {
             <input type="number" min={1} max={500} step={1} {...text('readingGoal')} />
           </FormField>
         </div>
+
+        <label className="admin-checkbox">
+          <input
+            type="checkbox"
+            checked={values.showReadingStats}
+            onChange={(e) => update('showReadingStats', e.target.checked)}
+          />
+          {labels.showReadingStats}
+        </label>
+        {!values.showReadingStats && <p className="admin-hint">{t.admin.profile.statsHiddenHint}</p>}
 
         {error && <p className="form-error">{error}</p>}
         {saved && <p className="form-success">{t.admin.profile.saved}</p>}
