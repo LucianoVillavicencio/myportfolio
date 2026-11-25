@@ -160,6 +160,22 @@ export async function uploadCv(lang: CvLang, file: File, adminKey: string): Prom
   return res.json();
 }
 
+/** Imports a Goodreads library export CSV (`goodreads_library_export.csv`). */
+export async function importGoodreadsCsv(
+  file: File,
+  adminKey: string,
+): Promise<GoodreadsSyncResult> {
+  const body = new FormData();
+  body.append('file', file);
+  const res = await fetch(`${API_BASE}/goodreads/import`, {
+    method: 'POST',
+    headers: { 'x-admin-key': adminKey },
+    body,
+  });
+  if (!res.ok) return throwApiError(res);
+  return res.json();
+}
+
 /** Uploads an image (PNG, JPEG or WebP) and returns its public URL. */
 export async function uploadMedia(file: File, adminKey: string): Promise<{ url: string }> {
   const body = new FormData();

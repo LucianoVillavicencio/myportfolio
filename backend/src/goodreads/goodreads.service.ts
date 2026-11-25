@@ -16,7 +16,12 @@ import {
   GoodreadsSettings,
   SyncStatus,
 } from './goodreads-settings.entity';
-import { extractGoodreadsUserId, GoodreadsFeedError } from './goodreads-feed';
+import {
+  extractGoodreadsUserId,
+  GoodreadsFeedError,
+  GoodreadsItem,
+} from './goodreads-feed';
+import { parseGoodreadsCsv } from './goodreads-csv';
 import { FetchFn, fetchGoodreadsLibrary } from './goodreads-client';
 import { EmptyFeedError, planSync, SyncResult } from './sync-plan';
 
@@ -118,8 +123,46 @@ export class GoodreadsService implements OnApplicationBootstrap {
     }
   }
 
+  async importCsv(csv: string): Promise<SyncResult> {
+    if (this.isSyncing) throw new ConflictException('A sync is already running');
+    this.isSyncing = true;
+    try {
+      const settings = await this.loadSettings();
+      let items: GoodreadsItem[];
+      try {
+        items = parseGoodreadsCsv(csv);
+      } catch (err) {
+        if (err instanceof GoodreadsFeedError) {
+          throw new BadRequestException(err.message);
+        }
+        throw err;
+      }
+      try {
+        const result = await this.applyFeed(items, settings);
+        await this.record({ ok: true, ...result });
+        return result;
+      } catch (err) {
+        const message = (err as Error).message;
+        await this.record({ ok: false, error: message });
+        if (err instanceof EmptyFeedError) {
+          throw new BadRequestException(message);
+        }
+        throw err;
+      }
+    } finally {
+      this.isSyncing = false;
+    }
+  }
+
   private async runSync(settings: GoodreadsSettings): Promise<SyncResult> {
     const feed = await fetchGoodreadsLibrary(settings.userId as string, this.fetchFn);
+    return this.applyFeed(feed, settings);
+  }
+
+  private async applyFeed(
+    feed: GoodreadsItem[],
+    settings: GoodreadsSettings,
+  ): Promise<SyncResult> {
     return this.dataSource.transaction(async (manager) => {
       const bookRepo = manager.getRepository(Book);
       // Re-read dismissals: one may have been added while the feed was fetching.

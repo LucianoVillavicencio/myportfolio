@@ -83,9 +83,32 @@ describe('planSync', () => {
     expect(plan.update).toEqual([]);
   });
 
-  it('keeps totalPages when feed has none', () => {
-    const b = book({ id: 'a', goodreadsId: '1', totalPages: 320 });
-    const plan = planSync([item({ goodreadsId: '1', totalPages: null })], [b], []);
+  it('keeps totalPages and coverUrl when feed has none', () => {
+    const b = book({
+      id: 'a',
+      goodreadsId: '1',
+      totalPages: 320,
+      coverUrl: 'https://i.gr-assets.com/dune.jpg',
+    });
+    const plan = planSync(
+      [item({ goodreadsId: '1', totalPages: null, coverUrl: null })],
+      [b],
+      [],
+    );
+    expect(plan.update).toEqual([]);
+  });
+
+  it('does not overwrite a fuller review with a truncated widget snippet', () => {
+    const b = book({
+      id: 'a',
+      goodreadsId: '1',
+      thoughts: 'A very long and thoughtful review of the whole novel.',
+    });
+    const plan = planSync(
+      [item({ goodreadsId: '1', thoughts: 'A very long and thoughtful...' })],
+      [b],
+      [],
+    );
     expect(plan.update).toEqual([]);
   });
 

@@ -1,38 +1,44 @@
 import { fetchGoodreadsLibrary, FetchFn } from './goodreads-client';
 import { GoodreadsFeedError } from './goodreads-feed';
 
-function rss(ids: string[]): string {
+function widget(ids: string[]): string {
   const items = ids
     .map(
       (id) =>
-        `<item><book_id>${id}</book_id><title>Book ${id}</title><author_name>Author</author_name></item>`,
+        `<div class="gr_custom_each_container_">` +
+        `<div class="gr_custom_book_container_"><a title="Book ${id}" href="https://www.goodreads.com/review/show/${id}"><img src="https://i.gr-assets.com/books/1l/${id}._SY75_.jpg" /></a></div>` +
+        `<div class="gr_custom_title_"><a href="https://www.goodreads.com/review/show/${id}">Book ${id}</a></div>` +
+        `<div class="gr_custom_author_">by <a href="/a">Author</a></div>` +
+        `</div>`,
     )
     .join('');
-  return `<?xml version="1.0"?><rss version="2.0"><channel><title>x</title>${items}</channel></rss>`;
+  const escaped = `<div class="gr_custom_container_">${items}</div>`
+    .replace(/"/g, '\\"')
+    .replace(/\//g, '\\/');
+  return `var widget_code = '${escaped}'`;
 }
 
-type Pages = Record<string, string[] | number>;
+type Shelves = Record<string, string[] | number>;
 
-/** pages keyed "shelf:page" -> ids (200) or a status code; missing = empty feed */
-function makeFake(pages: Pages) {
+/** shelves keyed by shelf name -> ids (200) or a status code; missing = empty shelf */
+function makeFake(shelves: Shelves) {
   const requestedUrls: string[] = [];
   const fake: FetchFn = async (url) => {
     requestedUrls.push(url);
     const u = new URL(url);
-    const key = `${u.searchParams.get('shelf')}:${u.searchParams.get('page')}`;
-    const entry = pages[key] ?? [];
+    const shelf = u.searchParams.get('shelf') ?? '';
+    const entry = shelves[shelf] ?? [];
     if (typeof entry === 'number') return new Response('err', { status: entry });
-    return new Response(rss(entry), { status: 200 });
+    return new Response(widget(entry), { status: 200 });
   };
   return { fake, requestedUrls };
 }
 
 describe('fetchGoodreadsLibrary', () => {
-  it('fetches pages until an empty page and tags status by shelf', async () => {
+  it('fetches each shelf via custom_widget and tags status by shelf', async () => {
     const { fake, requestedUrls } = makeFake({
-      'read:1': ['1', '2'],
-      'read:2': ['3'],
-      'currently-reading:1': ['4'],
+      read: ['1', '2', '3'],
+      'currently-reading': ['4'],
     });
     const items = await fetchGoodreadsLibrary('42', fake);
     expect(items.map((i) => [i.goodreadsId, i.status]).sort()).toEqual([
@@ -42,36 +48,29 @@ describe('fetchGoodreadsLibrary', () => {
       ['4', 'READING'],
     ]);
     expect(requestedUrls).toContain(
-      'https://www.goodreads.com/review/list_rss/42?shelf=read&page=2',
+      'https://www.goodreads.com/review/custom_widget/42.read?shelf=read&num_books=100&widget_id=read',
     );
-  });
-
-  it('stops when a page repeats only known ids', async () => {
-    const pages: Pages = {};
-    for (let p = 1; p <= 60; p++) pages[`read:${p}`] = ['1', '2'];
-    const { fake } = makeFake(pages);
-    await expect(fetchGoodreadsLibrary('42', fake)).resolves.toHaveLength(2);
   });
 
   it('prefers currently-reading over read over to-read for the same book', async () => {
     const { fake } = makeFake({
-      'currently-reading:1': ['7'],
-      'read:1': ['7'],
-      'to-read:1': ['7'],
+      'currently-reading': ['7'],
+      read: ['7'],
+      'to-read': ['7'],
     });
     const items = await fetchGoodreadsLibrary('42', fake);
     expect(items).toHaveLength(1);
     expect(items[0].status).toBe('READING');
   });
 
-  it('throws when a later page fails', async () => {
-    const { fake } = makeFake({ 'read:1': ['1'], 'read:2': 503 });
+  it('throws when a shelf returns an HTTP error', async () => {
+    const { fake } = makeFake({ 'currently-reading': ['1'], read: 503 });
     await expect(fetchGoodreadsLibrary('42', fake)).rejects.toThrow(
       GoodreadsFeedError,
     );
   });
 
-  it('throws when a shelf returns HTML', async () => {
+  it('throws when Goodreads returns an invalid or sign-in HTML page', async () => {
     const htmlFake: FetchFn = async () =>
       new Response('<html><body>Sign in</body></html>', { status: 200 });
     await expect(fetchGoodreadsLibrary('42', htmlFake)).rejects.toThrow(
@@ -91,7 +90,7 @@ describe('fetchGoodreadsLibrary', () => {
     let signal: AbortSignal | null | undefined;
     const spy: FetchFn = async (_url, init) => {
       signal = init?.signal;
-      return new Response(rss([]), { status: 200 });
+      return new Response(widget([]), { status: 200 });
     };
     await fetchGoodreadsLibrary('42', spy);
     expect(signal).toBeInstanceOf(AbortSignal);

@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { GoodreadsStatus } from '../../../types';
-import { ApiError, api } from '../../../lib/api';
+import { ApiError, api, importGoodreadsCsv } from '../../../lib/api';
 import { useAdminAuth } from '../../../context/AdminAuthContext';
 import { useI18n } from '../../../i18n/LanguageContext';
 import { useAdminMutation } from '../useAdminMutation';
 
-/** Connects the site to a public Goodreads profile and triggers manual syncs. */
+/** Connects the site to a public Goodreads profile and triggers manual syncs or CSV imports. */
 export const GoodreadsPanel: React.FC<{ refreshKey?: number }> = ({ refreshKey = 0 }) => {
   const { adminKey } = useAdminAuth();
   const { t, locale } = useI18n();
@@ -14,6 +14,8 @@ export const GoodreadsPanel: React.FC<{ refreshKey?: number }> = ({ refreshKey =
   const [status, setStatus] = useState<GoodreadsStatus | null>(null);
   const [input, setInput] = useState('');
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const refresh = useCallback(async () => {
     if (!adminKey) return;
@@ -44,6 +46,19 @@ export const GoodreadsPanel: React.FC<{ refreshKey?: number }> = ({ refreshKey =
     await refresh();
   };
 
+  const handleCsvChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setImporting(true);
+    try {
+      await run((key) => importGoodreadsCsv(file, key));
+      await refresh();
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const last = status?.lastSyncResult;
   const syncing = isBusy || status?.isSyncing;
 
@@ -71,8 +86,23 @@ export const GoodreadsPanel: React.FC<{ refreshKey?: number }> = ({ refreshKey =
           disabled={syncing || !status?.userId}
           onClick={sync}
         >
-          {syncing ? copy.syncing : copy.sync}
+          {syncing && !importing ? copy.syncing : copy.sync}
         </button>
+        <button
+          type="button"
+          className="btn-ghost"
+          disabled={syncing}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          {importing ? copy.importing : copy.importCsv}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".csv,text/csv"
+          hidden
+          onChange={handleCsvChange}
+        />
         <span className="goodreads-meta">
           {status?.lastSyncAt
             ? `${copy.lastSync}: ${new Date(status.lastSyncAt).toLocaleString(locale)}`

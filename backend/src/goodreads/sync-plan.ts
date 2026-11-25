@@ -23,7 +23,7 @@ export function normalizeForMatch(s: string): string {
     .trim();
 }
 
-/** Synced fields where the book differs from the feed. A null feed totalPages is ignored. */
+/** Synced fields where the book differs from the feed. Null cover/pages and truncated snippets are ignored. */
 function differingFields(item: GoodreadsItem, book: Book): SyncedField[] {
   return SYNCED_FIELDS.filter((field) => {
     if (field === 'finishedAt') {
@@ -32,7 +32,17 @@ function differingFields(item: GoodreadsItem, book: Book): SyncedField[] {
       return book.finishedAt?.getTime() !== item.readAt.getTime();
     }
     const value = item[field];
-    if (field === 'totalPages' && value === null) return false;
+    if ((field === 'totalPages' || field === 'coverUrl') && value === null) return false;
+    if (
+      field === 'thoughts' &&
+      typeof value === 'string' &&
+      value.endsWith('...') &&
+      book.thoughts &&
+      book.thoughts.length > value.length &&
+      book.thoughts.startsWith(value.slice(0, -3))
+    ) {
+      return false;
+    }
     return book[field] !== value;
   });
 }
